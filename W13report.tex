@@ -1,0 +1,115 @@
+\documentclass[prd, nofootinbib, floatfix, 11pt,tightenlines,times]{article}
+
+\usepackage[paperwidth=8.5in,paperheight=11in,centering,margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsbsy}
+\usepackage{natbib}
+\usepackage{rotating}
+\input epsf
+\usepackage{amsmath}
+\usepackage{wasysym}
+\usepackage{subfigure}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{color}
+%\usepackage{ulem}
+%\usepackage{epstopdf}
+
+%\renewcommand{\baselinestretch}{0.98}
+\usepackage{epsfig}
+\usepackage{titletoc}
+
+% HOW TO SET UP AN 8.5 x 11:
+% http://www.pages.drexel.edu/~pyo22/students/latexRelated/latexTutorial.html
+\topmargin -1.5cm        % read Lamport p.163
+\oddsidemargin -0.04cm   % read Lamport p.163
+\evensidemargin -0.04cm  % same as oddsidemargin but for left-hand pages
+\textwidth 16.59cm
+\textheight 21.94cm 
+\parskip 7.2pt           % sets spacing between paragraphs
+\parindent 0pt		     % sets leading space for paragraphs
+
+\author{Andrew Becker, Simon Krughoff, Andrew Connolly, Russell Owen}
+\title{Summary of Late Winter2013 Production: ip\_diffim}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+We summarize
+
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{KernelCandidate Statistics}
+
+\subsection{Mean Squared Error}
+
+In order to investigate the bias--variance trade--off in the overall
+fit, we calculate the MSE of each KernelCandidate's difference image
+derived from the evaluation of the spatial model at that location.  We
+define the bias as $\left| data - model \right|$, the variance as
+$\left| (data - model)^2 \right|$, and the MSE as {\tt bias$^2$ +
+  variance}.  In this context, the bias is the mean of the difference
+image, and the variance is the mean square of the difference image.
+In both cases, we normalize by the square root of the variance so that
+pixels are in units of sigma.
+
+\subsection{Reduced $\chi^2$}
+
+\section{Dependencies of False Positive Rate}
+
+After finding the configurations that yielded the minimal numbers of
+false positives, we then perturbed the solutions to examine how the
+numbers of false positives scaled with different effects.  This
+included, in order of importance for this production: the difference
+image detection threshold; the number of KernelCandidates going into
+the spatial model; and astrometric registration errors.
+
+\subsection{Detection Threshold}
+
+\subsection{Number of KernelCandidates}
+
+\subsection{Registration Errors}
+
+We implemented two simple perturbations of the inputs to the
+image--to--image RegisterTask: we first added a random offset to each
+object's (x,y)-coordinates, with an amplitude that was specified in
+the Config and multiplied by a random number pulled from a normal
+distribution; and we added a DC offset to the coordinates at an
+amplitude specified in the Config.  These offsets, added to the Source
+coordinates, will affect misalignments of the objects in the
+registered images, as the registration is done assuming the specified
+positions are correct.  In this way we are able to investigate how
+random uncertainties and bulk astrometric offsets impact the false
+positive rate.  We explicitly do {\it not} investigate spatial
+variation in these offsets, using for example a pincushion distortion.
+We anticipate that this latter effect will be most important for
+spatial interpolation and extrapolation of the matching kernel,
+yielding a dipole residual field associated with the distortion.
+However, the ability of the software to model out these spatial
+distortions will certainly fail if the local kernel solutions (from
+which the spatial model is derived) are unable to compensate for
+misalignments.
+
+\subsubsection{Coordinate RMS}
+
+We perturbed the coordinates of each template Source that was input to
+RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
+0.175, 0.2, 0.3, 0.4) pixels, and to randomize the offsets multiplied
+each offset by a number pulled from a normal (0,1) distribution.  The
+output RMS reported by RegisterTask was noted to track these offsets.
+
+The false positive rate was not seen to vary significantly.
+
+\subsubsection{Coordinate Offsets}
+
+We offset the coordinates of each template Source that was input to
+RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
+0.175, 0.2, 0.3, 0.4, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0) pixels.
+Post--registration, this will offset the positions of sources in the
+two images by the desired amount.
+
+\end{document}
