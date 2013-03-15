@@ -43,6 +43,84 @@ We summarize
 \tableofcontents
 \clearpage
 
+\section{Introduction}
+
+The focus of this production is to ascertain the ability of the LSST
+software stack to provide clean subtractions between a science image
+and a reference image (referred to as the template image below).  The
+science image will typically be a single--epoch {\tt calexp}, while
+the template image will be a high signal--to--noise representation of
+the field, typically a {\tt coadd}.
+
+The metric we use to define ``clean'' is the nubmer of false positives
+that are detected and measured on the image difference.  We calculate
+several additional quality metrics during the image subtraction
+process, and correlate them with the number of false positives, as a
+means to predict the number of false positives we may expect
+downstream from the image subtraction itself.
+
+\subsection{Algorithm}
+
+We establish the math behind the process below.  
+
+We assume that science image $S(x,y)$ can be modeled as a convolution
+of the template image $T(x,y)$ by a single PSF--matching kernel
+$K(u,v,x,y)$.  We assume that the kernel may be decomposed using a set
+of basis functions $K(u,v) = \sum_i a_i K_i(u,v)$, where the coefficients
+in front of each basis are determiend through:
+%
+\begin{eqnarray}
+C_i & \equiv & (K_i \otimes T) \\ \nonumber
+b_{i}  & = & \sum_{x,y} {{C_i(x,y) S(x,y)}\over{\sigma^2(x,y)}}   \nonumber \\ 
+M_{ij} & = & \sum_{x,y} {{C_i(x,y) C_j(x,y)}\over{\sigma^2(x,y)}}  \nonumber \\ 
+a_{i}  & = & M^{-1}_{ij} b_{j} \nonumber 
+\end{eqnarray}
+where $\sigma^2(x,y)$ is the per--pixel variance stored in the {\tt
+  variance} plane of each LSST {\tt exposure}.  To generate a
+spatially varying model for the kernel, we assume that the relative
+weights of the basis functions $a_i$ themselves vary spatially,
+i.e. $K(u,v,x,y) = \sum_i a_i(x,y) K_i(u,v)$.  The image difference is
+then calculated through $D(x,y) = S(x,y) - T(x,y) \otimes K(u,v,x,y)$.
+
+Detection on the difference image occurs through correlation of
+$D(x,y)$ with the science image's Psf, yielding optimally filtered
+detection image $D'(x,y) = D(x,y) \circ Psf_S(x,y,u,v)$ where $\circ$
+denotes correlation.  The values of the pixels in $D'(x,y)$ provide a
+maximum likelihood estimate of there being a point source at that
+position.  Detection occurs by simply finding pixels that are more
+than N sigma above the variance.  
+
+In this production, we investigate two orders of operations for the
+optimal filtering by the Psf.  In the first, we Psf--match the
+template image to a pre--filtered science image:
+\begin{eqnarray}
+D_{Pre}(x,y) & = & S(x,y) \circ Psf_S(x,y,u,v) - T(x,y) \otimes K(u,v,x,y) \nonumber \\ 
+D'_{Pre}(x,y) & = & D_{Pre}(x,y) \nonumber 
+\end{eqnarray}
+By pre--smoothing the image that we are matching the template to --
+$S(x,y) \circ Psf_S(x,y,u,v)$ -- we more frequencly avoid the case
+of psf--matching {\it deconvolution}, where the FWHM of $T$ is
+narrower than $S$.  This pre--filtering increases the FWHM of the
+image by $\sqrt{2}$.  The Psf matching kernels will need to be
+correspondingly larger to account for the larger Psfs.  We are able to
+run detection directly on this image.
+
+In the second, which is the classical implementation of the problem,
+we create a difference image which is then post--filtered with the Psf
+for detection:
+\begin{eqnarray}
+D_{Post}(x,y) & = & S(x,y) - T(x,y) \otimes K(u,v,x,y) \nonumber \\ 
+D'_{Post}(x,y) & = & D_{Post}(x,y) \circ Psf_S(x,y,u,v)  \nonumber 
+\end{eqnarray}
+
+
+\subsection{Simulations}
+
+\section{Implementation}
+
+We use the ImageDiffereceTask to
+
+
 \section{KernelCandidate Statistics}
 
 \subsection{Mean Squared Error}
@@ -94,13 +172,21 @@ distortions will certainly fail if the local kernel solutions (from
 which the spatial model is derived) are unable to compensate for
 misalignments.
 
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figures/wcs_rms.eps} 
+\includegraphics[width=0.5\textwidth]{figures/wcs_offset.eps} \\
+\caption{WCS}
+\label{wcs_offsets}
+\end{figure}
+
 \subsubsection{Coordinate RMS}
 
 We perturbed the coordinates of each template Source that was input to
 RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
-0.175, 0.2, 0.3, 0.4) pixels, and to randomize the offsets multiplied
-each offset by a number pulled from a normal (0,1) distribution.  The
-output RMS reported by RegisterTask was noted to track these offsets.
+0.175, 0.2, 0.3, 0.4) pixels, and to randomize the effects we
+multiplied each offset by a number pulled from a normal (0,1)
+distribution.  The output RMS reported by RegisterTask was noted to
+track these offsets.
 
 The false positive rate was not seen to vary significantly.
 
@@ -111,5 +197,36 @@ RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
 0.175, 0.2, 0.3, 0.4, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0) pixels.
 Post--registration, this will offset the positions of sources in the
 two images by the desired amount.
+
+\begin{figure}
+\includegraphics[width=0.8\textwidth]{figures/shift.eps} \\
+\caption{Figure illustrating the ability of the kernel basis to
+  compensate, locally, for the effects of misregistration.  Each
+  element of the grid shows a single KernelCandidate local difference
+  image (visit=6866603, doPreFilter=True).  Columns indicate the
+  Gaussian sigma of the basis, which is designed to have one Gaussian
+  with the prescribed width, modified to fourth order.  Rows indicate
+  the amplitude of the astrometric offset that was introducted into
+  the Source positions before image-to-image registration.  \\
+  In the {\it top} row, we see that even with a small astrometric
+  offset, the sigma=2 basis is unable to produce a quality
+  subtraction, because the width is inappropriate for matching the two
+  input Psfs (the theoretical Gaussian sigma here is 3.4 pixels).  At
+  sigma=4 the basis is able to produce a quality subtraction, and by
+  sigma=5 the basis is too large to match the Psfs.  In {\it row 4},
+  we show that even for an astrometric offset of 4 pixels (0.8''), the
+  sigma=4 basis can produce a reasonable difference image without
+  structured residuals.  However, by {\it row 5}, with an offset of 6
+  pixels, none of the Gaussians provide a successful local difference
+  image. \\
+  The ability of the basis to compensate for bulk astrometric offsets
+  is a function of the kernel width, and the kernel width is itself a
+  function of the two input Psf FWHMs.  Thus there is a compliated
+  dependence of the ability of the kernel to shift the centroids of
+  stars.  Roughly, the basis may compensate for local astrometric residuals
+  at a scale up to $\sqrt{\sigma_I^2 - \sigma_R^2}$.}
+\label{kernel_offsets}
+\end{figure}
+
 
 \end{document}
