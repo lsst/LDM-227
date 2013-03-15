@@ -197,10 +197,10 @@ scale of the kernel in the difference images.
 \label{basis}
 \end{figure}
 
-For each source returned by DiaCatalogSourceSelector, we create a {\tt
-  KernelCandidate} instance, which holds substamps of $T(x,y)$ and
-$S(x,y)$ centered on the source.  These will be used to fit for a
-local solution to $K(u,v)$; the ensemble of local solutions at each
+For each source $j$ returned by DiaCatalogSourceSelector, we create a
+{\tt KernelCandidate} instance, which holds substamps of $T_j(x,y)$
+and $S_j(x,y)$ centered on the source.  These will be used to fit for
+a local solution $K(u,v)$; the ensemble of local solutions at each
 source's $x,y$ will be used to fit for the full spatial solution
 $K(u,v,x,y)$.  We emphasize that the dimensions of the substamps is
 important.  Note from equation~\ref{eq-soln} that the coefficients
@@ -210,7 +210,40 @@ kernelSize//2 pixels along each substamp edge are rendered unusable.
 To maintain a siginificant number of pixels in $C_i$, we set the
 KernelCandidate dimensions to be twice that of the kernel (i.e. the
 number of pixels remaining in $C_i$ is equal to the number of pixels
-in the kernel, which is fewer than the number of bases $i$).
+in the kernel, which is fewer than the number of bases $i$).  For each
+KernelCandidate, we solve for $K(u,v)$ and create a local difference
+image $D_j(x,y)$.  We evaluate several statistics on this local
+difference image, normalized by the square root of its variance, which
+puts the pixels in units of sigma.  We measure the mean sigma, the RMS
+of this distrubion, the $\chi^2$ of these pixels normalized by the
+degrees of freedom (number of pixels in $D(x,y)_j$ minus the number of
+kernel bases), and the mean squared error.  These are referred to as
+the LOCAL kernel metrics, and reflect how appropriate the chosen
+kernel basis is.
+
+The ensemble of {\tt KernelCandidates} is then used to constrain a
+spatial model of the kernel $K(u,v,x,y)$.  This is done using the {\tt
+  SpatialCellSet} formalism, whereby the {\tt KernelCandidates} are
+distributed across the image in a grid of {\tt SpatialCells}.  At most
+3 {\tt KernelCandidates} per {\tt SpatialCell} are input to a spatial
+model of the kernel.  This formalism attempts to distribute
+constraints on the spatial model evenly across the image.  For the
+spatial kenrel model, we assume that each of the kernel coefficients
+$a_i$ may be represented by a $N^{th}$ order 2--dimensional Chebyshev.
+Normally, we would perform sigma--clipping iterations on candidates
+having bad residuals after spatial modelling.  However in this
+production we expect that all objects should fit, so we perform no
+sigma clipping.  Having generated the full spatial solution
+$K(u,v,x,y) = \sum_i a_i(x,y) K_i(u,v)$, we evaluate the solution at
+the position of each {\tt KernelCandidate} and generate the metrics
+defined above.  These are referred to as the SPATIAL kernel metrics.
+Importantly, we interpolate this solution to the positions of the
+control sample, which were explicitly {\it not} used in the spatial
+fit, and evaluate these same metrics.  The differences between the
+{\tt KernelCandidate} LOCAL and SPATIAL metrics, as well as the values
+of the SPATIAL metrics for the control sample, reflect the
+appropriateness of the spatial model and our ability to interpolate
+and extrapolate to the full extent of the images.
 
 
 \subsubsection{ImageDifferenceTask}
