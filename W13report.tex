@@ -1,5 +1,7 @@
 \documentclass[prd, nofootinbib, floatfix, 11pt,tightenlines,times]{article}
 
+% latex W13report.tex; bibtex W13report; latex W13report; latex W13report; dvips W13report; gv W13report.ps
+
 \usepackage[paperwidth=8.5in,paperheight=11in,centering,margin=1in]{geometry}
 \usepackage{amsmath}
 \usepackage{amsbsy}
@@ -29,6 +31,10 @@
 \parskip 7.2pt           % sets spacing between paragraphs
 \parindent 0pt		     % sets leading space for paragraphs
 
+\def\aap{{\it Astr.~Ap.}}     %Astronomy & Astrophysics%
+\def\aaps{{\it A\&AS}}
+\def\apj{{\it ApJ}}
+
 \author{Andrew Becker, Simon Krughoff, Andrew Connolly, Russell Owen}
 \title{Summary of Late Winter2013 Production: ip\_diffim}
 \date{\today}
@@ -52,7 +58,7 @@ science image will typically be a single--epoch {\tt calexp}, while
 the template image will be a high signal--to--noise representation of
 the field, typically a {\tt coadd}.
 
-The metric we use to define ``clean'' is the nubmer of false positives
+The metric we use to define ``clean'' is the number of false positives
 that are detected and measured on the image difference.  We calculate
 several additional quality metrics during the image subtraction
 process, and correlate them with the number of false positives, as a
@@ -64,16 +70,17 @@ downstream from the image subtraction itself.
 We establish the math behind the process below.  
 
 We assume that science image $S(x,y)$ can be modeled as a convolution
-of the template image $T(x,y)$ by a single PSF--matching kernel
-$K(u,v,x,y)$.  We assume that the kernel may be decomposed using a set
-of basis functions $K(u,v) = \sum_i a_i K_i(u,v)$, where the coefficients
-in front of each basis are determiend through:
+of the template image $T(x,y)$ by a PSF--matching kernel $K(u,v,x,y)$.
+We further assume that the kernel may be decomposed using a set of
+basis functions $K(u,v) = \sum_i a_i K_i(u,v)$, where the coefficients
+in front of each basis are determined through:
 %
 \begin{eqnarray}
 C_i & \equiv & (K_i \otimes T) \\ \nonumber
 b_{i}  & = & \sum_{x,y} {{C_i(x,y) S(x,y)}\over{\sigma^2(x,y)}}   \nonumber \\ 
 M_{ij} & = & \sum_{x,y} {{C_i(x,y) C_j(x,y)}\over{\sigma^2(x,y)}}  \nonumber \\ 
 a_{i}  & = & M^{-1}_{ij} b_{j} \nonumber 
+\label{eq-soln}
 \end{eqnarray}
 where $\sigma^2(x,y)$ is the per--pixel variance stored in the {\tt
   variance} plane of each LSST {\tt exposure}.  To generate a
@@ -81,6 +88,22 @@ spatially varying model for the kernel, we assume that the relative
 weights of the basis functions $a_i$ themselves vary spatially,
 i.e. $K(u,v,x,y) = \sum_i a_i(x,y) K_i(u,v)$.  The image difference is
 then calculated through $D(x,y) = S(x,y) - T(x,y) \otimes K(u,v,x,y)$.
+
+The basis functions themselves $K_i(u,v)$ are a degree of freedom in
+this problem.  The original implementations \citep{Alard98,Alard00}
+used a set of 3 Gaussians (represented by our {\tt Config} variable
+nGauss), each with a different sigma (sigGauss), and each modified by
+a Laguerre polynomial to a given order (degGauss).  Subsequent studies
+\citep[e.g.][]{2007AN....328...16I} have suggested that a constant
+ratio be maintained between the different Gaussian widths, such that
+$\sigma_{i+1} = \beta \times \sigma_{i}$.  We use the value $\beta =
+2.0$ for this production.  We normalize the sigmas by noting that,
+under the assumption that the Psfs of the images are Gaussian
+($\sigma_S$ for the science image and $\sigma_T$ for the template
+image), the sigma of the matching kernel should be simply $\sigma_K^2
+= \sigma_S^2 - \sigma_T^2$.  We use this width for the central
+Gaussian in our sequence, when we use more than one Gaussian, or the
+sole Gaussian in the sequence when we use only one.
 
 Detection on the difference image occurs through correlation of
 $D(x,y)$ with the science image's Psf, yielding optimally filtered
@@ -95,10 +118,10 @@ optimal filtering by the Psf.  In the first, we Psf--match the
 template image to a pre--filtered science image:
 \begin{eqnarray}
 D_{Pre}(x,y) & = & S(x,y) \circ Psf_S(x,y,u,v) - T(x,y) \otimes K(u,v,x,y) \nonumber \\ 
-D'_{Pre}(x,y) & = & D_{Pre}(x,y) \nonumber 
+D'_{Pre}(x,y) & = & D_{Pre}(x,y). \nonumber 
 \end{eqnarray}
 By pre--smoothing the image that we are matching the template to --
-$S(x,y) \circ Psf_S(x,y,u,v)$ -- we more frequencly avoid the case
+$S(x,y) \circ Psf_S(x,y,u,v)$ -- we more frequently avoid the case
 of psf--matching {\it deconvolution}, where the FWHM of $T$ is
 narrower than $S$.  This pre--filtering increases the FWHM of the
 image by $\sqrt{2}$.  The Psf matching kernels will need to be
@@ -106,17 +129,120 @@ correspondingly larger to account for the larger Psfs.  We are able to
 run detection directly on this image.
 
 In the second, which is the classical implementation of the problem,
-we create a difference image which is then post--filtered with the Psf
+we create a difference image that is then post--filtered with the Psf
 for detection:
 \begin{eqnarray}
 D_{Post}(x,y) & = & S(x,y) - T(x,y) \otimes K(u,v,x,y) \nonumber \\ 
-D'_{Post}(x,y) & = & D_{Post}(x,y) \circ Psf_S(x,y,u,v)  \nonumber 
+D'_{Post}(x,y) & = & D_{Post}(x,y) \circ Psf_S(x,y,u,v).  \nonumber 
 \end{eqnarray}
+
+One complication is that measurement on $D'_{Pre}$ is necessarily
+different than on $D'_{Post}$.
+
+\subsection{Implementation}
+
+We describe the general set of classes and algorithms that are used to
+undertake these operations in the LSST DM stack.  We assume that we
+have the science image $S(x,y)$ as a {\tt calexp} instance as an
+input.  The bounding box of the science image, in celestial
+coordinates, is used to query the coadd repository to return the coadd
+patches that overlap the image; this mosaiced coadd is also returned
+as a {\tt calexp}.
+
+Next, we use the DiaCatalogSourceSelector to query the ImSim reference
+catalog for appropriate sources to use for Psf matching.  This
+selector allows the user to specify the brightness and color range of
+the objects, toggle star or galaxy selection, and to include variable
+objects or not.  We select a fraction (1/5) of these objects to serve
+as a control sample, in order to assess the effectiveness of
+$K(u,v,x,y)$ to subtract objects that were {\it not} used in the least
+squares fit.
+
+The coadd and science {\tt calexps} are then astrometrically
+registered to each other, with the resampling operations happening on
+the coadd as it is expected to have larger S/N.  Object--to--object
+matching, done using the source list above cross--matched with a
+source list extracted from the coadd, is used to provide a relative
+transformation between the two images.  RegisterTask is used to do the
+astrometric resampling.  The resulting warped coadd is what we use as
+the template image $T(x,y)$.  The residuals of the object--to--object
+match are persisted as part of the debugging infrastructure.
+
+Images $S(x,y)$ (optionally pre-filtered with $Psf_S(x,y,u,v)$) and
+$T(x,y)$ are sent to ImagePsfMatchTask, whose purpose is to fit for
+$K(u,v,x,y)$ and to produce $D(x,y)$.  The first step is to use the
+Psf Gaussian sigmas to define the {\it sizes} of the Gaussians shapes
+in $K_i(u,v)$.  As mentioned above, the main width is chosen to be
+$\sqrt{\sigma_I^2 - \sigma_R^2}$.  We use variations on the
+configuration where we use one Gaussian, with the above width, and
+three Gaussians, the central of which has this width, and the others a
+factor of $\beta = 2.0$ smaller and larger.  We modify each of the
+Gaussians by a set of Laguerre polynomials of a given order.  The
+smallest Gaussian is modified to the highest order, with the others
+modified by order//2.  Figure~\ref{basis} provides an example basis
+set with this configuration.  The total number of shapes in the basis
+are: $\sum_i^{\rm nGauss} ({\rm degGauss}_i+1)\times({\rm
+  degGauss}_i+2)/2$.  The dimensions of the Psf matching kernel are
+chosen to be 6 times the largest Gaussian width, with a minimum
+kernelSize of 21x21 pixels.  For kernels that are significantly
+smaller than this, the Gaussians have significant (non--zero) power at
+the kernel boundaries, leading to square systematic artifacts at the
+scale of the kernel in the difference images.
+
+
+\begin{figure}
+\centering{\includegraphics[width=0.8\textwidth]{figures/basis3.eps}}
+\caption{Example basis set with nGauss=3 (highlighted in red),
+  sigGauss=(0.5 sig, 1.0 sig, 2.0 sig), and degGauss=(4,2,2).}
+\label{basis}
+\end{figure}
+
+For each source returned by DiaCatalogSourceSelector, we create a {\tt
+  KernelCandidate} instance, which holds substamps of $T(x,y)$ and
+$S(x,y)$ centered on the source.  These will be used to fit for a
+local solution to $K(u,v)$; the ensemble of local solutions at each
+source's $x,y$ will be used to fit for the full spatial solution
+$K(u,v,x,y)$.  We emphasize that the dimensions of the substamps is
+important.  Note from equation~\ref{eq-soln} that the coefficients
+$a_i$ are derived from a convolution of the template substamp with the
+kernel basis functions $K_i$.  This convolution means that
+kernelSize//2 pixels along each substamp edge are rendered unusable.
+To maintain a siginificant number of pixels in $C_i$, we set the
+KernelCandidate dimensions to be twice that of the kernel (i.e. the
+number of pixels remaining in $C_i$ is equal to the number of pixels
+in the kernel, which is fewer than the number of bases $i$).
+
+
+\subsubsection{ImageDifferenceTask}
+
+The main {\tt pipeBase.Task} driving the processing is the
+ImageDifferenceTask.  The calls subtasks: DiaCatalogSourceSelector;
+RegisterTask; ImagePsfMatchTask; SourceDetectionTask; and
+DipoleMeasurementTask.  We describe in detail each subtask below.
+
+\subsubsection{DiaCatalogSourceSelector}
+
+This class queries the reference catalog for {\tt sources} within the
+science {\tt exposure's} footprint.  These {\tt sources are used to
+  define a set of {\tt KernelCandidates} used to fit the $K(u,v)$,
+  each at its specific $x,y$ coordinate.  
+
+\subsubsection{RegisterTask}
+
+\subsubsection{ImagePsfMatchTask}
+
+\subsubsection{SourceDetectionTask}
+
+\subsubsection{DipoleMeasurementTask}
+
+
+
+\subsubsection{Configs}
+
 
 
 \subsection{Simulations}
 
-\section{Implementation}
 
 We use the ImageDiffereceTask to
 
@@ -198,6 +324,8 @@ RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
 Post--registration, this will offset the positions of sources in the
 two images by the desired amount.
 
+
+
 \begin{figure}
 \includegraphics[width=0.8\textwidth]{figures/shift.eps} \\
 \caption{Figure illustrating the ability of the kernel basis to
@@ -206,8 +334,8 @@ two images by the desired amount.
   image (visit=6866603, doPreFilter=True).  Columns indicate the
   Gaussian sigma of the basis, which is designed to have one Gaussian
   with the prescribed width, modified to fourth order.  Rows indicate
-  the amplitude of the astrometric offset that was introducted into
-  the Source positions before image-to-image registration.  \\
+  the amplitude of the astrometric offset that was introduced into
+  the Source positions before image-to-image registration.  
   In the {\it top} row, we see that even with a small astrometric
   offset, the sigma=2 basis is unable to produce a quality
   subtraction, because the width is inappropriate for matching the two
@@ -218,15 +346,18 @@ two images by the desired amount.
   sigma=4 basis can produce a reasonable difference image without
   structured residuals.  However, by {\it row 5}, with an offset of 6
   pixels, none of the Gaussians provide a successful local difference
-  image. \\
+  image. 
   The ability of the basis to compensate for bulk astrometric offsets
   is a function of the kernel width, and the kernel width is itself a
-  function of the two input Psf FWHMs.  Thus there is a compliated
+  function of the two input Psf FWHMs.  Thus there is a complicated
   dependence of the ability of the kernel to shift the centroids of
   stars.  Roughly, the basis may compensate for local astrometric residuals
-  at a scale up to $\sqrt{\sigma_I^2 - \sigma_R^2}$.}
+  at a scale up to $\sqrt{\sigma_I^2 - \sigma_R^2}$.
+}
 \label{kernel_offsets}
 \end{figure}
 
+\bibliographystyle{apj}
+\bibliography{refs}
 
 \end{document}
