@@ -17,6 +17,8 @@
 %\usepackage{ulem}
 %\usepackage{epstopdf}
 
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
 %\renewcommand{\baselinestretch}{0.98}
 \usepackage{epsfig}
 \usepackage{titletoc}
@@ -178,12 +180,41 @@ smallest Gaussian is modified to the highest order, with the others
 modified by order//2.  Figure~\ref{basis} provides an example basis
 set with this configuration.  The total number of shapes in the basis
 are: $\sum_i^{\rm nGauss} ({\rm degGauss}_i+1)\times({\rm
-  degGauss}_i+2)/2$.  The dimensions of the Psf matching kernel are
+  degGauss}_i+2)/2$ \footnote{ A notable exception to this algorithm
+  is found in the case where $\sigma_T > \sigma_S$, i.e. a sharpening
+  must be done to the template to match it to the science image.  This
+  is the case of deconvolution.  A theoretical prescription to basis
+  design in this case is given in \cite{0266-5611-26-8-085002}.  In
+  this algorithm, nGauss is {\it always} fixed to value 3, and
+  degGauss is always fixed to 2.  The widths of the Gaussians are
+  determined through the algorithm specified in
+  \cite{0266-5611-26-8-085002}, using as inputs the sequence of
+  Gaussians that we would have used to match a Gaussian of width
+  $\sigma_S$ to $\sigma_T$ (i.e. as if we would have convovled the
+  science image and not the template image).  There are a variety of
+  reasons that actually operating on the science image is undesirable,
+  including: the science image is lower S/N than the template; the
+  science image is likely to have masked defects, including cosmic
+  rays and bad pixels, whose reach would be expanded due to the
+  convolution; unmasked features such as faint cosmic rays are more
+  likely to look Psf--like after convolution (cosmic rays will likely
+  have been sigma clipped out of the coadd).  Hoewver, it is not clear
+  that devonvolving the template image is in principle any better.  A
+  far better option, which we explore here, is to pre--filter the
+  science image, which will in the vast majority cases provide a
+  larger Psf (larger by $\sqrt{2}$) to match the template to.  This is
+  the case for v6866601 in this study, where the postfiltered analysis
+  yields deconvolution of the template, while the prefiltered analysis
+  does not.
+}.
+%
+The dimensions of the Psf matching kernel are
 chosen to be 6 times the largest Gaussian width, with a minimum
 kernelSize of 21x21 pixels.  For kernels that are significantly
 smaller than this, the Gaussians have significant (non--zero) power at
 the kernel boundaries, leading to square systematic artifacts at the
 scale of the kernel in the difference images.
+
 
 
 \begin{figure}
@@ -340,6 +371,9 @@ pixels are in units of sigma.
 \subsection{Reduced $\chi^2$}
 
 \section{Dependencies of False Positive Rate}
+
+The theoretical expectations for the number of false positives due to
+random Gaussian fluctuations is outlined in \cite{Kaiser-PointSources}.
 
 After finding the configurations that yielded the minimal numbers of
 false positives, we then perturbed the solutions to examine how the
@@ -520,5 +554,44 @@ v6866603 & True      & 3      & 6        & 4 \\
 \label{kernel_offsets}
 \end{figure}
 
+\begin{figure}
+\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/deconv2.eps} 
+\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/size2.eps} \\
+\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/order2.eps} 
+\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/shape2.eps} \\
+\caption{Four example panels showing failure modes of the image
+  subtraction software.  Each panel itself shows a 2x2 pair of
+  difference images; on the {\it left} subpanel is the residual from
+  the LOCAL fitting, and on the {\it right} from the SPATIAL fitting.
+  Starting in the upper left and going clockwise, the first panel
+  shows the residuals when devonvolving the template image; the
+  ringing is characteristic of the devonvolution process.  Next, a set
+  of difference images where the kernel dimensions (kernelSize) are
+  too small to match the sources, leaving square kernel--sized
+  residuals around each object.  Next, a set of images where the
+  kernel shape (sigGauss) is inappropriate to match the sources; note
+  that the LOCAL residuals show circular residuals, indicating the
+  basis set itself is at fault (as opposed to the spatial model).
+  Finally, in the lower--left, a set of images that demonstrate how
+  the residuals degrade when the spatial kernel model is at fault.
+  Note that the LOCAL residuals appear to be white noise, while the
+  SPATIAL residuals show a clear dipole signature.  For this reason, a
+  comparison beteen the LOCAL and SPATIAL residuals is a useful
+  diagnostic of the spatial model.  }
+\label{fig_galleryBad}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{figures/normal2.eps} \\
+\includegraphics[width=0.9\textwidth]{figures/preconv2.eps} \\
+\end{center}
+\caption{Pairs of LOCAL,SPATIAL difference images in the case of
+  successful image subtraction, similar to
+  Figure~\ref{fig_galleryBad}.  The {\it top} set of data are from
+  postfiltered analysis, while the {\it lower} set are from
+  prefiltered data.}
+\label{fig_galleryGood}
+\end{figure}
 
 \end{document}
