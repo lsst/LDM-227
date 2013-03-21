@@ -276,7 +276,7 @@ between bias and variance in the spatial interpolation.
 We next run the SourceDetectionTask on the difference image, using a
 ``polarity'' of {\it both} to search for both positive and negative
 deviations.  We use a nominal detection threshold of 5 sigma.  In the
-case of pre--filtering, we operate on the difference image directly.
+case of pre--filtering, we detect on the difference image directly.
 In post--filtering, we correlate the difference image with its Psf (by
 design, the same as the Psf of $S$) before detection is run.  All else
 being equal, the images immediately preceding the detection step
@@ -302,9 +302,9 @@ detection and measurement happen on the same image.  This restricts
 the types of measurements that may be made on the sources.  In
 particular, the Psf flux is merely the fitted amplitude of the peak in
 the image, and the Psf centroid its center.  While these measurements
-are trivial to implement, it is unclear how to implement the remainder
-of the measurement suite in manner comparable to the measurements on
-post--filtered data.
+are trivial to implement, additional work needs to be done on how to
+implement the remainder of the measurement suite in a manner comparable
+to the measurements on post--filtered data.
 
 All {\tt DiaSources} are associated with the {\tt calexp's} {\tt
   sources} and with the reference catalog, with a permissive matching
@@ -375,14 +375,72 @@ pixels are in units of sigma.
 
 \subsection{Reduced $\chi^2$}
 
-\section{Dependencies of False Positive Rate}
+\section{False Positive Rate}
+
+After running an ensemble of 144 pipeline configurations, we
+aggregated the numbers of false detections.  We report the results for
+the each of the 3 visits, and for pre-- and postfiltering for
+detection.  We cut on {\tt flags.pixel.edge} to remove spurious
+detections on the immediate border of the image; other than that we do
+no other cuts other than requiring that the {\tt centroid.sdss} is
+finite.  We count the DiaSources that match with the reference catalog
+(2'' matching radius) via the {\tt refMatchId} value.  We find no
+significant correlation of false detections with sensor within the
+raft; therefore we report the aggregate results for all 9 sensors in
+the analysis that follows.
+
+A set of ``heat maps'' are presented in Figure~\ref{fp_heatmap}, that
+demonstrate the total number of detections across all 9 sensors as a
+function of the config parameters spatialKernelOrder and degGauss, for
+nGauss = 3.  Qualitatively, these heat maps indicate that a Chebyshev
+spatial order greater than 3 is required for all data.  In addition,
+with the exception of the deconvolution case (visit 6866601 and
+prefilter=False), the Gaussians need to be modified by Laguerre
+polynomials of order 4 or higher.  The minimum of these detection maps
+are found using the configs of highest complexity, with a very flat
+slope in the number of false positives beyond spatialKernelOrder$>$3
+and degGauss$>$3.  There is not much evidence for an upturn in the
+numbers of false positives, meaning we have likely not reached the
+case of overfitting using these configs.
+
+The numbers of false detections in each best case are given in
+Table~\ref{tab-bestfp10}.  For the best cases, there are {\it no}
+false detections that associate with an input source to within 2'',
+indicating that the residuals are all likely fluctuations in the
+backgrounds.  We also list the ratio of negatively detected to
+positively detected DiaSources.  That this ratio is significantly
+greater than 1.0 in most cases suggests that there is an
+oversubtraction of the background in the process, which biases this
+ratio (see Section~\ref{sec-bg}).  The optimal configuartions yielding
+these false detection rates are given in Table~\ref{tab-bestconfig10}.
+
+We have examined the distribution of these false detectiosn across the
+image, and find no significant overdensities near the borders of the
+images, which would be expected in cases of under or over--fitting of
+the various spatial models (astrometry, backgrounds, Psf--matching
+kernels).  Figure~\ref{edgedist} provides the distribution of
+distances from the edge of the sensor for all false detections in {\it
+  blue}, with a random sample of points in the image given in {\it
+  green}.  Uncertainties are plotted using the square root of the
+number of points in each bin, and the histograms are normalized to
+provide a probability density.  The takeaway is that we find no
+significant correlation of false positives with the boundaries of the
+fitting functions.
+
+\section{False Positive Dependencies}
 
 After finding the configurations that yielded the minimal numbers of
 false positives, we then perturbed the solutions to examine how the
 numbers of false positives scaled with different effects.  This
 included, in order of importance for this production: the difference
 image detection threshold; the number of KernelCandidates going into
-the spatial model; and astrometric registration errors.
+the spatial model; and astrometric registration errors.  We also
+undertake a theoretical analysis of the number of false positives
+expected in a 4k x 4k image as a function fo detection threshold, and
+examine the requirements this sets on our ability to model the
+variance and backgrounds in the images.  We compare the emperical
+variation of false detections with detection threshold, and show that
+our data are consistent with this.
 
 \subsection{Detection Threshold}
 
@@ -410,12 +468,12 @@ distortions will certainly fail if the local kernel solutions (from
 which the spatial model is derived) are unable to compensate for
 misalignments.
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{figures/wcs_rms.eps} 
-\includegraphics[width=0.5\textwidth]{figures/wcs_offset.eps} \\
-\caption{WCS}
-\label{wcs_offsets}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=0.5\textwidth]{figures/wcs_rms.eps} 
+%\includegraphics[width=0.5\textwidth]{figures/wcs_offset.eps} \\
+%\caption{WCS}
+%\label{wcs_offsets}
+%\end{figure}
 
 \subsubsection{Coordinate RMS}
 
@@ -505,24 +563,26 @@ v6866603 & True      & 2                      & 9   \\
 
 \begin{table}
 \centering
-\begin{tabular}{clcc}
+\begin{tabular}{clccc}
 \hline
-\multicolumn{4}{|c|}{Best Results: Production 10} \\
+\multicolumn{5}{|c|}{Best Results: Production 10} \\
 \hline
-Visit    & Prefilter & False Positive Matches & False Positive Orphans \\
+Visit    & Prefilter & False Detections: Matches & False Detections: Orphans & Nneg / Npos \\
 \hline
-v6866601 & True      & 0                      & 70   \\
-         & False     & 0                      & 143  \\
-v6866602 & True      & 0                      & 42   \\
-         & False     & 0                      & 53   \\
-v6866603 & True      & 0                      & 23   \\
-         & False     & 0                      & 36   \\
+v6866601 & True      & 0                         & 70  & 1.8 \\
+         & False     & 0                         & 143 & 2.9 \\
+v6866602 & True      & 0                         & 42  & 2.2 \\
+         & False     & 0                         & 53  & 0.7 \\
+v6866603 & True      & 0                         & 23  & 2.8 \\
+         & False     & 0                         & 36  & 3.0 \\
 \end{tabular}
 \caption{Total number of {\tt DiaSources} detected at 5--sigma from
   all 9 sensors in raft 2,2, for the configurations that yielded the
   lowest number of false positives.  Matches are determined using a
   2'' match radius with the input reference catalog.  Objects with the
-  {\tt EDGE} flag are ignored. \label{tab-bestfp10}}
+  {\tt EDGE} flag are ignored.  The final column lists ratios of the
+  number of negatively detected false detections to those with
+  positive flux. \label{tab-bestfp10}}
 \end{table}
 
 \clearpage
