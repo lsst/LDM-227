@@ -404,10 +404,19 @@ numbers of false positives, meaning we have likely not reached the
 case of overfitting using these configs.
 
 The numbers of false detections in each best case are given in
-Table~\ref{tab-bestfp10}.  For the best cases, there are {\it no}
-false detections that associate with an input source to within 2'',
+Table~\ref{tab-bestfp10}.  We undertook a manual inspection of all
+difference images to associate the DiaSources with Sources in the
+images.  These by--eye associations are listed in the Matches column
+of Table~\ref{tab-bestfp10}, while the remainder are listed in the
+Orphans column.  A significant number of the Matches (e.g. both the
+matches for v6866603) are actually DiaSources on the very edge of the
+image, but which do not have the EDGE bit set.
+
+
 indicating that the residuals are all likely fluctuations in the
-backgrounds.  We also list the ratio of negatively detected to
+backgrounds.  
+
+We also list the ratio of negatively detected to
 positively detected DiaSources.  That this ratio is significantly
 greater than 1.0 in most cases suggests that there is an
 oversubtraction of the background in the process, which biases this
@@ -505,8 +514,30 @@ false positives due to random Gaussian fluctuations is outlined in
 \cite{Kaiser-PointSources}.
 
 
-
 \subsection{Variance Misestimation}
+
+The variance in the prefilterd and postfiltered images is likely to be
+different due to the different types of operations that have happened
+on the images.  We quantify this by taking the postfiltered images,
+immediately before the detection step (i.e. $D'$), and compare the
+variance plane to that coming from the prefiltered image.  For
+v6866601, which is a deconvolution in the postfiltered production, we
+find that the variance is 70\% higher when postfiltering.  This is
+consistent with the expectation that deconvolution increases the noise
+properties of the image.
+
+For v6866602 and v6866603, we find that the variance is 3--4\% and
+2--3\% higher in the {\it prefiltered} data, respectively.  The
+primary culprit for this is that the prefiltered data will have gone
+through 1 less convolution, meaning less of the variance will have
+been lost to covariance.  In this case, the variance plane will be
+closer to the truth than in the postfiltered data, but still not
+exact.  Assuming that most of the covariance happens during
+Psf--matching and Psf--filtering (the astrometric warping kernel is
+designed to preserve the nosie properties of the image, although this
+is not an exact conservation in practice), the variance plane of the
+prefiltered data should itself be $\sim$3\% lower than the emperical
+variance in the image plane.  {\it TEST ME}.
 
 \subsection{Measurements on Pre--filtered Data}
 
@@ -569,12 +600,18 @@ v6866603 & True      & 2                      & 9   \\
 \hline
 Visit    & Prefilter & False Detections: Matches & False Detections: Orphans & Nneg / Npos \\
 \hline
-v6866601 & True      & 0                         & 70  & 1.8 \\
-         & False     & 0                         & 143 & 2.9 \\
-v6866602 & True      & 0                         & 42  & 2.2 \\
-         & False     & 0                         & 53  & 0.7 \\
-v6866603 & True      & 0                         & 23  & 2.8 \\
-         & False     & 0                         & 36  & 3.0 \\
+v6866601 & True      & 59                        & 70  & 1.8 \\ 
+         & False     & 99                        & 44  & 2.9 \\
+v6866602 & True      & 7                         & 35  & 2.2 \\
+         & False     & 8                         & 45  & 0.7 \\
+v6866603 & True      & 1                         & 22  & 2.8 \\
+         & False     & 1                         & 35  & 3.0 \\
+%v6866601 & True      & 11                        & 70  & 1.8 \\ SUBTRACT ME!
+%         & False     & 99                        & 143 & 2.9 \\
+%v6866602 & True      & 7                         & 42  & 2.2 \\
+%         & False     & 8                         & 53  & 0.7 \\
+%v6866603 & True      & 1                         & 23  & 2.8 \\
+%         & False     & 1                         & 36  & 3.0 \\
 \end{tabular}
 \caption{Total number of {\tt DiaSources} detected at 5--sigma from
   all 9 sensors in raft 2,2, for the configurations that yielded the
