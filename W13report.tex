@@ -425,11 +425,11 @@ backgrounds.
 We also list the ratio of negatively detected to
 positively detected DiaSources.  That this ratio is significantly
 greater than 1.0 in most cases suggests that there is an
-oversubtraction of the background in the process, which biases this
-ratio (see Section~\ref{sec-bg}).  The optimal configuartions yielding
+over-subtraction of the background in the process, which biases this
+ratio (see Section~\ref{sec-bg}).  The optimal configurations yielding
 these false detection rates are given in Table~\ref{tab-bestconfig10}.
 
-We have examined the distribution of these false detectiosn across the
+We have examined the distribution of these false detections across the
 image, and find no significant overdensities near the borders of the
 images, which would be expected in cases of under or over--fitting of
 the various spatial models (astrometry, backgrounds, Psf--matching
@@ -439,10 +439,10 @@ distances from the edge of the sensor for all false detections in {\it
   green}.  Uncertainties are plotted using the square root of the
 number of points in each bin, and the histograms are normalized to
 provide a probability density.  The takeaway is that we find no
-significant correlation of false detetions with the boundaries of the
+significant correlation of false detections with the boundaries of the
 fitting functions.
 
-\section{False Detecion Dependencies}
+\section{False Detection Dependencies}
 
 After finding the configurations that yielded the minimal numbers of
 false detections, we then perturbed the solutions to examine how the
@@ -451,9 +451,9 @@ included, in order of importance for this production: the difference
 image detection threshold; the number of KernelCandidates going into
 the spatial model; and astrometric registration errors.  We also
 undertake a theoretical analysis of the number of false detections
-expected in a 4k x 4k image as a function fo detection threshold, and
+expected in a 4k x 4k image as a function of detection threshold, and
 examine the requirements this sets on our ability to model the
-variance and backgrounds in the images.  We compare the emperical
+variance and backgrounds in the images.  We compare the empirical
 variation of false detections with detection threshold, and show that
 our data are consistent with this.
 
@@ -518,7 +518,7 @@ two images by the desired amount.
 
 \subsection{Variance Misestimation {\bf ANDYB/SIMON}}
 
-The variance in the prefilterd and postfiltered images is likely to be
+The variance in the prefiltered and postfiltered images is likely to be
 different due to the different types of operations that have happened
 on the images.  We quantify this by taking the postfiltered images,
 immediately before the detection step (i.e. $D'$), and compare the
@@ -536,12 +536,14 @@ been lost to covariance.  In this case, the variance plane will be
 closer to the truth than in the postfiltered data, but still not
 exact.  Assuming that most of the covariance happens during
 Psf--matching and Psf--filtering (the astrometric warping kernel is
-designed to preserve the nosie properties of the image, although this
+designed to preserve the noise properties of the image, although this
 is not an exact conservation in practice), the variance plane of the
-prefiltered data should itself be $\sim$3\% lower than the emperical
+prefiltered data should itself be $\sim$3\% lower than the empirical
 variance in the image plane.  {\it TEST ME}.
 
 \section{Conclusions}
+
+
 
 We can reach near the theoretical limit for false detection rate in
 these ideal data, something which has not been demonstrated for image
@@ -551,7 +553,74 @@ Pre--filtering is clearly preferred when the traditional process would
 lead to deconvolution, or sharpening, of the data.  When the standard
 processing results in a convolution, or smoothing of the data,
 pre--filtering provides fewer false detections.  As a trade--off, the
-measurement of these false detetions is not yet well defined.
+measurement of these false detections is not yet well defined.
+
+\begin{itemize}
+
+\item We find that the overall number of false detections is not
+  strongly sensitive to bulk background misestimation
+  (Figure~\ref{XXX});
+
+\item However, the ratio of positive to negative false detections is
+  strongly dependent on background fitting, with {\bf XXX}
+  (Figure~\ref{XXX}).
+
+\item At the 5--sigma detection threshold, for the range of seeings
+  considered in this production, the theoretical numbers of false
+  detections per 4k x 4k sensor numbers 10+.  This function is steep;
+  by increasing the detection threshold to 5.X sigma this number may
+  be lowered to less than 1 per sensor.
+
+\item Due to the steepness of this function, the number of false
+  detections is strongly dependent on the variance being correct, at
+  the 5--sigma detection threshold.  When detecting at 5--sigma,
+  having the variance underestimated by 1\% leads to an increase
+  in false positives of {\bf XXX} (Figure~\ref{}).
+
+\item An empirical computation of the variance from the image plane,
+  compared to the median propagated variance in the variance plane,
+  indicates that we consistently underestimate the variance by $1-2\%$
+  (Table~\ref{tab-variance1}).  A proper tracking of covariance during
+  the multiple image convolutions that occur may alleviate this
+  problem.
+
+\item When convolving to Psf--match, variance planes of postfiltered
+  detection images have {\it lower} variance than their prefiltered
+  counterparts by $2-3\%$ (Table~\ref{tab-variance2}).  These images
+  have gone through one additional convolution compared to the
+  prefiltered data.
+
+\item When deconvolving, the postfiltered variance is 70\% {\it
+  higher} at the time of detection compared to the prefiltered data
+  (Table~\ref{tab-variance2}).  This is consistent with the
+  understanding that deconvolution increases high frequency noise in
+  the images, and provides a {\it lower} detection efficiency in
+  deconvolved data.  Prefiltering is clearly preferred in the case of
+  deconvolution.
+
+\item The false detection rate is seen to scale with detection
+  threshold in a manner consistent with theory (Figure~\ref{}).
+
+\item Several statistics that we are able to calculate at the time of
+  image subtraction are shown to correlate strongly with the numbers
+  of false detections, providing real--time quality estimates
+  (Figures~\ref{}).
+
+\item The numbers of false detections that associate with Sources is
+  shown to correlate with the amount of smoothing that occurs in the
+  Psf matching, in the sense that more smoothing leads to fewer false
+  detections (Figure~\ref{}).  In this sense, there is a strong
+  preference for running in prefiltered mode.
+
+\item Measurements on prefiltered difference images contain less
+  information than in postfiltered difference images, because the
+  paradigm of detection on filtered data but measurement on the
+  unfiltered data is broken.  Thus while we detect on average fewer
+  false positives in prefiltered data, we are (so far) able to
+  characterize them less well.  This trade--off is clearly something
+  to explore in future work.
+
+\end{itemize}
 
 \section{Future Work}
 
@@ -672,19 +741,38 @@ v6866603 & True      & 3      & 5        & 5 \\
 \hline
 Visit    & Prefilter & Mean Ratio & RMS Ratio \\
 \hline
-v6866601 & True      & 1.009      & 0.002     \\
-         & False     & 1.005      & 0.001     \\
-v6866602 & True      & 1.003      & 0.0004    \\
-         & False     & 1.005      & 0.0007    \\
-v6866603 & True      & 1.004      & 0.0003    \\
-         & False     & 1.008      & 0.002     \\
+v6866601 & True      & 1.019      & 0.005    \\
+         & False     & 1.011      & 0.002    \\
+v6866602 & True      & 1.007      & 0.001    \\
+         & False     & 1.010      & 0.002    \\
+v6866603 & True      & 1.008      & 0.001    \\
+         & False     & 1.015      & 0.003    \\
 \end{tabular}
-\caption{Ratio of the emperical RMS in the difference images,
-  calculated via the interquartile range, to the square root of the
+\caption{Ratio of the empirical variance in the difference images,
+  calculated via (0.741 times the interquartile range)$^2$, to the
   median of the variance plane.  In all cases the variance plane
   represents an {\it underestimate} of the true variance in the
-  images.  We report the mean and RMS across all sensors.
-}
+  images.  We report the mean and RMS across all sensors.  }
+\label{tab-variance1}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{ccc}
+\hline
+\multicolumn{3}{|c|}{Variance Ratios} \\
+\hline
+Visit    & Mean Postfilter/Prefilter & RMS Postfilter/Prefilter \\
+\hline
+v6866601 & 1.72      & 0.04     \\
+v6866602 & 0.967     & 0.001    \\
+v6866603 & 0.975     & 0.002    \\
+\end{tabular}
+\caption{Ratios of the variance planes immediately before detection
+  $D'$.  Ratios are in the sense of the variance of the postfiltered
+  image divided by the variance of the prefiltered image.  We report
+  the mean and RMS across all sensors.}
+\label{tab-variance2}
 \end{table}
 
 
