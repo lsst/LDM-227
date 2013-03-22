@@ -82,8 +82,11 @@ where $\sigma^2(x,y)$ is the per--pixel variance stored in the {\tt
   variance} plane of each LSST {\tt exposure}.  To generate a
 spatially varying model for the kernel, we assume that the relative
 weights of the basis functions $a_i$ themselves vary spatially,
-i.e. $K(u,v,x,y) = \sum_i a_i(x,y) K_i(u,v)$.  The image difference is
-then calculated through $D(x,y) = S(x,y) - T(x,y) \otimes K(u,v,x,y)$.
+i.e. $K(u,v,x,y) = \sum_i a_i(x,y) K_i(u,v)$.  We also assume that
+there is a differnetial background between the two images $b(x,y)$
+that may be fit for using a low--order Chebyshev.  The image
+difference is then calculated through $D(x,y) = S(x,y) - T(x,y)
+\otimes K(u,v,x,y) - b(x,y)$.
 
 The basis functions themselves $K_i(u,v)$ are a degree of freedom in
 this problem.  The original implementations \citep{Alard98,Alard00}
@@ -162,7 +165,11 @@ source list extracted from the coadd, is used to provide a relative
 transformation between the two images.  RegisterTask is used to do the
 astrometric resampling.  The resulting warped coadd is what we use as
 the template image $T(x,y)$.  The residuals of the object--to--object
-match are persisted as part of the debugging infrastructure.
+match are persisted as part of the debugging infrastructure.  We
+assume that the background subtraction on the input {\tt calexps} has
+removed the high order features in the backgrounds; therefore we
+simultaneously fit for a 1st--order spatially varying differential
+background $b(x,y)$ along with the kernel coefficients.
 
 Images $S(x,y)$ (optionally pre-filtered with $Psf_S(x,y,u,v)$) and
 $T(x,y)$ are sent to ImagePsfMatchTask, whose purpose is to fit for
@@ -308,7 +315,7 @@ to the measurements on post--filtered data.
 
 All {\tt DiaSources} are associated with the {\tt calexp's} {\tt
   sources} and with the reference catalog, with a permissive matching
-radius of 2''.  {\tt DiaSources} that match with {\tt sources} may be
+radius of 3''.  {\tt DiaSources} that match with {\tt sources} may be
 true residuals around stars {\it or} true false detections that are
 also found in {\tt calexp} SourceDetectionTask.  For this reason, we
 use the associations with the reference catalog objects as the
@@ -377,6 +384,8 @@ pixels are in units of sigma.
 
 \subsection{Reduced $\chi^2$ {\bf SIMON}}
 
+\subsection{Control Sample {\bf SIMON}}
+
 \section{False Detection Rate}
 
 \subsection{Theoretical {\bf ANDYC}}
@@ -390,7 +399,7 @@ detection.  We cut on {\tt flags.pixel.edge} to remove spurious
 detections on the immediate border of the image; other than that we do
 no other cuts other than requiring that the {\tt centroid.sdss} is
 finite.  We count the DiaSources that match with the reference catalog
-(2'' matching radius) via the {\tt refMatchId} value.  We find no
+(3'' matching radius) via the {\tt refMatchId} value.  We find no
 significant correlation of false detections with sensor within the
 raft; therefore we report the aggregate results for all 9 sensors in
 the analysis that follows.
@@ -410,17 +419,27 @@ numbers of false detections, meaning we have likely not reached the
 case of overfitting using these configs.
 
 The numbers of false detections in each best case are given in
-Table~\ref{tab-bestfp10}.  We undertook a manual inspection of all
+Table~\ref{tab-bestfp10a}.  We undertook a manual inspection of all
 difference images to associate the DiaSources with Sources in the
-images.  These by--eye associations are listed in the Matches column
-of Table~\ref{tab-bestfp10}, while the remainder are listed in the
-Orphans column.  A significant number of the Matches (e.g. both the
-matches for v6866603) are actually DiaSources on the very edge of the
-image, but which do not have the EDGE bit set.
-
-
-indicating that the residuals are all likely fluctuations in the
-backgrounds.  
+images, and also a 3'' association with the input source catalog.
+These associations are listed in the N$_{Match}$ column of
+Table~\ref{tab-bestfp10}, with the unmatched false positives in the
+N$_{Orphan}$ column.  The former are likely to come from systematics
+in the subtractions of stars, while the latter would be due to
+fluctuations in the background.  We note 2 effects that will impact
+N$_{Match}$.  The first is that, with a 3'' matching radius, 4\% of
+random fluctuations will by--chance associate with a Source.  Assuming
+that N$_{Orphan}$ represents 96\% of the background fluctuation
+population, we estimate the number of fluctuations from that same
+population that would have associated with Sources as N$_{Random}$.
+Finally, we count all matches that occur within 100 pixels of the
+image boundary, where we might expect the spatial extrapolation to
+yield systematic residuals, as N$_{D<100}$.  To the extent that
+(N$_{Random}$ + N$_{D<100}$) < N$_{Match}$, we have a small residual
+set of systematic false detections in our imaging ensemble.  Aside
+from the deconvolution run, this is at the level of 10 total false
+detections over 9 sensors in 5 production runs, or 1 every 4--5
+images.
 
 We also list the ratio of negatively detected to
 positively detected DiaSources.  That this ratio is significantly
@@ -518,32 +537,34 @@ two images by the desired amount.
 
 \subsection{Variance Misestimation {\bf ANDYB/SIMON}}
 
-The variance in the prefiltered and postfiltered images is likely to be
-different due to the different types of operations that have happened
-on the images.  We quantify this by taking the postfiltered images,
-immediately before the detection step (i.e. $D'$), and compare the
-variance plane to that coming from the prefiltered image.  For
-v6866601, which is a deconvolution in the postfiltered production, we
-find that the variance is 70\% higher when postfiltering.  This is
-consistent with the expectation that deconvolution increases the noise
-properties of the image.
+The variance in the prefiltered and postfiltered images is likely to
+be different due to the different types of operations that have
+happened on the images.  We quantify this by taking the postfiltered
+images, immediately before the detection step (i.e. $D'$), and compare
+the variance plane to that coming from the prefiltered image
+(Table~\ref{tab-variance2}).  For v6866601, which is a deconvolution
+in the postfiltered production, we find that the variance is 70\%
+higher when postfiltering.  This is consistent with the expectation
+that deconvolution increases the noise properties of the image.  For
+v6866602 and v6866603, we find that the variance is 3--4\% and 2--3\%
+higher in the {\it prefiltered} data, respectively.  The primary
+culprit for this is that the prefiltered data will have gone through 1
+less convolution, meaning less of the variance will have been lost to
+covariance.
 
-For v6866602 and v6866603, we find that the variance is 3--4\% and
-2--3\% higher in the {\it prefiltered} data, respectively.  The
-primary culprit for this is that the prefiltered data will have gone
-through 1 less convolution, meaning less of the variance will have
-been lost to covariance.  In this case, the variance plane will be
-closer to the truth than in the postfiltered data, but still not
-exact.  Assuming that most of the covariance happens during
-Psf--matching and Psf--filtering (the astrometric warping kernel is
-designed to preserve the noise properties of the image, although this
-is not an exact conservation in practice), the variance plane of the
-prefiltered data should itself be $\sim$3\% lower than the empirical
-variance in the image plane.  {\it TEST ME}.
+To quantify the significance of these offsets, we compared the
+empirical variance in the image planes with the variance tracked by
+the variance planes to ascertain how much we are misestimating the
+true variance.  We calculated the ratio of the interquartile range of
+unmasked pixels in the image plane, multiplied by 0.741 and then
+squared, with the median of unmasked pixels from the variance plane.
+The results are summarized in Table~\ref{tab-variance1}.  We find that
+we are marginally, but consistently, underestimating the variance in
+our images by $\sim 1\%$.  This affect is smaller than the amplitudes
+reported above, indicating that there are true differences in the
+variances of prefiltered and postfiltered detection images.
 
 \section{Conclusions}
-
-
 
 We can reach near the theoretical limit for false detection rate in
 these ideal data, something which has not been demonstrated for image
@@ -639,26 +660,56 @@ including:
 \bibliography{refs}
 
 \clearpage
+%\begin{table}
+%\centering
+%\begin{tabular}{clcc}
+%\hline
+%\multicolumn{4}{|c|}{Best Results: Production 8} \\
+%\hline
+%Visit    & Prefilter & False Detection Matches & False Detection Orphans \\
+%\hline
+%v6866601 & True      & 5                      & 29  \\
+%         & False     & 10                     & 81  \\
+%v6866602 & True      & 5                      & 30  \\
+%         & False     & 9                      & 35  \\
+%v6866603 & True      & 2                      & 9   \\
+%         & False     & 1                      & 23  \\
+%\end{tabular}
+%\caption{Total number of {\tt DiaSources} detected at 5--sigma from
+%  all 9 sensors in raft 2,2, for the configurations that yielded the
+%  lowest number of false detections.  Matches are determined using a
+%  3'' match radius with the input reference catalog.  Objects with the
+%  {\tt EDGE} flag are ignored. \label{tab-bestfp8}}
+%\end{table}
+
 \begin{table}
 \centering
-\begin{tabular}{clcc}
+\begin{tabular}{clcccccc}
 \hline
-\multicolumn{4}{|c|}{Best Results: Production 8} \\
+\multicolumn{8}{|c|}{Best Results: Production 10} \\
 \hline
-Visit    & Prefilter & False Detection Matches & False Detection Orphans \\
+Visit    & Prefilter & Total False Detections &  N$_{Orphan}$ & N$_{Match}$ & N$_{Random}$ & N$_{D<100}$ & Nneg / Npos \\
 \hline
-v6866601 & True      & 5                      & 29  \\
-         & False     & 10                     & 81  \\
-v6866602 & True      & 5                      & 30  \\
-         & False     & 9                      & 35  \\
-v6866603 & True      & 2                      & 9   \\
-         & False     & 1                      & 23  \\
+v6866601 & True      & 70      &60         & 10 & 3     & 4   & 1.8 \\ 
+         & False     & 143     &50         & 93 & 2     & 11  & 2.9 \\
+v6866602 & True      & 42      &36         & 6  & 2     & 1   & 2.2 \\
+         & False     & 53      &45         & 8  & 2     & 1   & 0.7 \\
+v6866603 & True      & 23      &22         & 1  & 1     & 1   & 2.8 \\
+         & False     & 36      &35         & 1  & 1     & 0   & 3.0 \\
 \end{tabular}
 \caption{Total number of {\tt DiaSources} detected at 5--sigma from
   all 9 sensors in raft 2,2, for the configurations that yielded the
   lowest number of false detections.  Matches are determined using a
-  2'' match radius with the input reference catalog.  Objects with the
-  {\tt EDGE} flag are ignored. \label{tab-bestfp8}}
+  3'' match radius with the input reference catalog.  Objects with the
+  {\tt EDGE} flag are ignored.  We list the number of background
+  fluctuations that are expected to randomly associate with a Source
+  N$_{Random}$, given the density of objects in the images and a 3''
+  match radius, assuming that N$_{Orphan}$ represents 96\% of the
+  total population of detections arriving from Gaussian fluctuations.
+  We also list the number of false detections that are found within
+  the outer 100 pixels of the image N$_{D<100}$.  The final column
+  lists ratios of the number of negatively detected false detections
+  to those with positive flux, a 5--sigma. \label{tab-bestfp10a}}
 \end{table}
 
 \begin{table}
@@ -685,33 +736,31 @@ v6866603 & True      & 1                         & 22  & 2.8 \\
 \caption{Total number of {\tt DiaSources} detected at 5--sigma from
   all 9 sensors in raft 2,2, for the configurations that yielded the
   lowest number of false detections.  Matches are determined using a
-  2'' match radius with the input reference catalog.  Objects with the
+  3'' match radius with the input reference catalog.  Objects with the
   {\tt EDGE} flag are ignored.  The final column lists ratios of the
   number of negatively detected false detections to those with
-  positive flux. \label{tab-bestfp10}}
+  positive flux. \label{tab-bestfp10b}}
 \end{table}
 
-\clearpage
-
-\begin{table}
-\centering
-\begin{tabular}{clccc}
-\hline
-\multicolumn{5}{|c|}{Best Configs: Production 8} \\
-\hline
-Visit    & Prefilter & nGauss & degGauss & spatialOrder \\
-\hline
-v6866601 & True      & 3      & 6        & 5 \\
-         & False     & 3      & 2        & 4 \\
-v6866602 & True      & 3      & 6        & 5 \\
-         & False     & 3      & 5        & 5 \\
-v6866603 & True      & 3      & 6        & 4 \\
-         & False     & 3      & 6        & 4 \\
-\end{tabular}
-\caption{Configurations that led to the best results listed in
-  Table~\ref{tab-bestfp8}.  All post-production runs include
-  perturbations about these configurations. \label{tab-bestconfig8}}
-\end{table}
+%\begin{table}
+%\centering
+%\begin{tabular}{clccc}
+%\hline
+%\multicolumn{5}{|c|}{Best Configs: Production 8} \\
+%\hline
+%Visit    & Prefilter & nGauss & degGauss & spatialOrder \\
+%\hline
+%v6866601 & True      & 3      & 6        & 5 \\
+%         & False     & 3      & 2        & 4 \\
+%v6866602 & True      & 3      & 6        & 5 \\
+%         & False     & 3      & 5        & 5 \\
+%v6866603 & True      & 3      & 6        & 4 \\
+%         & False     & 3      & 6        & 4 \\
+%\end{tabular}
+%\caption{Configurations that led to the best results listed in
+%  Table~\ref{tab-bestfp8}.  All post-production runs include
+%  perturbations about these configurations. \label{tab-bestconfig8}}
+%\end{table}
 
 \begin{table}
 \centering
@@ -732,6 +781,7 @@ v6866603 & True      & 3      & 5        & 5 \\
   Table~\ref{tab-bestfp10}.  All post-production runs include
   perturbations about these configurations. \label{tab-bestconfig10}}
 \end{table}
+
 
 \begin{table}
 \centering
