@@ -419,7 +419,7 @@ numbers of false detections, meaning we have likely not reached the
 case of overfitting using these configs.
 
 The numbers of false detections in each best case are given in
-Table~\ref{tab-bestfp10a}.  We undertook a manual inspection of all
+Table~\ref{tab-bestfp10}.  We undertook a manual inspection of all
 difference images to associate the DiaSources with Sources in the
 images, and also a 3'' association with the input source catalog.
 These associations are listed in the N$_{Match}$ column of
@@ -441,12 +441,12 @@ from the deconvolution run, this is at the level of 10 total false
 detections over 9 sensors in 5 production runs, or 1 every 4--5
 images.
 
-We also list the ratio of negatively detected to
-positively detected DiaSources.  That this ratio is significantly
-greater than 1.0 in most cases suggests that there is an
-over-subtraction of the background in the process, which biases this
-ratio (see Section~\ref{sec-bg}).  The optimal configurations yielding
-these false detection rates are given in Table~\ref{tab-bestconfig10}.
+We also list the ratio of negatively detected to positively detected
+DiaSources.  That this ratio is significantly greater than 1.0 in most
+cases suggests that there is an over-subtraction of the background in
+the process, which biases this ratio (see Section~\ref{sec-bg}).  The
+optimal configurations yielding these false detection rates are given
+in Table~\ref{tab-bestconfig10}.
 
 We have examined the distribution of these false detections across the
 image, and find no significant overdensities near the borders of the
@@ -533,7 +533,7 @@ RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
 Post--registration, this will offset the positions of sources in the
 two images by the desired amount.
 
-\subsection{Background Subtraction {\bf SIMON}}
+\subsection{Background Subtraction {\bf SIMON} \label{sec-bg}}
 
 \subsection{Variance Misestimation {\bf ANDYB/SIMON}}
 
@@ -663,28 +663,6 @@ including:
 \bibliography{refs}
 
 \clearpage
-%\begin{table}
-%\centering
-%\begin{tabular}{clcc}
-%\hline
-%\multicolumn{4}{|c|}{Best Results: Production 8} \\
-%\hline
-%Visit    & Prefilter & False Detection Matches & False Detection Orphans \\
-%\hline
-%v6866601 & True      & 5                      & 29  \\
-%         & False     & 10                     & 81  \\
-%v6866602 & True      & 5                      & 30  \\
-%         & False     & 9                      & 35  \\
-%v6866603 & True      & 2                      & 9   \\
-%         & False     & 1                      & 23  \\
-%\end{tabular}
-%\caption{Total number of {\tt DiaSources} detected at 5--sigma from
-%  all 9 sensors in raft 2,2, for the configurations that yielded the
-%  lowest number of false detections.  Matches are determined using a
-%  3'' match radius with the input reference catalog.  Objects with the
-%  {\tt EDGE} flag are ignored. \label{tab-bestfp8}}
-%\end{table}
-
 \begin{table}
 \centering
 \begin{tabular}{clcccccc}
@@ -712,58 +690,9 @@ v6866603 & True      & 23      &23         & 0  & 1     & 0   & 2.8 \\
   We also list the number of false detections that are found within
   the outer 100 pixels of the image N$_{D<100}$.  The final column
   lists ratios of the number of negatively detected false detections
-  to those with positive flux, a 5--sigma. \label{tab-bestfp10a}}
+  to those with positive flux, a 5--sigma. \label{tab-bestfp10}}
 \end{table}
 
-\begin{table}
-\centering
-\begin{tabular}{clccc}
-\hline
-\multicolumn{5}{|c|}{Best Results: Production 10} \\
-\hline
-Visit    & Prefilter & False Detections: Matches & False Detections: Orphans & Nneg / Npos \\
-\hline
-v6866601 & True      & 11                        & 59  & 1.8 \\ 
-         & False     & 99                        & 44  & 2.9 \\
-v6866602 & True      & 7                         & 35  & 2.2 \\
-         & False     & 8                         & 45  & 0.7 \\
-v6866603 & True      & 1                         & 22  & 2.8 \\
-         & False     & 1                         & 35  & 3.0 \\
-%v6866601 & True      & 11                        & 70  & 1.8 \\ SUBTRACT ME!
-%         & False     & 99                        & 143 & 2.9 \\
-%v6866602 & True      & 7                         & 42  & 2.2 \\
-%         & False     & 8                         & 53  & 0.7 \\
-%v6866603 & True      & 1                         & 23  & 2.8 \\
-%         & False     & 1                         & 36  & 3.0 \\
-\end{tabular}
-\caption{Total number of {\tt DiaSources} detected at 5--sigma from
-  all 9 sensors in raft 2,2, for the configurations that yielded the
-  lowest number of false detections.  Matches are determined using a
-  3'' match radius with the input reference catalog.  Objects with the
-  {\tt EDGE} flag are ignored.  The final column lists ratios of the
-  number of negatively detected false detections to those with
-  positive flux. \label{tab-bestfp10b}}
-\end{table}
-
-%\begin{table}
-%\centering
-%\begin{tabular}{clccc}
-%\hline
-%\multicolumn{5}{|c|}{Best Configs: Production 8} \\
-%\hline
-%Visit    & Prefilter & nGauss & degGauss & spatialOrder \\
-%\hline
-%v6866601 & True      & 3      & 6        & 5 \\
-%         & False     & 3      & 2        & 4 \\
-%v6866602 & True      & 3      & 6        & 5 \\
-%         & False     & 3      & 5        & 5 \\
-%v6866603 & True      & 3      & 6        & 4 \\
-%         & False     & 3      & 6        & 4 \\
-%\end{tabular}
-%\caption{Configurations that led to the best results listed in
-%  Table~\ref{tab-bestfp8}.  All post-production runs include
-%  perturbations about these configurations. \label{tab-bestconfig8}}
-%\end{table}
 
 \begin{table}
 \centering
@@ -840,41 +769,10 @@ v6866603 & 0.975     & 0.002    \\
   the x--axis.  The {\it left} column shows these results for
   prefiltering, while the {\it right} column shows this for the
   post--filtered analysis.  The best results listed in
-  Table~\ref{tab-bestfp}, with the associated configurations from
-  Table~\ref{tab-bestconfig}, correspond to the minimum in each of the
+  Table~\ref{tab-bestfp10}, with the associated configurations from
+  Table~\ref{tab-bestconfig10}, correspond to the minimum in each of the
   subpanels.  }
 \label{fp_heatmap}
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=0.8\textwidth]{figures/shift.eps} \\
-\caption{Figure illustrating the ability of the kernel basis to
-  compensate, locally, for the effects of misregistration.  Each
-  element of the grid shows a single KernelCandidate local difference
-  image (visit=6866603, doPreFilter=True).  Columns indicate the
-  Gaussian sigma of the basis, which is designed to have one Gaussian
-  with the prescribed width, modified to fourth order.  Rows indicate
-  the amplitude of the astrometric offset that was introduced into
-  the Source positions before image-to-image registration.  
-  In the {\it top} row, we see that even with a small astrometric
-  offset, the sigma=2 basis is unable to produce a quality
-  subtraction, because the width is inappropriate for matching the two
-  input Psfs (the theoretical Gaussian sigma here is 3.4 pixels).  At
-  sigma=4 the basis is able to produce a quality subtraction, and by
-  sigma=5 the basis is too large to match the Psfs.  In {\it row 4},
-  we show that even for an astrometric offset of 4 pixels (0.8''), the
-  sigma=4 basis can produce a reasonable difference image without
-  structured residuals.  However, by {\it row 5}, with an offset of 6
-  pixels, none of the Gaussians provide a successful local difference
-  image. 
-  The ability of the basis to compensate for bulk astrometric offsets
-  is a function of the kernel width, and the kernel width is itself a
-  function of the two input Psf FWHMs.  Thus there is a complicated
-  dependence of the ability of the kernel to shift the centroids of
-  stars.  Roughly, the basis may compensate for local astrometric residuals
-  at a scale up to $\sqrt{\sigma_S^2 - \sigma_T^2}$.
-}
-\label{kernel_offsets}
 \end{figure}
 
 \begin{figure}
@@ -936,6 +834,13 @@ v6866603 & 0.975     & 0.002    \\
 \label{edgedist}
 \end{figure}
 
+
+\begin{figure}
+\includegraphics[width=1.0\textwidth]{figures/wcs_rms.eps} \\
+\caption{Wcs rms.}
+\label{wcsrms}
+\end{figure}
+
 \begin{figure}
 \includegraphics[width=1.0\textwidth]{figures/wcs_shift.eps} \\
 \caption{Wcs shift.}
@@ -943,9 +848,34 @@ v6866603 & 0.975     & 0.002    \\
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=1.0\textwidth]{figures/wcs_rms.eps} \\
-\caption{Wcs rms.}
-\label{wcsrms}
+\includegraphics[width=0.8\textwidth]{figures/shift.eps} \\
+\caption{Figure illustrating the ability of the kernel basis to
+  compensate, locally, for the effects of misregistration.  Each
+  element of the grid shows a single KernelCandidate local difference
+  image (visit=6866603, doPreFilter=True).  Columns indicate the
+  Gaussian sigma of the basis, which is designed to have one Gaussian
+  with the prescribed width, modified to fourth order.  Rows indicate
+  the amplitude of the astrometric offset that was introduced into
+  the Source positions before image-to-image registration.  
+  In the {\it top} row, we see that even with a small astrometric
+  offset, the sigma=2 basis is unable to produce a quality
+  subtraction, because the width is inappropriate for matching the two
+  input Psfs (the theoretical Gaussian sigma here is 3.4 pixels).  At
+  sigma=4 the basis is able to produce a quality subtraction, and by
+  sigma=5 the basis is too large to match the Psfs.  In {\it row 4},
+  we show that even for an astrometric offset of 4 pixels (0.8''), the
+  sigma=4 basis can produce a reasonable difference image without
+  structured residuals.  However, by {\it row 5}, with an offset of 6
+  pixels, none of the Gaussians provide a successful local difference
+  image. 
+  The ability of the basis to compensate for bulk astrometric offsets
+  is a function of the kernel width, and the kernel width is itself a
+  function of the two input Psf FWHMs.  Thus there is a complicated
+  dependence of the ability of the kernel to shift the centroids of
+  stars.  Roughly, the basis may compensate for local astrometric residuals
+  at a scale up to $\sqrt{\sigma_S^2 - \sigma_T^2}$.
+}
+\label{kernel_offsets}
 \end{figure}
 
 
