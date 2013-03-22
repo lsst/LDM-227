@@ -56,14 +56,14 @@ We're done!
 The focus of this production is to optimize and quantify the false
 positive rate in the Psf--matched subtraction of a science image and a
 reference image (referred to as the template image below).  The metric
-we optimize is the number of false positives that are detected and
+we optimize is the number of false detections that are detected and
 measured on the image difference.  We calculate several additional
 quality metrics during the image subtraction process, and correlate
-them with the number of false positives, as a means to predict the
-number of false positives we may expect downstream from the image
+them with the number of false detections, as a means to predict the
+number of false detections we may expect downstream from the image
 subtraction.
 
-\subsection{Algorithm and Background}
+\subsection{Algorithm and Background {\bf ANDYB}}
 
 We assume that science image $S(x,y)$ can be modeled as a convolution
 of the template image $T(x,y)$ by a PSF--matching kernel $K(u,v,x,y)$.
@@ -135,7 +135,7 @@ D'_{Post}(x,y) & = & D_{Post}(x,y) \circ Psf_S(x,y,u,v).  \nonumber
 %One complication is that measurement on $D'_{Pre}$ is necessarily
 %different than on $D'_{Post}$.
 
-\subsection{Implementation}
+\subsection{Implementation {\bf ANDYB}}
 
 We describe the general set of classes and algorithms that are used to
 undertake these operations in the LSST DM stack.  We assume that we
@@ -309,7 +309,7 @@ to the measurements on post--filtered data.
 All {\tt DiaSources} are associated with the {\tt calexp's} {\tt
   sources} and with the reference catalog, with a permissive matching
 radius of 2''.  {\tt DiaSources} that match with {\tt sources} may be
-true residuals around stars {\it or} true false positives that are
+true residuals around stars {\it or} true false detections that are
 also found in {\tt calexp} SourceDetectionTask.  For this reason, we
 use the associations with the reference catalog objects as the
 assessment if a given {\tt DiaSource} matches with a {\tt source} or
@@ -320,7 +320,7 @@ are accessed with a specially written RepositoryIterator that
 aggregates {\tt KernelCandidates} from a given {\tt source} across
 multiple output repositories.
 
-\subsubsection{Configs}
+\subsubsection{Configs {\bf ANDYB}}
 
 We ran several pre--productions to tune: the dimensions of the kernels
 and KernelCandidates; the widths of the Gaussians (sigGauss) based on
@@ -339,10 +339,12 @@ RegisterTask, to determine the ability of the kernel basis to
 accommodate astrometric misregistration; the size of the SpatialCells
 used in the spatial interpolation, which effectively regulates the
 numbers of constraints that go into the spatial fit; and modifying the
-detection thresholds to determine how the number of false positives
+detection thresholds to determine how the number of false detections
 scales with threshold.
 
-\subsection{Simulations}
+\subsubsection{Measurement {\bf RUSS}}
+
+\subsection{Simulations {\bf ANDYC}}
 
 These algorithms were run on 3 visits, with seeings 0.6'' (visit
 6866601), 0.88'' (visit 6866602), and 1.2'' (visit 6866603).  These
@@ -361,7 +363,7 @@ yield a significant convolution of the template image.
 
 \section{KernelCandidate Statistics}
 
-\subsection{Mean Squared Error}
+\subsection{Mean Squared Error {\bf SIMON}}
 
 In order to investigate the bias--variance trade--off in the overall
 fit, we calculate the MSE of each KernelCandidate's difference image
@@ -373,9 +375,13 @@ image, and the variance is the mean square of the difference image.
 In both cases, we normalize by the square root of the variance so that
 pixels are in units of sigma.
 
-\subsection{Reduced $\chi^2$}
+\subsection{Reduced $\chi^2$ {\bf SIMON}}
 
-\section{False Positive Rate}
+\section{False Detection Rate}
+
+\subsection{Theoretical {\bf ANDYC}}
+
+\subsection{Empirical {\bf ANDYB}}
 
 After running an ensemble of 144 pipeline configurations, we
 aggregated the numbers of false detections.  We report the results for
@@ -398,9 +404,9 @@ with the exception of the deconvolution case (visit 6866601 and
 prefilter=False), the Gaussians need to be modified by Laguerre
 polynomials of order 4 or higher.  The minimum of these detection maps
 are found using the configs of highest complexity, with a very flat
-slope in the number of false positives beyond spatialKernelOrder$>$3
+slope in the number of false detections beyond spatialKernelOrder$>$3
 and degGauss$>$3.  There is not much evidence for an upturn in the
-numbers of false positives, meaning we have likely not reached the
+numbers of false detections, meaning we have likely not reached the
 case of overfitting using these configs.
 
 The numbers of false detections in each best case are given in
@@ -433,29 +439,35 @@ distances from the edge of the sensor for all false detections in {\it
   green}.  Uncertainties are plotted using the square root of the
 number of points in each bin, and the histograms are normalized to
 provide a probability density.  The takeaway is that we find no
-significant correlation of false positives with the boundaries of the
+significant correlation of false detetions with the boundaries of the
 fitting functions.
 
-\section{False Positive Dependencies}
+\section{False Detecion Dependencies}
 
 After finding the configurations that yielded the minimal numbers of
-false positives, we then perturbed the solutions to examine how the
-numbers of false positives scaled with different effects.  This
+false detections, we then perturbed the solutions to examine how the
+numbers of false detections scaled with different effects.  This
 included, in order of importance for this production: the difference
 image detection threshold; the number of KernelCandidates going into
 the spatial model; and astrometric registration errors.  We also
-undertake a theoretical analysis of the number of false positives
+undertake a theoretical analysis of the number of false detections
 expected in a 4k x 4k image as a function fo detection threshold, and
 examine the requirements this sets on our ability to model the
 variance and backgrounds in the images.  We compare the emperical
 variation of false detections with detection threshold, and show that
 our data are consistent with this.
 
-\subsection{Detection Threshold}
+\subsection{Detection Threshold {\bf SIMON}}
 
-\subsection{Number of KernelCandidates}
+To estimate the numbers of false detections we would expect in a
+$4000\times4072$ pixel science image with a given FWHM in pixels, we
+do the following.  The theoretical expectations for the number of
+false detections due to random Gaussian fluctuations is outlined in
+\cite{Kaiser-PointSources}.
 
-\subsection{Registration Errors}
+\subsection{Number of KernelCandidates {\bf ANDYB}}
+
+\subsection{Registration Errors {\bf ANDYB}}
 
 We implemented two simple perturbations of the inputs to the
 image--to--image RegisterTask: we first added a random offset to each
@@ -484,7 +496,7 @@ misalignments.
 %\label{wcs_offsets}
 %\end{figure}
 
-\subsubsection{Coordinate RMS}
+\subsubsection{Coordinate RMS {\bf ANDYB}}
 
 We perturbed the coordinates of each template Source that was input to
 RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
@@ -493,9 +505,8 @@ multiplied each offset by a number pulled from a normal (0,1)
 distribution.  The output RMS reported by RegisterTask was noted to
 track these offsets.
 
-The false positive rate was not seen to vary significantly.
 
-\subsubsection{Coordinate Offsets}
+\subsubsection{Coordinate Offsets {\bf ANDYB}}
 
 We offset the coordinates of each template Source that was input to
 RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
@@ -503,18 +514,9 @@ RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
 Post--registration, this will offset the positions of sources in the
 two images by the desired amount.
 
-\subsection{Background Subtraction}
+\subsection{Background Subtraction {\bf SIMON}}
 
-\subsection{Number of False Positives With Detection Threshold}
-
-To estimate the numbers of false positives we would expect in a
-$4000\times4072$ pixel science image with a given FWHM in pixels, we
-do the following.  The theoretical expectations for the number of
-false positives due to random Gaussian fluctuations is outlined in
-\cite{Kaiser-PointSources}.
-
-
-\subsection{Variance Misestimation}
+\subsection{Variance Misestimation {\bf ANDYB/SIMON}}
 
 The variance in the prefilterd and postfiltered images is likely to be
 different due to the different types of operations that have happened
@@ -539,29 +541,27 @@ is not an exact conservation in practice), the variance plane of the
 prefiltered data should itself be $\sim$3\% lower than the emperical
 variance in the image plane.  {\it TEST ME}.
 
-\subsection{Measurements on Pre--filtered Data}
-
 \section{Conclusions}
 
-We can reach near the theoretical limit for false positive rate in
+We can reach near the theoretical limit for false detection rate in
 these ideal data, something which has not been demonstrated for image
 subtraction algorithms in the past.
 
 Pre--filtering is clearly preferred when the traditional process would
 lead to deconvolution, or sharpening, of the data.  When the standard
 processing results in a convolution, or smoothing of the data,
-pre--filtering provides fewer false positives.  As a trade--off, the
-measurement of these false positives is not yet well defined.
+pre--filtering provides fewer false detections.  As a trade--off, the
+measurement of these false detetions is not yet well defined.
 
 \section{Future Work}
 
 We intend to research additional aspects of the problem going forward,
 including:
 \begin{itemize}
-\item How the false positive rate varies with more realistic SEDs;
-\item How the false positive rate varies with airmass;
+\item How the false detection rate varies with more realistic SEDs;
+\item How the false detection rate varies with airmass;
 \item How the system behaves with a realistic mix of stars and galaxies;
-\item How the false positive rate looks in crowded fields;
+\item How the false detection rate looks in crowded fields;
 \item How to perform measurement on pre--filtered difference images;
 \end{itemize}
 
@@ -576,7 +576,7 @@ including:
 \hline
 \multicolumn{4}{|c|}{Best Results: Production 8} \\
 \hline
-Visit    & Prefilter & False Positive Matches & False Positive Orphans \\
+Visit    & Prefilter & False Detection Matches & False Detection Orphans \\
 \hline
 v6866601 & True      & 5                      & 29  \\
          & False     & 10                     & 81  \\
@@ -587,7 +587,7 @@ v6866603 & True      & 2                      & 9   \\
 \end{tabular}
 \caption{Total number of {\tt DiaSources} detected at 5--sigma from
   all 9 sensors in raft 2,2, for the configurations that yielded the
-  lowest number of false positives.  Matches are determined using a
+  lowest number of false detections.  Matches are determined using a
   2'' match radius with the input reference catalog.  Objects with the
   {\tt EDGE} flag are ignored. \label{tab-bestfp8}}
 \end{table}
@@ -600,7 +600,7 @@ v6866603 & True      & 2                      & 9   \\
 \hline
 Visit    & Prefilter & False Detections: Matches & False Detections: Orphans & Nneg / Npos \\
 \hline
-v6866601 & True      & 59                        & 70  & 1.8 \\ 
+v6866601 & True      & 11                        & 59  & 1.8 \\ 
          & False     & 99                        & 44  & 2.9 \\
 v6866602 & True      & 7                         & 35  & 2.2 \\
          & False     & 8                         & 45  & 0.7 \\
@@ -615,7 +615,7 @@ v6866603 & True      & 1                         & 22  & 2.8 \\
 \end{tabular}
 \caption{Total number of {\tt DiaSources} detected at 5--sigma from
   all 9 sensors in raft 2,2, for the configurations that yielded the
-  lowest number of false positives.  Matches are determined using a
+  lowest number of false detections.  Matches are determined using a
   2'' match radius with the input reference catalog.  Objects with the
   {\tt EDGE} flag are ignored.  The final column lists ratios of the
   number of negatively detected false detections to those with
@@ -662,6 +662,29 @@ v6866603 & True      & 3      & 5        & 5 \\
 \caption{Configurations that led to the best results listed in
   Table~\ref{tab-bestfp10}.  All post-production runs include
   perturbations about these configurations. \label{tab-bestconfig10}}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{clcc}
+\hline
+\multicolumn{4}{|c|}{Variance Ratios} \\
+\hline
+Visit    & Prefilter & Mean Ratio & RMS Ratio \\
+\hline
+v6866601 & True      & 1.009      & 0.002     \\
+         & False     & 1.005      & 0.001     \\
+v6866602 & True      & 1.003      & 0.0004    \\
+         & False     & 1.005      & 0.0007    \\
+v6866603 & True      & 1.004      & 0.0003    \\
+         & False     & 1.008      & 0.002     \\
+\end{tabular}
+\caption{Ratio of the emperical RMS in the difference images,
+  calculated via the interquartile range, to the square root of the
+  median of the variance plane.  In all cases the variance plane
+  represents an {\it underestimate} of the true variance in the
+  images.  We report the mean and RMS across all sensors.
+}
 \end{table}
 
 
@@ -756,14 +779,14 @@ v6866603 & True      & 3      & 5        & 5 \\
 
 \begin{figure}
 \includegraphics[width=1.0\textwidth]{figures/cellsize.eps} \\
-\caption{False positives with cell size
+\caption{False detections with cell size
 }
 \label{cellsize}
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=1.0\textwidth]{figures/edge.eps} \\
-\caption{Distribution of false positives as a function of the minimum
+\caption{Distribution of false detections as a function of the minimum
   distance from the edge of the sensor.  The {\it green} line shows
   the results from a random distribution of points.  The {\it blue}
   lines show the measured distributions, normalized as a probability
