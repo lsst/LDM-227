@@ -1,6 +1,6 @@
 \documentclass[prd, nofootinbib, floatfix, 11pt,tightenlines,times]{article}
 
-% latex W13report.tex; bibtex W13report; latex W13report; latex W13report; dvips W13report; gv W13report.ps
+% latex W13report.tex; bibtex W13report; latex W13report; latex W13report; dvips W13report; ps2pdf W13report.ps ; gv W13report.pdf
 
 \usepackage[paperwidth=8.5in,paperheight=11in,centering,margin=1in]{geometry}
 \usepackage{amsmath}
@@ -83,7 +83,7 @@ where $\sigma^2(x,y)$ is the per--pixel variance stored in the {\tt
 spatially varying model for the kernel, we assume that the relative
 weights of the basis functions $a_i$ themselves vary spatially,
 i.e. $K(u,v,x,y) = \sum_i a_i(x,y) K_i(u,v)$.  We also assume that
-there is a differnetial background between the two images $b(x,y)$
+there is a differential background between the two images $b(x,y)$
 that may be fit for using a low--order Chebyshev.  The image
 difference is then calculated through $D(x,y) = S(x,y) - T(x,y)
 \otimes K(u,v,x,y) - b(x,y)$.
@@ -368,7 +368,7 @@ postfilter configuration.  Matching of the template image with visit
 6866602 also yields a mild deconvolution (the images were generated to
 have the same seeing) for 5/9 sensors.  The matching of the template
 with visit 6866603 with postfiltering, and of all visits with
-prefiltereing, yields a convolution (smoothing) of the image.
+prefiltering, yields a convolution (smoothing) of the image.
 
 \section{KernelCandidate Statistics}
 
@@ -718,27 +718,26 @@ v6866603 & True      & 3      & 5        & 5 \\
   perturbations about these configurations. \label{tab-bestconfig10}}
 \end{table}
 
+\clearpage
 
 \begin{table}
 \centering
-\begin{tabular}{clcc}
+\begin{tabular}{clccc}
 \hline
-\multicolumn{4}{|c|}{Variance Ratios} \\
+\multicolumn{4}{|c|}{Variance Ratios: Empirical to Propagated} \\
 \hline
-Visit    & Prefilter & Mean Ratio & RMS Ratio \\
+Visit    & $D_{pre} = D'_{pre}$ & $D_{post}$ & $D'_{post}$ \\
 \hline
-v6866601 & True      & 1.019      & 0.005    \\
-         & False     & 1.011      & 0.002    \\
-v6866602 & True      & 1.007      & 0.001    \\
-         & False     & 1.010      & 0.002    \\
-v6866603 & True      & 1.008      & 0.001    \\
-         & False     & 1.015      & 0.003    \\
+v6866601 &$1.012 \pm 0.002$&$1.018 \pm 0.005$&$0.599 \pm 0.017$ \\
+v6866602 &$1.010 \pm 0.002$&$1.007 \pm 0.001$&$1.046 \pm 0.002$ \\
+v6866603 &$1.015 \pm 0.003$&$1.008 \pm 0.001$&$1.045 \pm 0.003$ \\
 \end{tabular}
 \caption{Ratio of the empirical variance in the difference images,
   calculated via (0.741 times the interquartile range)$^2$, to the
   median of the variance plane.  In all cases the variance plane
   represents an {\it underestimate} of the true variance in the
-  images.  We report the mean and RMS across all sensors.  }
+  images.  We report the mean and RMS across all sensors for the best
+  configurations.  }
 \label{tab-variance1}
 \end{table}
 
@@ -746,18 +745,22 @@ v6866603 & True      & 1.008      & 0.001    \\
 \centering
 \begin{tabular}{ccc}
 \hline
-\multicolumn{3}{|c|}{Variance Ratios} \\
+\multicolumn{3}{|c|}{Variance Ratios: $D'_{post} / D'_{pre}$} \\
 \hline
-Visit    & Mean Postfilter/Prefilter & RMS Postfilter/Prefilter \\
+Visit    & Empirical & Propagated \\
 \hline
-v6866601 & 1.72      & 0.04     \\
-v6866602 & 0.967     & 0.001    \\
-v6866603 & 0.975     & 0.002    \\
+v6866601 & $1.011 \pm 0.016$    & $1.710 \pm 0.049$    \\
+v6866602 & $1.001 \pm 0.001$    & $0.967 \pm 0.001$    \\
+v6866603 & $1.002 \pm 0.001$    & $0.974 \pm 0.002$    \\
 \end{tabular}
 \caption{Ratios of the variance planes immediately before detection
   $D'$.  Ratios are in the sense of the variance of the postfiltered
-  image divided by the variance of the prefiltered image.  We report
-  the mean and RMS across all sensors.}
+  image divided by the variance of the prefiltered image.  The first
+  column represents the ratios of the empirical variance, calculated
+  via (0.741 times the interquartile range)$^2$.  The second column
+  reports the ratios of the means of the propagated variance planes.
+  We report the mean and RMS across all sensors for the best
+  configurations.}
 \label{tab-variance2}
 \end{table}
 
