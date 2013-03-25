@@ -287,15 +287,10 @@ case of pre--filtering, we detect on the difference image directly.
 In post--filtering, we correlate the difference image with its Psf (by
 design, the same as the Psf of $S$) before detection is run.  All else
 being equal, the images immediately preceding the detection step
-($D'$) should be {\it exactly} the same.  We expect minor differences
-in the variance due to the fact that the post--filtered data will have
-gone through 3 convolutions (astrometric resampling; Psf--matching to
-the science image; Psf filtering for detection) while the
-pre--filtered data will have gone through only two (astrometric
-resampling; psf--matching to the maximum likelihood image).
-Differences in the shapes and sizes of the Psf--matching kernels used
-in the two cases may also cause systematic differences in the images.
-Detections are merged using a grow radius of 2 pixels.
+($D'$) should be {\it exactly} the same.  However, differences in the
+shapes and sizes of the Psf--matching kernels used in the two cases
+may cause systematic differences in the images.  Detections are merged
+using a grow radius of 2 pixels.
 
 Finally, we run DipoleMeasurementTask on the detections to create {\tt
   DiaSources}.  DipoleMeasurementTask is an extension of
@@ -539,34 +534,58 @@ two images by the desired amount.
 
 \subsection{Variance Misestimation {\bf ANDYB/SIMON}}
 
-The variance in the prefiltered and postfiltered images is likely to
-be different due to the different types of operations that have
-happened on the images.  We quantify this by taking the postfiltered
-images, immediately before the detection step (i.e. $D'$), and compare
-the variance plane to that coming from the prefiltered image
-(Table~\ref{tab-variance2}).  For v6866601, which is a deconvolution
-in the postfiltered production, we find that the variance is 70\%
-higher when postfiltering.  This is consistent with the expectation
-that deconvolution increases the noise properties of the image.  For
-v6866602 and v6866603, we find that the variance is 3--4\% and 2--3\%
-higher in the {\it prefiltered} data, respectively.  The primary
-culprit for this is that the prefiltered data will have gone through 1
-less convolution, meaning less of the variance will have been lost to
-covariance.
+Because these images will have gone through multiple convolutions
+before reaching the detection stage, it is expected that the
+propagated per-pixel variance will not provide an exact representation
+of the empirical variance in the image planes.  Because the
+astrometric resampling uses a warping kernel that is designed to
+preserve the noise properties of the images, we expect that the kernel
+convolution and Psf--filtering will be the largest sources of error.
 
-To quantify the significance of these offsets, we compared the
-empirical variance in the image planes with the variance tracked by
-the variance planes to ascertain how much we are misestimating the
-true variance.  We calculated the ratio of the interquartile range of
-unmasked pixels in the image plane, multiplied by 0.741 and then
-squared, with the median of unmasked pixels from the variance plane.
-The results are summarized in Table~\ref{tab-variance1}.  We find that
-we are marginally, but consistently, underestimating the variance in
-our images by $\sim 1\%$.  This affect is smaller than the amplitudes
-reported above, indicating that there are true differences in the
-variances of prefiltered and postfiltered detection images.  As the
-variance is higher in the prefiltered images, we will be slightly less
-sensitive to true variability.
+To quantify these errors, we first compared the empirical variance in
+the image planes with the level tracked by the variance planes.  We
+calculated the ratio of the interquartile range of unmasked pixels in
+the image plane, multiplied by 0.741 and then squared, with the median
+of unmasked pixels from the variance plane.  The former represents the
+empirical variance, while the latter the propagated variance.  We
+investigate their ratio (empirical/propagated) at 2 stages in the
+processing: after creation of the difference image (image $D$), and
+immediately preceding detection (image $D'$).  Recall that for
+prefiltering, $D = D'$.  These results are summarized in
+Table~\ref{tab-variance1}.  For prefiltering, we find that the
+variance plane typically underestimates the true variance by $1\%$ for
+all visits.  When using postfiltering, the deconvolution visit
+v6866601 yields a similar underestimate in the difference image, but
+for the other two visits the variance is tracked to better than 1\%,
+with a small RMS.  However, when postfiltering with the Psf, the
+variance becomes {\it overestimated} by nearly a factor of two for
+deconvolution visit v6866601, and {\it underestimated} by $4-5\%$ for
+the other visits.
+
+We further investigate the variance properties of the difference
+images immediately preceding detection, i.e. the difference image
+itself in the case of prefiltering, and the difference image
+correlated with its Psf in postfiltering.  These results are
+summarized in Table~\ref{tab-variance2}.  We find that, empirically,
+the images have very similar noise properties at the detection stage,
+with the deconvolution visit having larger variance by $1\%$ but the
+other visits having essentially equal noise properties, with a bias
+towards the postfiltered data having slightly higher variance (while
+the RMS is small, all values are greater than 1.0).  The medians of
+the variance planes tell a different story though.  For the
+deconvolution visit, the median per--pixel variance is $70\%$ higher.
+While this will suppress the detections of false positives, it will
+also significantly suppress the detection efficiency for true
+variability.  For the other visits, the prefiltered per--pixel
+variance is relatively {\it higher} by $3-4\%$.  This will decrease
+the sensitivity of the prefiltered data to false positives; as shown
+above, the rate is indeed smaller using the prefiltering pipeline.
+This analysis demonstrates that this is primarily due to an {\it
+  underestimate} of the per--pixel variance in the postfilter
+processing.  As outlined by \cite{Price-Stacking}, this may be
+accounted for by differences in pixel covariance when undergoing
+multiple convolutions, which are not currently tracked.  We have not
+yet definitively demonstrated that this is the case here.
 
 \section{Conclusions}
 
@@ -724,7 +743,7 @@ v6866603 & True      & 3      & 5        & 5 \\
 \centering
 \begin{tabular}{clccc}
 \hline
-\multicolumn{4}{|c|}{Variance Ratios: Empirical to Propagated} \\
+\multicolumn{4}{|c|}{Variance Ratios: Empirical / Propagated} \\
 \hline
 Visit    & $D_{pre} = D'_{pre}$ & $D_{post}$ & $D'_{post}$ \\
 \hline
