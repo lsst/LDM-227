@@ -84,8 +84,8 @@ spatially varying model for the kernel, we assume that the relative
 weights of the basis functions $a_i$ themselves vary spatially,
 i.e. $K(u,v,x,y) = \sum_i a_i(x,y) K_i(u,v)$.  We also assume that
 there is a differential background between the two images $b(x,y)$
-that may be fit for using a low--order Chebyshev.  The image
-difference is then calculated through $D(x,y) = S(x,y) - T(x,y)
+that may be fit for using a low--order Chebyshev polynomial.  The
+image difference is then calculated through $D(x,y) = S(x,y) - T(x,y)
 \otimes K(u,v,x,y) - b(x,y)$.
 
 The basis functions themselves $K_i(u,v)$ are a degree of freedom in
@@ -96,13 +96,13 @@ a Laguerre polynomial to a given order (degGauss).  Subsequent studies
 \citep[e.g.][]{2007AN....328...16I} have suggested that a constant
 ratio be maintained between the different Gaussian widths, such that
 $\sigma_{i+1} = \beta \times \sigma_{i}$.  We use the value $\beta =
-2.0$ for this production.  We set the scale for sigma by noting that,
-under the assumption that the Psfs of the images are Gaussian
-($\sigma_S$ for the science image and $\sigma_T$ for the template
-image), the sigma of the matching kernel should be simply $\sigma_K^2
-= \sigma_S^2 - \sigma_T^2$.  We use this width for the central
-Gaussian in our sequence, when we use more than one Gaussian, or the
-sole Gaussian in the sequence when we use only one.
+2.0$ for this production.  We set the overall scale for sigma by
+noting that, under the assumption that the Psfs of the images are
+Gaussian ($\sigma_S$ for the science image and $\sigma_T$ for the
+template image), the sigma of the matching kernel should be simply
+$\sigma_K^2 = \sigma_S^2 - \sigma_T^2$.  We use this width for the
+central Gaussian in the basis sequences where we use more than one
+Gaussian, or the sole Gaussian in the sequences when we use only one.
 
 Detection on the difference image occurs through correlation of
 $D(x,y)$ with the science image's Psf, yielding optimally filtered
@@ -112,9 +112,10 @@ maximum likelihood estimate of there being a point source at that
 position.  Detection occurs by simply finding pixels that are more
 than N sigma above the variance.  
 
-In this production, we investigate two orders of operations for the
-optimal filtering by the Psf.  In the first, we Psf--match the
-template image to a pre--filtered science image:
+In this production, we investigated two orders of operations for the
+optimal filtering by the Psf.  In the first method, called
+prefiltering, we Psf--match the template image to a pre--filtered
+science image:
 \begin{eqnarray}
 D_{Pre}(x,y) & = & S(x,y) \circ Psf_S(x,y,u,v) - T(x,y) \otimes K(u,v,x,y) \nonumber \\ 
 D'_{Pre}(x,y) & = & D_{Pre}(x,y). \nonumber 
@@ -127,9 +128,9 @@ image by $\sqrt{2}$.  The Psf matching kernels will need to be
 correspondingly larger to account for the larger Psfs.  We are able to
 run detection directly on this image.
 
-In the second, which is the classical implementation of the problem,
-we create a difference image that is then post--filtered with the Psf
-for detection:
+In the second, which is the classical postfiltering implementation of
+the technique, we create a difference image that is then
+post--filtered with the Psf for detection:
 \begin{eqnarray}
 D_{Post}(x,y) & = & S(x,y) - T(x,y) \otimes K(u,v,x,y) \nonumber \\ 
 D'_{Post}(x,y) & = & D_{Post}(x,y) \circ Psf_S(x,y,u,v).  \nonumber 
@@ -176,15 +177,15 @@ $T(x,y)$ are sent to ImagePsfMatchTask, whose purpose is to fit for
 $K(u,v,x,y)$ and to produce $D(x,y)$.  The first step is to use the
 Psf Gaussian sigmas to define the {\it sizes} of the Gaussians shapes
 in $K_i(u,v)$.  As mentioned above, the main width is chosen to be
-$\sqrt{\sigma_S^2 - \sigma_T^2}$.  We use variations on the
-configuration where we use one Gaussian, with the above width, and
-three Gaussians, the central of which has this width, and the others a
-factor of $\beta = 2.0$ smaller and larger.  We modify each of the
-Gaussians by a set of Laguerre polynomials of a given order.  The
-smallest Gaussian is modified to the highest order, with the others
-modified by order//2.  Figure~\ref{basis} provides an example basis
-set with this configuration.  The total number of shapes in the basis
-are: $\sum_i^{\rm nGauss} ({\rm degGauss}_i+1)\times({\rm
+$\sqrt{\sigma_S^2 - \sigma_T^2}$.  We investigate variations on the
+configuration where we use one Gaussian with the above width, and
+where we use three Gaussians, the central of which has this width and
+the others are a factor of $\beta = 2.0$ smaller and larger.  We
+modify each of the Gaussians by a set of Laguerre polynomials of a
+given order.  The smallest Gaussian is modified to the highest order,
+with the others modified by order//2.  Figure~\ref{basis} provides an
+example basis set with this configuration.  The total number of shapes
+in the basis are: $\sum_i^{\rm nGauss} ({\rm degGauss}_i+1)\times({\rm
   degGauss}_i+2)/2$ \footnote{ A notable exception to this algorithm
   is found in the case where $\sigma_T > \sigma_S$, i.e. a sharpening
   must be done to the template to match it to the science image.  This
@@ -210,8 +211,7 @@ are: $\sum_i^{\rm nGauss} ({\rm degGauss}_i+1)\times({\rm
   larger Psf (larger by $\sqrt{2}$) to match the template to.  This is
   the case for v6866601 in this study, where the postfiltered analysis
   yields deconvolution of the template, while the prefiltered analysis
-  does not.
-}.
+  does not.  }.
 %
 The dimensions of the Psf matching kernel are
 chosen to be 6 times the largest Gaussian width, with a minimum
@@ -234,24 +234,24 @@ For each source $j$ returned by DiaCatalogSourceSelector, we create a
 and $S_j(x,y)$ centered on the source.  These will be used to fit for
 a local solution $K(u,v)$; the ensemble of local solutions at each
 source's $x,y$ will be used to fit for the full spatial solution
-$K(u,v,x,y)$.  We emphasize that the dimensions of the substamps is
+$K(u,v,x,y)$.  We emphasize that the dimensions of the substamps are
 important.  Note from equation~\ref{eq-soln} that the coefficients
 $a_i$ are derived from a convolution of the template substamp with the
 kernel basis functions $K_i$.  This convolution means that
 kernelSize//2 pixels along each substamp edge are rendered unusable.
-To maintain a significant number of pixels in $C_i$, we set the
-KernelCandidate dimensions to be twice that of the kernel (i.e. the
+To maintain a significant number of pixels in $C_i$, we set the {\tt
+  KernelCandidate} dimensions to be twice that of the kernel (i.e. the
 number of pixels remaining in $C_i$ is equal to the number of pixels
 in the kernel, which is fewer than the number of bases $i$).  For each
-KernelCandidate, we solve for $K(u,v)$ and create a local difference
-image $D_j(x,y)$.  We evaluate several statistics on this local
-difference image, normalized by the square root of its variance, which
-puts the pixels in units of sigma.  We measure the mean sigma, the RMS
-of this distribution, the $\chi^2$ of these pixels normalized by the
-degrees of freedom (number of pixels in $D(x,y)_j$ minus the number of
-kernel bases), and the mean squared error.  These are referred to as
-the LOCAL kernel metrics, and reflect how appropriate the chosen
-kernel basis is.
+{\tt KernelCandidate}, we solve for $K(u,v)$ and create a local
+difference image $D_j(x,y)$.  We evaluate several statistics on this
+local difference image, normalized by the square root of its variance,
+which puts the pixels in units of sigma.  We measure the mean sigma,
+the RMS of this distribution, the $\chi^2$ of these pixels normalized
+by the degrees of freedom (number of pixels in $D_j(x,y)$ minus the
+number of kernel bases), and the mean squared error.  These are
+referred to as the LOCAL kernel metrics, and reflect how appropriate
+the chosen kernel basis is.
 
 The ensemble of {\tt KernelCandidates} is then used to constrain a
 spatial model of the kernel $K(u,v,x,y)$.  This is done using the {\tt
@@ -301,48 +301,55 @@ happens on the filtered maximum likelihood image and source
 measurement on the associated pixels in the unfiltered difference
 image.  In pre--filtering, the latter does not exist, and thus
 detection and measurement happen on the same image.  This restricts
-the types of measurements that may be made on the sources.  In
-particular, the Psf flux is merely the fitted amplitude of the peak in
+the types of measurements that may be made on the sources.  For
+example, the Psf flux is merely the fitted amplitude of the peak in
 the image, and the Psf centroid its center.  While these measurements
 are trivial to implement, additional work needs to be done on how to
-implement the remainder of the measurement suite in a manner comparable
-to the measurements on post--filtered data.
+implement the remainder of the measurement suite in a manner
+comparable to the measurements on post--filtered data.
 
-All {\tt DiaSources} are associated with the {\tt calexp's} {\tt
-  sources} and with the reference catalog, with a permissive matching
-radius of 3''.  {\tt DiaSources} that match with {\tt sources} may be
-true residuals around stars {\it or} true false detections that are
-also found in {\tt calexp} SourceDetectionTask.  For this reason, we
+All {\tt DiaSources} are associated with the {\tt calexp's} sources
+and with the reference catalog, with a permissive matching radius of
+3''.  {\tt DiaSources} that match with {\tt sources} may be true
+residuals around stars {\it or} true false detections that are also
+found in the {\tt calexp} SourceDetectionTask.  For this reason, we
 use the associations with the reference catalog objects as the
-assessment if a given {\tt DiaSource} matches with a {\tt source} or
+assessment if a given {\tt DiaSource} matches with an input object or
 whether it is an orphan (e.g. a statistical fluctuation in the
 background).  In addition, all {\tt KernelCandidates} are persisted
 with the above {\tt LOCAL} and {\tt SPATIAL} metrics.  Repositories
 are accessed with a specially written RepositoryIterator that
-aggregates {\tt KernelCandidates} from a given {\tt source} across
-multiple output repositories.
+aggregates {\tt KernelCandidates} from a given source across multiple
+output repositories.
 
 \subsubsection{Configs {\bf ANDYB}}
 
-We ran several pre--productions to tune: the dimensions of the kernels
-and KernelCandidates; the widths of the Gaussians (sigGauss) based on
-the FWHM of the input images; and the scaling of the Gaussians
-($\beta$) in the basis sequence.  The main production runs included:
-an outer loop over the use of pre--filtering or post--filtering for
-detection; variations of the complexity of the Kernel basis, including
-the number of Gaussians (nGauss = 1,3) and the degree of the modifying
-Laguerre polynomials (degGauss = 1..6); and the spatial order of the
-Chebyshev polynomials on $a_i(x,y)$ (spatialKernelOrder = 1..6).
-Finally, we ran several post--productions focused on perturbing the
-solutions that yielded the fewest numbers of DiaSources along specific
-dimensions.  This included: the RMS of the WCS solution used by
-RegisterTask; including a DC offset in the source positions prior to
-RegisterTask, to determine the ability of the kernel basis to
-accommodate astrometric misregistration; the size of the SpatialCells
-used in the spatial interpolation, which effectively regulates the
-numbers of constraints that go into the spatial fit; and modifying the
-detection thresholds to determine how the number of false detections
-scales with threshold.
+We ran several pre--productions to tune the following: the dimensions
+of the kernels and {\tt KernelCandidates}; the widths of the Gaussians
+(sigGauss) based on the FWHM of the input images; and the scaling of
+the Gaussians ($\beta$) in the basis sequence.
+Figure~\ref{fig_galleryBad} provides a rogue's gallery of image
+subtraction failures, centered on {\tt KernelCandidates}, and outlines
+reasons for each failure.  Figure~\ref{fig_galleryGood} provides a
+gallery showing what the results from a successful image subtraction
+appear like, for postfiltering on the {\it top} and prefiltering on
+teh {\it bottom}.
+
+The main production runs included: an outer loop over the use of
+pre--filtering or post--filtering for detection; variations of the
+complexity of the Kernel basis, including the number of Gaussians
+(nGauss = 1,3) and the degree of the modifying Laguerre polynomials
+(degGauss = 1..6); and the spatial order of the Chebyshev polynomials
+on $a_i(x,y)$ (spatialKernelOrder = 1..6).  Finally, we ran several
+post--productions focused on perturbing the solutions that yielded the
+fewest numbers of DiaSources along specific dimensions.  This
+included: the RMS of the WCS solution used by RegisterTask; including
+a DC offset in the source positions prior to RegisterTask, to
+determine the ability of the kernel basis to accommodate astrometric
+misregistration; the size of the SpatialCells used in the spatial
+interpolation, which effectively regulates the numbers of constraints
+that go into the spatial fit; and modifying the detection thresholds
+to determine how the number of false detections scales with threshold.
 
 \subsubsection{Measurement {\bf RUSS}}
 
@@ -370,14 +377,14 @@ prefiltering, yields a convolution (smoothing) of the image.
 \subsection{Mean Squared Error {\bf SIMON}}
 
 In order to investigate the bias--variance trade--off in the overall
-fit, we calculate the MSE of each KernelCandidate's difference image
-derived from the evaluation of the spatial model at that location.  We
-define the bias as $\left| data - model \right|$, the variance as
-$\left| (data - model)^2 \right|$, and the MSE as {\tt bias$^2$ +
-  variance}.  In this context, the bias is the mean of the difference
-image, and the variance is the mean square of the difference image.
-In both cases, we normalize by the square root of the variance so that
-pixels are in units of sigma.
+fit, we calculate the MSE of each {\tt KernelCandidate's} difference
+image derived from the evaluation of the spatial model at that
+location.  We define the bias as $\left| data - model \right|$, the
+variance as $\left| (data - model)^2 \right|$, and the MSE as {\tt
+  bias$^2$ + variance}.  In this context, the bias is the mean of the
+difference image, and the variance is the mean square of the
+difference image.  In both cases, we normalize by the square root of
+the variance so that pixels are in units of sigma.
 
 \subsection{Reduced $\chi^2$ {\bf SIMON}}
 
@@ -395,11 +402,12 @@ the each of the 3 visits, and for pre-- and postfiltering for
 detection.  We cut on {\tt flags.pixel.edge} to remove spurious
 detections on the immediate border of the image; other than that we do
 no other cuts other than requiring that the {\tt centroid.sdss} is
-finite.  We count the DiaSources that match with the reference catalog
-(3'' matching radius) via the {\tt refMatchId} value.  We find no
+finite.  We separated the DiaSources that match with the reference
+catalog (3'' matching radius) from those that don't (referred to as
+orphans) to investigate the origins of the detections.  We found no
 significant correlation of false detections with sensor within the
 raft; therefore we report the aggregate results for all 9 sensors in
-the analysis that follows.
+the analyses that follow.
 
 A set of ``heat maps'' are presented in Figure~\ref{fp_heatmap}, that
 demonstrate the total number of detections across all 9 sensors as a
@@ -418,25 +426,25 @@ case of overfitting using these configs.
 The numbers of false detections in each best case are given in
 Table~\ref{tab-bestfp10}.  We undertook a manual inspection of all
 difference images to associate the DiaSources with Sources in the
-images, and also a 3'' association with the input source catalog.
-These associations are listed in the N$_{Match}$ column of
-Table~\ref{tab-bestfp10}, with the unmatched false positives in the
-N$_{Orphan}$ column.  The former are likely to come from systematics
-in the subtractions of stars, while the latter would be due to
-fluctuations in the background.  We note 2 effects that will impact
-N$_{Match}$.  The first is that, with a 3'' matching radius, 4\% of
-random fluctuations will by--chance associate with a Source.  Assuming
-that N$_{Orphan}$ represents 96\% of the background fluctuation
-population, we estimate the number of fluctuations from that same
-population that would have associated with Sources as N$_{Random}$.
-Finally, we count all matches that occur within 100 pixels of the
-image boundary, where we might expect the spatial extrapolation to
-yield systematic residuals, as N$_{D<100}$.  To the extent that
-(N$_{Random}$ + N$_{D<100}$) < N$_{Match}$, we have a small residual
-set of systematic false detections in our imaging ensemble.  Aside
-from the deconvolution run, this is at the level of 10 total false
-detections over 9 sensors in 5 production runs, or 1 every 4--5
-images.
+images, and also use a 3'' association with the input source catalog
+to define matches and orphans.  Associations are listed in the
+N$_{Match}$ column of Table~\ref{tab-bestfp10}, with the unmatched
+false positives in the N$_{Orphan}$ column.  The former are likely to
+come from systematics in the subtractions of stars, while the latter
+would be due to fluctuations in the background.  We note 2 effects
+that will impact N$_{Match}$.  The first is that, with a 3'' matching
+radius, 4\% of random fluctuations will by--chance associate with a
+Source.  Assuming that N$_{Orphan}$ represents 96\% of the background
+fluctuation population, we estimate the number of fluctuations from
+that same population that would have associated with Sources as
+N$_{Random}$.  Finally, we count all matches that occur within 100
+pixels of the image boundary, where we might expect the spatial
+extrapolation to yield systematic residuals, as N$_{D<100}$.  To the
+extent that (N$_{Random}$ + N$_{D<100}$) $<$ N$_{Match}$, we have a
+small residual set of systematic false detections in our imaging
+ensemble.  Aside from the deconvolution run, this is at the level of
+10 total false detections over 9 sensors in 5 production runs, or 1
+every 4--5 images.
 
 We also list the ratio of negatively detected to positively detected
 DiaSources.  That this ratio is significantly greater than 1.0 in most
@@ -464,14 +472,15 @@ After finding the configurations that yielded the minimal numbers of
 false detections, we then perturbed the solutions to examine how the
 numbers of false detections scaled with different effects.  This
 included, in order of importance for this production: the difference
-image detection threshold; the number of KernelCandidates going into
-the spatial model; and astrometric registration errors.  We also
-undertake a theoretical analysis of the number of false detections
+image detection threshold; the number of {\tt KernelCandidates} going
+into the spatial model; and astrometric registration errors.  We also
+undertook a theoretical analysis of the number of false detections
 expected in a 4k x 4k image as a function of detection threshold, and
 examine the requirements this sets on our ability to model the
 variance and backgrounds in the images.  We compare the empirical
-variation of false detections with detection threshold, and show that
-our data are consistent with this.
+variation of false detections with detection threshold in our data,
+and show that our results are consistent with this, indicating that we
+reached the systematic floor in these data.
 
 \subsection{Detection Threshold {\bf SIMON}}
 
@@ -537,10 +546,11 @@ two images by the desired amount.
 Because these images will have gone through multiple convolutions
 before reaching the detection stage, it is expected that the
 propagated per-pixel variance will not provide an exact representation
-of the empirical variance in the image planes.  Because the
-astrometric resampling uses a warping kernel that is designed to
-preserve the noise properties of the images, we expect that the kernel
-convolution and Psf--filtering will be the largest sources of error.
+of the empirical variance in the image planes \citep{Price-Stacking}.
+Because the astrometric resampling uses a warping kernel that is
+designed to preserve the noise properties of the images, we expect
+that the kernel convolution and Psf--filtering will be the largest
+sources of error.
 
 To quantify these errors, we first compared the empirical variance in
 the image planes with the level tracked by the variance planes.  We
@@ -562,30 +572,32 @@ variance becomes {\it overestimated} by nearly a factor of two for
 deconvolution visit v6866601, and {\it underestimated} by $4-5\%$ for
 the other visits.
 
-We further investigate the variance properties of the difference
-images immediately preceding detection, i.e. the difference image
-itself in the case of prefiltering, and the difference image
-correlated with its Psf in postfiltering.  These results are
-summarized in Table~\ref{tab-variance2}.  We find that, empirically,
-the images have very similar noise properties at the detection stage,
-with the deconvolution visit having larger variance by $1\%$ but the
-other visits having essentially equal noise properties, with a bias
-towards the postfiltered data having slightly higher variance (while
-the RMS is small, all values are greater than 1.0).  The medians of
-the variance planes tell a different story though.  For the
-deconvolution visit, the median per--pixel variance is $70\%$ higher.
-While this will suppress the detections of false positives, it will
-also significantly suppress the detection efficiency for true
-variability.  For the other visits, the prefiltered per--pixel
-variance is relatively {\it higher} by $3-4\%$.  This will decrease
-the sensitivity of the prefiltered data to false positives; as shown
+We further investigate the variance properties of the images that are
+input to the detection stage, i.e. the difference image itself in the
+case of prefiltering, and the difference image correlated with its Psf
+in postfiltering.  These results are summarized in
+Table~\ref{tab-variance2}.  We find that, empirically, the images have
+very similar noise properties at the detection stage, with the
+deconvolution visit having larger variance by $1\%$ but the other
+visits having essentially equal noise properties, with a bias towards
+the postfiltered data having slightly higher variance (while the RMS
+is small, all values are greater than 1.0).  The medians of the
+variance planes tell a different story though.  For the deconvolution
+visit, the median per--pixel variance is $70\%$ higher.  While this
+will suppress the detections of false positives, it will also
+significantly suppress the detection efficiency for true variability.
+For the other visits, the prefiltered per--pixel variance is
+relatively {\it higher} by $3-4\%$.  This will decrease the
+sensitivity of the prefiltered data to false positives; as shown
 above, the rate is indeed smaller using the prefiltering pipeline.
 This analysis demonstrates that this is primarily due to an {\it
   underestimate} of the per--pixel variance in the postfilter
-processing.  As outlined by \cite{Price-Stacking}, this may be
-accounted for by differences in pixel covariance when undergoing
-multiple convolutions, which are not currently tracked.  We have not
-yet definitively demonstrated that this is the case here.
+processing: while the prefiltered variance is a 1\% underestiamte, the
+postfiltered varaince is a 5\% underestimate.  As outlined by
+\cite{Price-Stacking}, this may be due to differences in pixel
+covariance when undergoing multiple convolutions, which are not
+currently tracked.  We have not yet definitively demonstrated that
+this is the case here.
 
 \section{Conclusions}
 
@@ -643,7 +655,12 @@ measurement of these false detections is not yet well defined.
   understanding that deconvolution increases high frequency noise in
   the images, and provides a {\it lower} detection efficiency in
   deconvolved data.  Prefiltering is clearly preferred in the case of
-  deconvolution.
+  significant deconvolution (v6866601; FWHM of 4.9 pixels matches to a
+  FWHM of 3.5 pixels).
+
+\item The postfilter pipeline can produce difference images with a
+  minor deconvolution (v6866602; FWHM of 4.9 pixels matched to 4.9
+  smoothed (v6866603; FWHM of 4.9 pixels matched to 6.7 pixels).
 
 \item The false detection rate is seen to scale with detection
   threshold in a manner consistent with theory (Figure~\ref{}).
@@ -786,20 +803,6 @@ v6866603 & $1.002 \pm 0.001$    & $0.974 \pm 0.002$    \\
 
 \clearpage
 
-\begin{figure}
-\includegraphics[width=1.0\textwidth]{figures/heatmap10.eps} \\
-\caption{``Heat--map'' detailing the total numbers of 5--sigma false
-  positives as a function of two main degrees of freedom: the maximum
-  order of basis Laguerre polynomials along the y--axis, and the
-  spatial order of the Chebyshev expansion of the spatial model along
-  the x--axis.  The {\it left} column shows these results for
-  prefiltering, while the {\it right} column shows this for the
-  post--filtered analysis.  The best results listed in
-  Table~\ref{tab-bestfp10}, with the associated configurations from
-  Table~\ref{tab-bestconfig10}, correspond to the minimum in each of the
-  subpanels.  }
-\label{fp_heatmap}
-\end{figure}
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/deconv2.eps} 
@@ -843,6 +846,21 @@ v6866603 & $1.002 \pm 0.001$    & $0.974 \pm 0.002$    \\
 \end{figure}
 
 \begin{figure}
+\includegraphics[width=1.0\textwidth]{figures/heatmap10.eps} \\
+\caption{``Heat--map'' detailing the total numbers of 5--sigma false
+  positives as a function of two main degrees of freedom: the maximum
+  order of basis Laguerre polynomials along the y--axis, and the
+  spatial order of the Chebyshev expansion of the spatial model along
+  the x--axis.  The {\it left} column shows these results for
+  prefiltering, while the {\it right} column shows this for the
+  post--filtered analysis.  The best results listed in
+  Table~\ref{tab-bestfp10}, with the associated configurations from
+  Table~\ref{tab-bestconfig10}, correspond to the minimum in each of the
+  subpanels.  }
+\label{fp_heatmap}
+\end{figure}
+
+\begin{figure}
 \includegraphics[width=1.0\textwidth]{figures/cellsize.eps} \\
 \caption{False detections with cell size
 }
@@ -877,14 +895,14 @@ v6866603 & $1.002 \pm 0.001$    & $0.974 \pm 0.002$    \\
 \includegraphics[width=0.8\textwidth]{figures/shift.eps} \\
 \caption{Figure illustrating the ability of the kernel basis to
   compensate, locally, for the effects of misregistration.  Each
-  element of the grid shows a single KernelCandidate local difference
-  image (visit=6866603, doPreFilter=True).  Columns indicate the
-  Gaussian sigma of the basis, which is designed to have one Gaussian
-  with the prescribed width, modified to fourth order.  Rows indicate
-  the amplitude of the astrometric offset that was introduced into
-  the Source positions before image-to-image registration.  
-  In the {\it top} row, we see that even with a small astrometric
-  offset, the sigma=2 basis is unable to produce a quality
+  element of the grid shows a single {\tt KernelCandidate} local
+  difference image (visit=6866603, doPreFilter=True).  Columns
+  indicate the Gaussian sigma of the basis, which is designed to have
+  one Gaussian with the prescribed width, modified to fourth order.
+  Rows indicate the amplitude of the astrometric offset that was
+  introduced into the Source positions before image-to-image
+  registration.  In the {\it top} row, we see that even with a small
+  astrometric offset, the sigma=2 basis is unable to produce a quality
   subtraction, because the width is inappropriate for matching the two
   input Psfs (the theoretical Gaussian sigma here is 3.4 pixels).  At
   sigma=4 the basis is able to produce a quality subtraction, and by
@@ -893,14 +911,13 @@ v6866603 & $1.002 \pm 0.001$    & $0.974 \pm 0.002$    \\
   sigma=4 basis can produce a reasonable difference image without
   structured residuals.  However, by {\it row 5}, with an offset of 6
   pixels, none of the Gaussians provide a successful local difference
-  image. 
-  The ability of the basis to compensate for bulk astrometric offsets
-  is a function of the kernel width, and the kernel width is itself a
-  function of the two input Psf FWHMs.  Thus there is a complicated
-  dependence of the ability of the kernel to shift the centroids of
-  stars.  Roughly, the basis may compensate for local astrometric residuals
-  at a scale up to $\sqrt{\sigma_S^2 - \sigma_T^2}$.
-}
+  image.  The ability of the basis to compensate for bulk astrometric
+  offsets is a function of the kernel width, and the kernel width is
+  itself a function of the two input Psf FWHMs.  Thus there is a
+  complicated dependence of the ability of the kernel to shift the
+  centroids of stars.  Roughly, the basis may compensate for local
+  astrometric residuals at a scale up to $\sqrt{\sigma_S^2 -
+    \sigma_T^2}$.  }
 \label{kernel_offsets}
 \end{figure}
 
