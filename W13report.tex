@@ -630,6 +630,11 @@ covariance when undergoing multiple convolutions, which are not
 currently tracked.  We have not yet definitively demonstrated that
 this is the case here.
 
+For completeness, we note the median differences in the image plane at
+the time of detection are 3--4 counts (or 0.2 sigma relative to the
+empirical variance) for v6866601, 0.2 counts (sigma) for v6866602, and
+less than 0.1 counts (sigma) for v6866603.
+
 \section{Conclusions}
 
 We can reach near the theoretical limit for false detection rate in
@@ -680,9 +685,9 @@ measurement of these false detections is not yet well defined.
   have gone through one additional convolution compared to the
   prefiltered data.
 
-\item When deconvolving, the postfiltered variance is 70\% {\it
-  higher} at the time of detection compared to the prefiltered data
-  (Table~\ref{tab-variance2}).  This is consistent with the
+\item When strongly deconvolving, the postfiltered variance is 70\%
+  {\it higher} at the time of detection compared to the prefiltered
+  data (Table~\ref{tab-variance2}).  This is consistent with the
   understanding that deconvolution increases high frequency noise in
   the images, and provides a {\it lower} detection efficiency in
   deconvolved data.  Prefiltering is clearly preferred in the case of
@@ -691,7 +696,9 @@ measurement of these false detections is not yet well defined.
 
 \item The postfilter pipeline can produce difference images with a
   minor deconvolution (v6866602; FWHM of 4.9 pixels matched to 4.9
-  smoothed (v6866603; FWHM of 4.9 pixels matched to 6.7 pixels).
+  pixels) at a quality commensurate with a subtraction that uses a
+  smoothing convolution (v6866603; FWHM of 4.9 pixels matched to 6.7
+  pixels).
 
 \item The false detection rate is seen to scale with detection
   threshold in a manner consistent with theory (Figure~\ref{}).
