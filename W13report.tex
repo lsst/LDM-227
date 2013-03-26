@@ -45,7 +45,7 @@
 
 \maketitle
 
-We're done!
+Summary.
 
 \clearpage
 \tableofcontents
@@ -53,23 +53,34 @@ We're done!
 
 \section{Production Scope and Goals}
 
-The focus of this production is to optimize and quantify the false
-positive rate in the Psf--matched subtraction of a science image and a
-reference image (referred to as the template image below).  The metric
-we optimize is the number of false detections that are detected and
-measured on the image difference.  We calculate several additional
-quality metrics during the image subtraction process, and correlate
-them with the number of false detections, as a means to predict the
-number of false detections we may expect downstream from the image
-subtraction.
+The focus of this production was to optimize and quantify the false
+detection rate in the PSF--matched subtraction of a science image and
+a reference image (referred to as the template image below).  We used
+simulated images generated using ideal conditions, and with no
+intrinsic variability in the sources.  The metric we optimized is the
+number of false detections that are detected and measured on the image
+difference.  As the input were simulated with no variability, any
+detections found in the difference images are ``false positives''.  We
+calculated several additional quality metrics during the image
+subtraction process, and correlated them with the number of false
+detections, as a means to predict the number of false detections we
+may expect downstream from the image subtraction.  Once we found an
+optimum configuration, we perturbed the solution along multiple
+dimensions to understand how the false detection rate responded.  
 
 \subsection{Algorithm and Background {\bf ANDYB}}
 
-We assume that science image $S(x,y)$ can be modeled as a convolution
-of the template image $T(x,y)$ by a PSF--matching kernel $K(u,v,x,y)$.
-We further assume that the kernel may be decomposed using a set of
-basis functions $K(u,v) = \sum_i a_i K_i(u,v)$, where the coefficients
-in front of each basis are determined through:
+We outline the image subtraction process below.  We assume that science
+image $S(x,y)$ can be modeled as a convolution of the template image
+$T(x,y)$ by a PSF--matching kernel $K(u,v,x,y)$.  The images will have
+different point spread functions (PSFs), which are the time--averaged
+transfer functions of a point source through the Earth's atmosphere,
+telescope optics, and into the silicon of the detector before being
+read out.  The essence of image subtraction is to match the PSFs of
+these two images so that they may be subtracted pixel by pixel.  We
+further assume that the PSF--matching kernel may be decomposed using a
+set of basis functions $K(u,v) = \sum_i a_i K_i(u,v)$, where the
+coefficients in front of each basis are determined through:
 %
 \begin{eqnarray}
 C_i & \equiv & (K_i \otimes T) \\ \nonumber
@@ -97,7 +108,7 @@ a Laguerre polynomial to a given order (degGauss).  Subsequent studies
 ratio be maintained between the different Gaussian widths, such that
 $\sigma_{i+1} = \beta \times \sigma_{i}$.  We use the value $\beta =
 2.0$ for this production.  We set the overall scale for sigma by
-noting that, under the assumption that the Psfs of the images are
+noting that, under the assumption that the PSFs of the images are
 Gaussian ($\sigma_S$ for the science image and $\sigma_T$ for the
 template image), the sigma of the matching kernel should be simply
 $\sigma_K^2 = \sigma_S^2 - \sigma_T^2$.  We use this width for the
@@ -105,41 +116,50 @@ central Gaussian in the basis sequences where we use more than one
 Gaussian, or the sole Gaussian in the sequences when we use only one.
 
 Detection on the difference image occurs through correlation of
-$D(x,y)$ with the science image's Psf, yielding optimally filtered
-detection image $D'(x,y) = D(x,y) \circ Psf_S(x,y,u,v)$ where $\circ$
+$D(x,y)$ with the science image's PSF, yielding optimally filtered
+detection image $D'(x,y) = D(x,y) \circ PSF_S(x,y,u,v)$ where $\circ$
 denotes correlation.  The values of the pixels in $D'(x,y)$ provide a
 maximum likelihood estimate of there being a point source at that
 position.  Detection occurs by simply finding pixels that are more
 than N sigma above the variance.  
 
 In this production, we investigated two orders of operations for the
-optimal filtering by the Psf.  In the first method, called
-prefiltering, we Psf--match the template image to a pre--filtered
+optimal filtering by the PSF.  In the first method, called
+prefiltering, we PSF--match the template image to a pre--filtered
 science image:
 \begin{eqnarray}
-D_{Pre}(x,y) & = & S(x,y) \circ Psf_S(x,y,u,v) - T(x,y) \otimes K(u,v,x,y) \nonumber \\ 
+D_{Pre}(x,y) & = & S(x,y) \circ PSF_S(x,y,u,v) - T(x,y) \otimes K(u,v,x,y) \nonumber \\ 
 D'_{Pre}(x,y) & = & D_{Pre}(x,y). \nonumber 
 \end{eqnarray}
 By pre--smoothing the image that we are matching the template to --
-$S(x,y) \circ Psf_S(x,y,u,v)$ -- we more frequently avoid the case
-of psf--matching {\it deconvolution}, where the FWHM of $T$ is
+$S(x,y) \circ PSF_S(x,y,u,v)$ -- we more frequently avoid the case
+of PSF--matching {\it deconvolution}, where the FWHM of $T$ is
 narrower than $S$.  This pre--filtering increases the FWHM of the
-image by $\sqrt{2}$.  The Psf matching kernels will need to be
-correspondingly larger to account for the larger Psfs.  We are able to
+image by $\sqrt{2}$.  The PSF matching kernels will need to be
+correspondingly larger to account for the larger PSFs.  We are able to
 run detection directly on this image.
 
 In the second, which is the classical postfiltering implementation of
 the technique, we create a difference image that is then
-post--filtered with the Psf for detection:
+post--filtered with the PSF for detection:
 \begin{eqnarray}
 D_{Post}(x,y) & = & S(x,y) - T(x,y) \otimes K(u,v,x,y) \nonumber \\ 
-D'_{Post}(x,y) & = & D_{Post}(x,y) \circ Psf_S(x,y,u,v).  \nonumber 
+D'_{Post}(x,y) & = & D_{Post}(x,y) \circ PSF_S(x,y,u,v).  \nonumber 
 \end{eqnarray}
 
 %One complication is that measurement on $D'_{Pre}$ is necessarily
 %different than on $D'_{Post}$.
 
 \section{Work Performed}
+
+Tasks that were completed in the run--up to production include:
+implementing prefiltering for image subtraction (#2551); implementing
+source selection for image subtraction (#2554, #2596); implementing
+measurement for difference image source (DiaSource) characterization
+(#2595); implementing RegisterTask for image--to--image registration
+(#2562, #2650); and defining and implementing metrics for testing
+ip\_diffim (#2636).  We describe in detail the overall pipeline that
+was established as the results of these tasks below.
 
 \subsection{Implementation {\bf ANDYB}}
 
@@ -152,7 +172,7 @@ patches that overlap the image; this mosaiced coadd is also returned
 as a {\tt calexp}.
 
 Next, we use the DiaCatalogSourceSelector to query the ImSim reference
-catalog for appropriate sources to use for Psf matching.  This
+catalog for appropriate sources to use for PSF matching.  This
 selector allows the user to specify the brightness and color range of
 the objects, toggle star or galaxy selection, and to include variable
 objects or not.  We select a fraction (1/5) of these objects to serve
@@ -174,10 +194,10 @@ removed the high order features in the backgrounds; therefore we
 simultaneously fit for a 1st--order spatially varying differential
 background $b(x,y)$ along with the kernel coefficients.
 
-Images $S(x,y)$ (optionally pre-filtered with $Psf_S(x,y,u,v)$) and
+Images $S(x,y)$ (optionally pre-filtered with $PSF_S(x,y,u,v)$) and
 $T(x,y)$ are sent to ImagePsfMatchTask, whose purpose is to fit for
 $K(u,v,x,y)$ and to produce $D(x,y)$.  The first step is to use the
-Psf Gaussian sigmas to define the {\it sizes} of the Gaussians shapes
+PSF Gaussian sigmas to define the {\it sizes} of the Gaussians shapes
 in $K_i(u,v)$.  As mentioned above, the main width is chosen to be
 $\sqrt{\sigma_S^2 - \sigma_T^2}$.  We investigate variations on the
 configuration where we use one Gaussian with the above width, and
@@ -205,17 +225,17 @@ in the basis are: $\sum_i^{\rm nGauss} ({\rm degGauss}_i+1)\times({\rm
   science image is likely to have masked defects, including cosmic
   rays and bad pixels, whose reach would be expanded due to the
   convolution; unmasked features such as faint cosmic rays are more
-  likely to look Psf--like after convolution (cosmic rays will likely
+  likely to look PSF--like after convolution (cosmic rays will likely
   have been sigma clipped out of the coadd).  However, it is not clear
   that deconvolving the template image is in principle any better.  A
   far better option, which we explore here, is to pre--filter the
   science image, which will in the vast majority cases provide a
-  larger Psf (larger by $\sqrt{2}$) to match the template to.  This is
+  larger PSF (larger by $\sqrt{2}$) to match the template to.  This is
   the case for v6866601 in this study, where the postfiltered analysis
   yields deconvolution of the template, while the prefiltered analysis
   does not.  }.
 %
-The dimensions of the Psf matching kernel are
+The dimensions of the PSF matching kernel are
 chosen to be 6 times the largest Gaussian width, with a minimum
 kernelSize of 21x21 pixels.  For kernels that are significantly
 smaller than this, the Gaussians have significant (non--zero) power at
@@ -286,11 +306,11 @@ We next run the SourceDetectionTask on the difference image, using a
 ``polarity'' of {\it both} to search for both positive and negative
 deviations.  We use a nominal detection threshold of 5 sigma.  In the
 case of pre--filtering, we detect on the difference image directly.
-In post--filtering, we correlate the difference image with its Psf (by
-design, the same as the Psf of $S$) before detection is run.  All else
+In post--filtering, we correlate the difference image with its PSF (by
+design, the same as the PSF of $S$) before detection is run.  All else
 being equal, the images immediately preceding the detection step
 ($D'$) should be {\it exactly} the same.  However, differences in the
-shapes and sizes of the Psf--matching kernels used in the two cases
+shapes and sizes of the PSF--matching kernels used in the two cases
 may cause systematic differences in the images.  Detections are merged
 using a grow radius of 2 pixels.
 
@@ -304,8 +324,8 @@ measurement on the associated pixels in the unfiltered difference
 image.  In pre--filtering, the latter does not exist, and thus
 detection and measurement happen on the same image.  This restricts
 the types of measurements that may be made on the sources.  For
-example, the Psf flux is merely the fitted amplitude of the peak in
-the image, and the Psf centroid its center.  While these measurements
+example, the PSF flux is merely the fitted amplitude of the peak in
+the image, and the PSF centroid its center.  While these measurements
 are trivial to implement, additional work needs to be done on how to
 implement the remainder of the measurement suite in a manner
 comparable to the measurements on post--filtered data.
@@ -459,7 +479,7 @@ in Table~\ref{tab-bestconfig10}.
 We have examined the distribution of these false detections across the
 image, and find no significant overdensities near the borders of the
 images, which would be expected in cases of under or over--fitting of
-the various spatial models (astrometry, backgrounds, Psf--matching
+the various spatial models (astrometry, backgrounds, PSF--matching
 kernels).  Figure~\ref{edgedist} provides the distribution of
 distances from the edge of the sensor for all false detections in {\it
   blue}, with a random sample of points in the image given in {\it
@@ -567,7 +587,7 @@ astrometric offsets of the degree expected from nightly processing
 should not drive the false positive rate.  
 
 Figure~\ref{kernel_offsets} demonstrates the ability of the
-Psf--matching kernel to redistribute flux to account for bulk
+PSF--matching kernel to redistribute flux to account for bulk
 astrometric misalignments.  Since these offsets are common--mode
 amongst all {\tt KernelCandidates}, the basis shapes themselves drive
 the pipeline's ability to compensate for them.  Having a Gaussian
@@ -576,7 +596,7 @@ enables the software to place significant power in this basis term.  We
 expect that, if these misalignments are a vector field, the ability of
 the spatial kernel model to account for the spatial variation of the
 misregistration will begin to drive the solution.  The take--away
-from this analysis is that the Psf--matching basis appears flexible
+from this analysis is that the PSF--matching basis appears flexible
 enough to account for, individually, random scatter and bulk offsets
 in the WCS solution.  This narrows the focus down to understanding how
 spatial variation in the WCS may drive the difference image quality,
@@ -597,7 +617,7 @@ propagated per-pixel variance will not provide an exact representation
 of the empirical variance in the image planes \citep{Price-Stacking}.
 Because the astrometric resampling uses a warping kernel that is
 designed to preserve the noise properties of the images, we expect
-that the kernel convolution and Psf--filtering will be the largest
+that the kernel convolution and PSF--filtering will be the largest
 sources of error.
 
 To quantify these errors, we first compared the empirical variance in
@@ -615,14 +635,14 @@ variance plane typically underestimates the true variance by $1\%$ for
 all visits.  When using postfiltering, the deconvolution visit
 v6866601 yields a similar underestimate in the difference image, but
 for the other two visits the variance is tracked to better than 1\%,
-with a small RMS.  However, when postfiltering with the Psf, the
+with a small RMS.  However, when postfiltering with the PSF, the
 variance becomes {\it overestimated} by nearly a factor of two for
 deconvolution visit v6866601, and {\it underestimated} by $4-5\%$ for
 the other visits.
 
 We further investigate the variance properties of the images that are
 input to the detection stage, i.e. the difference image itself in the
-case of prefiltering, and the difference image correlated with its Psf
+case of prefiltering, and the difference image correlated with its PSF
 in postfiltering.  These results are summarized in
 Table~\ref{tab-variance2}.  We find that, empirically, the images have
 very similar noise properties at the detection stage, with the
@@ -657,9 +677,9 @@ v6866602, and less than 0.1 counts (0.01 sigma) for v6866603.
 For this production, the understanding of the algorithm and
 optimization of the false detection rates took priority over
 optimizing the computational performance of the algorithms.  In
-particular, debugging hooks were impolemented and workarounds of
+particular, debugging hooks were implemented and workarounds of
 problems were devised with the focus on understanding the core
-Psf--matching algorithm.  Therefore there are several key ways in
+PSF--matching algorithm.  Therefore there are several key ways in
 which the production as--implemented will differ from how the code is
 used in Nightly and Data Release Processing.  We outline these
 differences below.
@@ -687,7 +707,7 @@ The reported {\tt imageDifference:detection} task performance is an
 accurate representation of its computational requirements.  However,
 the {\tt imageDifference:dipolemeasurement} task represents a
 significant overestimate of the true dipole measurement requirements.
-In particular, the Psf--flux dipole measurement is explicitly
+In particular, the PSF--flux dipole measurement is explicitly
 sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
   for} loop.
 
@@ -738,7 +758,7 @@ measurement of these false detections is not yet well defined.
   the multiple image convolutions that occur may alleviate this
   problem.
 
-\item When convolving to Psf--match, variance planes of postfiltered
+\item When convolving to PSF--match, variance planes of postfiltered
   detection images have {\it lower} variance than their prefiltered
   counterparts by $2-3\%$ (Table~\ref{tab-variance2}).  These images
   have gone through one additional convolution compared to the
@@ -769,7 +789,7 @@ measurement of these false detections is not yet well defined.
 
 \item The numbers of false detections that associate with Sources is
   shown to correlate with the amount of smoothing that occurs in the
-  Psf matching, in the sense that more smoothing leads to fewer false
+  PSF matching, in the sense that more smoothing leads to fewer false
   detections (Figure~\ref{}).  In this sense, there is a strong
   preference for running in prefiltered mode.
 
@@ -1009,7 +1029,7 @@ the coadd to the science exposure produces an order of magnitude more scatter in
   Figure~\ref{fig_galleryBad}.  The {\it top} set of data are from
   postfiltered analysis, while the {\it lower} set are from
   prefiltered data.  Note that the noise is smoother in the
-  prefiltered data due to correlation with the Psf. }
+  prefiltered data due to correlation with the PSF. }
 \label{fig_galleryGood}
 \end{figure}
 
@@ -1083,16 +1103,16 @@ the coadd to the science exposure produces an order of magnitude more scatter in
   registration.  In the {\it top} row, we see that even with a small
   astrometric offset, the sigma=2 basis is unable to produce a quality
   subtraction, because the width is inappropriate for matching the two
-  input Psfs (the theoretical Gaussian sigma here is 3.4 pixels).  At
+  input PSFs (the theoretical Gaussian sigma here is 3.4 pixels).  At
   sigma=4 the basis is able to produce a quality subtraction, and by
-  sigma=5 the basis is too large to match the Psfs.  In {\it row 4},
+  sigma=5 the basis is too large to match the PSFs.  In {\it row 4},
   we show that even for an astrometric offset of 4 pixels (0.8''), the
   sigma=4 basis can produce a reasonable difference image without
   structured residuals.  However, by {\it row 5}, with an offset of 6
   pixels, none of the Gaussians provide a successful local difference
   image.  The ability of the basis to compensate for bulk astrometric
   offsets is a function of the kernel width, and the kernel width is
-  itself a function of the two input Psf FWHMs.  Thus there is a
+  itself a function of the two input PSF FWHMs.  Thus there is a
   complicated dependence of the ability of the kernel to shift the
   centroids of stars.  Roughly, in our implementation, the basis may
   compensate for local astrometric residuals at a scale up to $\beta
