@@ -480,6 +480,20 @@ our data are consistent with this.
 
 \subsection{Detection Threshold {\bf SIMON}}
 
+Section \ref{sec-analyticfp} discusses the theoretical foundation 
+that sets the floor on the number of false positives we expect from a 
+pure Gaussian random field.  The number of false positives is a strong
+function of the seeing and and the confidence level of the detection.  
+By comparing the emperical false positive rate to the analytic predictions
+we can quantify how close we are getting to the theoretical floor in these
+data.  Because the number of false positives is such a strong function of
+detection threshold, misestimation of the signal to noise of the detections
+has a large impact on how many false positives are observed.  The Figures
+\ref{fig-fpthresh1}, \ref{fig-fpthresh2}, and \ref{fig-fpthresh3} show the 
+effect of misestimating the noise in the detections for each of three different
+seeing values (0.6\", 0.88\", 1.2\" respectively).
+
+
 To estimate the numbers of false detections we would expect in a
 $4000\times4072$ pixel science image with a given FWHM in pixels, we
 do the following.  The theoretical expectations for the number of
@@ -650,6 +664,53 @@ measurement of these false detections is not yet well defined.
 
 \end{itemize}
 
+\section{Outstanding Issues}
+We ran into several issues while doing this production that required work 
+arounds.  In some cases we did not have the time to drill all the way down
+to the root cause.  We itemize these issues here so that they may be addressed 
+as part of the Summer 2013 work.
+
+
+\subsection{Astrometric Registration}
+The original plan for this production was to use single deep exposures as 
+templates.  This required that we treat the single exposures as coadds.  As 
+such we warped the exposures to coadd patches for use in the image difference
+task.  The register task is unable to solve a differential WCS if one of the images
+has the CRPIX off the image.  This is the case for coadd patches.  To get around this
+we resolved the coadd patches using a TAN-SIP solution and then used the register
+task to solve for the differential WCS.  This worked fairly will part of the time 
+yeilding residuals in the 40-100 mas range.  The rest of the time the 
+residual was more like 250 mas range.  This is an order of magnitude larger than expected.
+
+We investigated potential causes of the large residuals.  To do this, we looked at the 
+residuals for template solutions, science image solutions, and template to science calexp 
+registration to attempt to isolate where the astrometry was being degraded.  The results are shown
+in table \ref{tab-wcsrms}.  We show the results for the nine sensors in the best seeing visit.  
+
+The solutions for the three steps that do not involve any warping show results consistent with 
+the accuracy we expect to get.  We also see the expected trend that the deep exposures have 
+smaller RMS than the solutions of the science images and the differential solution is dominated
+by the RMS in the science image.  In four cases, the coadd to science solution did not fail
+as catastrophically as in the other five, but the RMS is still a factor of several larger
+than in the non-warped cases.
+
+\subsection{Detection and Measurement on Negative Sources}
+We see more negative false positives than positive false positives.  This drove an investigation 
+into the symmetry of detection on positive/negative sources.  To do this we looked at the results 
+of the image difference task and compared it to the same runs when the difference image was inverted
+$differenceImage *= -1$ before measurement.  The results are as follows:
+\begin{itemize}
+\item The DIA source lists are always the same length.
+\item Negative sources always have integer centroid pixel values where positive sources have fractional
+pixel precision.
+\item Some sources are have the edge bit set in one image or the other.  This leads to a difference in 
+the number of false positives as we only consider those without the {\tt EDGE} flag set.
+\end{itemize}
+
+The suspicion is that the difference in precision of the centroid is linked to the difference in flags.
+We have not had the time to chase this down completely, but plan on doing so in Summer 2013.
+
+
 \section{Future Work}
 
 We intend to research additional aspects of the problem going forward,
@@ -762,6 +823,30 @@ v6866603 & 0.975     & 0.002    \\
 \end{table}
 
 
+\clearpage
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\multicolumn{5}{|c|}{WCS RMS in mas at various stages} \\
+\hline
+Sensor    & Deep & Science &  Deep to Science & Coadd to Science \\
+\hline
+R22:S00&21&29&19&382\\ 
+R22:S10&13&22&22&389\\
+R22:S20&7&18&21&375\\
+R22:S01&13&25&21&86\\
+R22:S11&6&17&20&81\\
+R22:S21&8&19&20&382\\
+R22:S02&8&17&20&178\\
+R22:S12&9&20&20&78\\
+R22:S22&7&21&21&389\\
+\hline
+\end{tabular}
+\caption{We looked at the resulting RMS from WCS fitting on the deep exposure alone, the science exposure alone,
+fitting the deep exposure to the science exposure, and fitting a warped coadd to the science exposure.  Fitting 
+the coadd to the science exposure produces an order of magnitude more scatter in the fit than at any other point.\label{tab-wcsrms}}
+\end{table}
 \clearpage
 
 \begin{figure}
