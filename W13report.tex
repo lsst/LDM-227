@@ -51,7 +51,7 @@ We're done!
 \tableofcontents
 \clearpage
 
-\section{Introduction}
+\section{Production Scope and Goals}
 
 The focus of this production is to optimize and quantify the false
 positive rate in the Psf--matched subtraction of a science image and a
@@ -138,6 +138,8 @@ D'_{Post}(x,y) & = & D_{Post}(x,y) \circ Psf_S(x,y,u,v).  \nonumber
 
 %One complication is that measurement on $D'_{Pre}$ is necessarily
 %different than on $D'_{Post}$.
+
+\section{Work Performed}
 
 \subsection{Implementation {\bf ANDYB}}
 
@@ -351,11 +353,11 @@ interpolation, which effectively regulates the numbers of constraints
 that go into the spatial fit; and modifying the detection thresholds
 to determine how the number of false detections scales with threshold.
 
-\subsubsection{Measurement {\bf RUSS}}
+\subsubsection{Improvements to Measurement {\bf RUSS}}
 
 Compare the measured S/N of the DiaSources with the detection threshold.
 
-\subsection{Simulations {\bf ANDYC}}
+\subsection{Image Simulations {\bf ANDYC}}
 
 These algorithms were run on 3 visits, with seeings 0.6'' (visit
 6866601), 0.88'' (visit 6866602), and 1.2'' (visit 6866603).  These
@@ -372,9 +374,10 @@ have the same seeing) for 5/9 sensors.  The matching of the template
 with visit 6866603 with postfiltering, and of all visits with
 prefiltering, yields a convolution (smoothing) of the image.
 
-\section{KernelCandidate Statistics}
 
-\subsection{Mean Squared Error {\bf SIMON}}
+\subsection{KernelCandidate Statistics}
+
+\subsubsection{Mean Squared Error {\bf SIMON}}
 
 In order to investigate the bias--variance trade--off in the overall
 fit, we calculate the MSE of each {\tt KernelCandidate's} difference
@@ -386,11 +389,11 @@ difference image, and the variance is the mean square of the
 difference image.  In both cases, we normalize by the square root of
 the variance so that pixels are in units of sigma.
 
-\subsection{Reduced $\chi^2$ {\bf SIMON}}
+\subsubsection{Reduced $\chi^2$ {\bf SIMON}}
 
-\subsection{Control Sample {\bf SIMON}}
+\subsubsection{Control Sample {\bf SIMON}}
 
-\section{False Detection Rate}
+\section{Results: False Detection Rate}
 
 \subsection{Theoretical {\bf ANDYC}}
 
@@ -466,7 +469,7 @@ provide a probability density.  The takeaway is that we find no
 significant correlation of false detections with the boundaries of the
 fitting functions.
 
-\section{False Detection Dependencies}
+\section{Results: False Detection Dependencies}
 
 After finding the configurations that yielded the minimal numbers of
 false detections, we then perturbed the solutions to examine how the
@@ -646,8 +649,12 @@ this is the case here.
 
 For completeness, we note the median differences in the image plane at
 the time of detection are 3--4 counts (or 0.2 sigma relative to the
-empirical variance) for v6866601, 0.2 counts (sigma) for v6866602, and
-less than 0.1 counts (sigma) for v6866603.
+empirical variance) for v6866601, 0.2 counts (0.02 sigma) for
+v6866602, and less than 0.1 counts (sigma) for v6866603.
+
+\section{Results: Computational Performance}
+
+Uh...
 
 \section{Conclusions}
 
