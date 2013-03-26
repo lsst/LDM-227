@@ -491,7 +491,7 @@ Section \ref{sec-analyticfp} discusses the theoretical foundation
 that sets the floor on the number of false positives we expect from a 
 pure Gaussian random field.  The number of false positives is a strong
 function of the seeing and and the confidence level of the detection.  
-By comparing the emperical false positive rate to the analytic predictions
+By comparing the empirical false positive rate to the analytic predictions
 we can quantify how close we are getting to the theoretical floor in these
 data.  Because the number of false positives is such a strong function of
 detection threshold, misestimation of the signal to noise of the detections
@@ -650,11 +650,49 @@ this is the case here.
 For completeness, we note the median differences in the image plane at
 the time of detection are 3--4 counts (or 0.2 sigma relative to the
 empirical variance) for v6866601, 0.2 counts (0.02 sigma) for
-v6866602, and less than 0.1 counts (sigma) for v6866603.
+v6866602, and less than 0.1 counts (0.01 sigma) for v6866603.
 
 \section{Results: Computational Performance}
 
-Uh...
+For this production, the understanding of the algorithm and
+optimization of the false detection rates took priority over
+optimizing the computational performance of the algorithms.  In
+particular, debugging hooks were impolemented and workarounds of
+problems were devised with the focus on understanding the core
+Psf--matching algorithm.  Therefore there are several key ways in
+which the production as--implemented will differ from how the code is
+used in Nightly and Data Release Processing.  We outline these
+differences below.
+
+The first difference is that due to problems with the {\tt
+  meas\_astrom} package, detailed in Section~\ref{subsec-astrom}, we
+were unable to exercise the envisioned data flow where we query a
+coadd repository for the template image.  Instead we used a single
+deep {\tt calexp} as the template image.  The astrometric registration
+of these images was trivial, as the images almost exactly overlap and
+are exactly the same size.  Thus the timings of the {\tt
+  imageDifference:register} task are {\it underestimates} of the
+astrometric registration subtask computational performance.
+
+Second, the core performance of the {\tt imageDifference:subtract}
+task will be significantly impacted by debugging hooks that were put
+in place specifically to generate the metrics being evaluated in this
+production.  The core functionality, {\tt matchMaskedImages}, does the
+convolution kernel fitting and actual convolution of the template
+image, and will be least impacted by these add--ons.  The reported
+timings of {\tt matchMaskedImages} are thus an {\it overestimate} of
+the method's performance.
+
+The reported {\tt imageDifference:detection} task performance is an
+accurate representation of its computational requirements.  However,
+the {\tt imageDifference:dipolemeasurement} task represents a
+significant overestimate of the true dipole measurement requirements.
+In particular, the Psf--flux dipole measurement is explicitly
+sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
+  for} loop.
+
+With these caveats, the timings of the {\tt imageDifference} subtasks
+are presented in Table~\ref{tab-timings}.
 
 \section{Conclusions}
 
@@ -752,7 +790,7 @@ to the root cause.  We itemize these issues here so that they may be addressed
 as part of the Summer 2013 work.
 
 
-\subsection{Astrometric Registration}
+\subsection{Astrometric Registration \label{subsec-astrom}}
 The original plan for this production was to use single deep exposures as 
 templates.  This required that we treat the single exposures as coadds.  As 
 such we warped the exposures to coadd patches for use in the image difference
@@ -760,7 +798,7 @@ task.  The register task is unable to solve a differential WCS if one of the ima
 has the CRPIX off the image.  This is the case for coadd patches.  To get around this
 we resolved the coadd patches using a TAN-SIP solution and then used the register
 task to solve for the differential WCS.  This worked fairly will part of the time 
-yeilding residuals in the 40-100 mas range.  The rest of the time the 
+yielding residuals in the 40-100 mas range.  The rest of the time the 
 residual was more like 250 mas range.  This is an order of magnitude larger than expected.
 
 We investigated potential causes of the large residuals.  To do this, we looked at the 
