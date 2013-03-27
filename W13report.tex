@@ -419,11 +419,11 @@ solutions that yielded the fewest numbers of DiaSources along specific
 dimensions.  This included: the RMS of the WCS solution used by
 RegisterTask; including a DC offset in the source positions prior to
 RegisterTask, to determine the ability of the kernel basis to
-accommodate astrometric misregistration; the size of the SpatialCells
-used in the spatial interpolation, which effectively regulates the
-numbers of constraints that go into the spatial fit; and modifying the
-detection thresholds to determine how the number of false detections
-scales with threshold.
+accommodate astrometric misregistration; the size of the {\tt
+  SpatialCells} used in the spatial interpolation, which effectively
+regulates the numbers of constraints that go into the spatial fit; and
+modifying the detection thresholds to determine how the number of
+false detections scales with threshold.
 
 
 \section{Results: False Detection Rate}
@@ -551,6 +551,34 @@ estimate the inherent over/under estimation of the reported variance in the imag
 %\cite{Kaiser-PointSources}.
 
 \subsection{Number of KernelCandidates {\bf ANDYB}}
+
+We effectively decreased the numbers of {\tt KernelCandidates} in the
+spatial solution by increasing the size of {\tt SpatialCells} used to
+model the solution, while keeping the number of objects used from each
+cell the same.  We increased this from the default size of 128 pixels
+to (256, 384, 512, 640) pixels.  We tracked the numbers of false
+detections, and the number of used {\tt KernelCandidates}, and these
+curves are displayed in Figure~\ref{cellsize}.  The {\it left} panel
+shows the numbers of false detections, while on the {\it right} the
+numbers of {\tt KernelCandidates} used, summed across all 9 sensors.
+
+We note that in the prefiltered data the numbers of false detections
+are not strongly dependent on the number of constraints on the spatial
+solution.  For visits v6866601 and v6866603 this number is even seen
+to decrease with decreasing {\tt KernelCandidates}.  This suggests
+that in prefiltering there is not a significant different in quality
+of fit when using $\sim$600 vs. $\sim$300 {\tt KernelCandidates} per
+sensor.  The overall fit is demonstrably worse when using only
+$\sim$100 constraints on the model (cell size = 640).  The indication
+is that 300 constraints on the spatial model (which has 28, 28, and 21
+terms per basis for visits v6866601, v6866602, and v6866603
+respectively) appears sufficient in the case of prefiltering.
+
+In the case of postfiltering, aside from the deconvolution case, the
+number of false detections continually increases as the number of {\tt
+  KernelCandidates} decreases.  This indicates that the best mode to
+operate in when postfiltering is to maximize the number of constraints
+on the model.
 
 \subsection{Registration Errors {\bf ANDYB}}
 
