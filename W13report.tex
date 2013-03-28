@@ -209,7 +209,7 @@ centroidfile 1
 \end{verbatim}
 
 
-Reference catalogs and astrometry.net indicies were constructed from
+Reference catalogs and astrometry.net indices were constructed from
 the input catalogs.
 
 A secondary set of simulation images was generated for the extended
@@ -623,7 +623,7 @@ of the noise in the image and a detection threshold.  A 1\% under-estimate of th
 corresponds to ~4 additional false positives at a threshold of $5\sigma$ in the best seeing case.  
 The bottom panel shows 
 the effect of over-estimating the noise in the measurement.  The effect is to reduce
-the number of false positves.  A 1\% under-estimate of the noise results in 2 fewer false positives
+the number of false positives.  A 1\% under-estimate of the noise results in 2 fewer false positives
 per chip.
 
 By comparing false positive rates to expected rates from the analytic expressions, we may be able to
@@ -807,7 +807,7 @@ a single convolution, and the template image a single convolution.  In
 postfiltering, the template image undergoes a convolution, is
 subtracted from the science image, and then undergoes a second
 convolution with the Psf.  As we have demonstrated here, this second
-convolution is where our variance bookeeping lags the empirical
+convolution is where our variance bookkeeping lags the empirical
 variance.
 
 For completeness, we note the median differences in the image plane at
@@ -822,7 +822,7 @@ calculated on the control sample of {\tt KernelCandidates} with the
 numbers of false detections that come out of detection and
 measurement, for the prefiltering and postfiltering cases
 respectively.  We do this for statistics that represent the mean
-standard deviation of the pixels in teh difference image
+standard deviation of the pixels in the difference image
 (KCDiffimStDev), the reduced chi2 of the pixels in the difference
 image (KCDiffimChiSq), and mean squared error of the residuals
 (KCDiffimMseResids).  These values are defined in
@@ -1040,7 +1040,7 @@ including:
 \item Adoption of Gaussian processes for spatial modeling of the kernel;
 \item Investigating the differences in measurement on positive/negative sources;
 \item Developing a measurement suite for sources in prefiltered data;
-\item Determing how much ``on the fly'' configuration we may do to optimize PSF--matching.
+\item Determining how much ``on the fly'' configuration we may do to optimize PSF--matching.
 \end{itemize}
 
 \clearpage
@@ -1311,7 +1311,7 @@ the coadd to the science exposure produces an order of magnitude more scatter in
 We plot here the effect on the number of false positives as a function of detection threshold and noise misestimate.  The three panels 
 are for three values of seeing.  In each panel the top pane shows what happens when the noise is under-estimated and the
 bottom shows what happens to the false positive rate when the noise is over-estimated.  In all cases the counts are for
-the total number of false postives in a single 4000x4072 pixel random Gaussian field.
+the total number of false positives in a single 4000x4072 pixel random Gaussian field.
 }
 \label{fig-fpthresh}
 \end{figure}
@@ -1319,9 +1319,9 @@ the total number of false postives in a single 4000x4072 pixel random Gaussian f
 \begin{figure}
 \includegraphics[width=0.8\textwidth]{figures/fp_v_dsky.eps}
 \caption{
-Misestimation of the sky value has an effect on both the number of false positives and relative abundance of positive false positives to negative false postives.
+Misestimation of the sky value has an effect on both the number of false positives and relative abundance of positive false positives to negative false positives.
 The top pane of this figure shows the relative number of +ve/-ve (-ve/+ve) if the sky background is under (over) subtracted at a particular fractional level.  The 
-bottom panel shows how the total number of false positves changes for the same misestimation.  This is not a strong function of the seeing, so only the best
+bottom panel shows how the total number of false positives changes for the same misestimation.  This is not a strong function of the seeing, so only the best
 seeing example is shown.
 }
 \label{fig-skythresh}
@@ -1336,7 +1336,7 @@ seeing example is shown.
   detection and measurement, for the {\bf postfiltering} pipeline.
   Results for visit v6866601 are shown as {\it red squares}, for
   v6866602 as {\it green circles}, and for v6866603 {\it blue
-    triangles}.  Three of the statistics, descibed in
+    triangles}.  Three of the statistics, described in
   Section~\ref{sec-stats}, are presented.  They clearly correlate with
   each other.  For the deconvolution visit v6866601, the statistics
   are very poor even for the ``best'' solutions.  
@@ -1352,7 +1352,7 @@ seeing example is shown.
   measurement, for the {\bf prefiltering} pipeline.  Results for visit
   v6866601 are shown as {\it red squares}, for v6866602 as {\it green
     circles}, and for v6866603 {\it blue triangles}.  Three of the
-  statistics, descibed in Section~\ref{sec-stats}, are presented.
+  statistics, described in Section~\ref{sec-stats}, are presented.
   They clearly correlate with each other, and also tend to correlate
   with the number of false detections (bottom row).}
 \label{corrpre}
