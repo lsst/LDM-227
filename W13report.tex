@@ -428,7 +428,7 @@ false detections scales with threshold.
 
 \section{Results: False Detection Rate}
 
-\subsection{Theoretical {\bf ANDYC}}
+\subsection{Theoretical {\bf ANDYC}\label{sec-analyticfp}}
 
 \subsection{Empirical {\bf ANDYB}}
 
@@ -528,17 +528,27 @@ By comparing the empirical false positive rate to the analytic predictions
 we can quantify how close we are getting to the theoretical floor in these
 data.  Because the number of false positives is such a strong function of
 detection threshold, misestimation of the signal to noise of the detections
-has a large impact on how many false positives are observed.  The Figures
-\ref{fig-fpthresh1}, \ref{fig-fpthresh2}, and \ref{fig-fpthresh3} show the 
+has a large impact on how many false positives are observed.  
+
+The Figure \ref{fig-fpthresh} shows the 
 effect of misestimating the noise in the detections for each of three different
-seeing values (0.6\", 0.88\", 1.2\" respectively).
+seeing values (0.6\", 0.88\", 1.2\" respectively).  In each case the top panel shows
+the number additional false positives in an LSST size CCD given a fractional misestimation
+of the noise in the image and a detection threshold.  A 1\% under-estimate of the noise
+corresponds to ~4 additional false positives at a threshold of $5\sigma$ in the best seeing case.  
+The bottom panel shows 
+the effect of over-estimating the noise in the measurement.  The effect is to reduce
+the number of false positves.  A 1\% under-estimate of the noise results in 2 fewer false positives
+per chip.
 
+By comparing false positive rates to expected rates from the analytic expressions, we may be able to
+estimate the inherent over/under estimation of the reported variance in the images.
 
-To estimate the numbers of false detections we would expect in a
-$4000\times4072$ pixel science image with a given FWHM in pixels, we
-do the following.  The theoretical expectations for the number of
-false detections due to random Gaussian fluctuations is outlined in
-\cite{Kaiser-PointSources}.
+%To estimate the numbers of false detections we would expect in a
+%$4000\times4072$ pixel science image with a given FWHM in pixels, we
+%do the following.  The theoretical expectations for the number of
+%false detections due to random Gaussian fluctuations is outlined in
+%\cite{Kaiser-PointSources}.
 
 \subsection{Number of KernelCandidates {\bf ANDYB}}
 
@@ -646,6 +656,8 @@ spatial variation.
 
 
 \subsection{Background Subtraction {\bf SIMON} \label{sec-bg}}
+
+
 
 \subsection{Variance Misestimation {\bf ANDYB/SIMON}}
 
@@ -917,8 +929,11 @@ of the image difference task and compared it to the same runs when the differenc
 $differenceImage *= -1$ before measurement.  The results are as follows:
 \begin{itemize}
 \item The DIA source lists are always the same length.
-\item Negative sources always have integer centroid pixel values where positive sources have fractional
-pixel precision.
+\item Centroiding on negative sources fails almost all the time: 99.7\% of the time sources with negative flux
+have the {\tt badcentroid} flag set.
+\item psfFlux can be measured at 0. even when no flags are set.
+\item psfFlux can be measured as nan with valid centroid values and no other flags set.
+\item psfFlux can have the same sign in both the initial and inverted image 0.1\% of measurements.
 \item Some sources are have the edge bit set in one image or the other.  This leads to a difference in 
 the number of false positives as we only consider those without the {\tt EDGE} flag set.
 \end{itemize}
@@ -1201,6 +1216,31 @@ the coadd to the science exposure produces an order of magnitude more scatter in
   \times \sqrt{\sigma_S^2 - \sigma_T^2}$, which is the width of the
   largest Gaussian in our bases.}
 \label{kernel_offsets}
+\end{figure}
+
+\begin{figure}
+\centering
+\subfigure[0.6$^{\prime\prime}$ FWHM]{\includegraphics[width=0.45\textwidth]{figures/dfp_v_sigma0.60.eps}}\qquad
+\subfigure[0.88$^{\prime\prime}$ FWHM]{\includegraphics[width=0.45\textwidth]{figures/dfp_v_sigma0.88.eps}}\\
+\subfigure[1.2$^{\prime\prime}$ FWHM]{\includegraphics[width=0.45\textwidth]{figures/dfp_v_sigma1.20.eps}}
+\caption{
+We plot here the effect on the number of false positives as a function of detection threshold and noise misestimate.  The three panels 
+are for three values of seeing.  In each panel the top pane shows what happens when the noise is under-estimated and the
+bottom shows what happens to the false positive rate when the noise is over-estimated.  In all cases the counts are for
+the total number of false postives in a single 4000x4072 pixel random Gaussian field.
+}
+\label{fig-fpthresh}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.8\textwidth]{figures/fp_v_dsky.eps}
+\caption{
+Misestimation of the sky value has an effect on both the number of false positives and relative abundance of positive false positives to negative false postives.
+The top pane of this figure shows the relative number of +ve/-ve (-ve/+ve) if the sky background is under (over) subtracted at a particular fractional level.  The 
+bottom panel shows how the total number of false positves changes for the same misestimation.  This is not a strong function of the seeing, so only the best
+seeing example is shown.
+}
+\label{fig-skythresh}
 \end{figure}
 
 
