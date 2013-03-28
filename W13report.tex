@@ -564,13 +564,21 @@ Source.  Assuming that N$_{Orphan}$ represents 96\% of the background
 fluctuation population, we estimate the number of fluctuations from
 that same population that would have associated with Sources as
 N$_{Random}$.  Finally, we count all matches that occur within 100
-pixels of the image boundary, where we might expect the spatial
-extrapolation to yield systematic residuals, as N$_{D<100}$.  To the
-extent that (N$_{Random}$ + N$_{D<100}$) $<$ N$_{Match}$, we have a
-small residual set of systematic false detections in our imaging
-ensemble.  Aside from the deconvolution run, this is at the level of
-10 total false detections over 9 sensors in 5 production runs, or 1
-every 4--5 images.
+pixels of the image boundary, where we might expect deficiencies in
+the various spatial extrapolations (astrometry, backgrounds,
+PSF--matching kernels) to yield systematic residuals, as N$_{D<100}$.
+Figure~\ref{edgedist} provides the distribution of distances from the
+edge of the sensor for all false detections in {\it blue}, with a
+random sample of points in the image given in {\it green}.
+Uncertainties are plotted using the square root of the number of
+points in each bin, and the histograms are normalized to provide a
+probability density.  Aside from the deconvolution reduction, we find
+no significant correlation of false detections with the boundaries of
+the fitting functions.  To the extent that N$_{Random}$ $<$
+N$_{Match}$, we have a small residual set of systematic false
+detections in our imaging ensemble.  Aside from the deconvolution run,
+this is at the level of 10 total false detections over 9 sensors in 5
+production runs, or 1 every 4--5 images.
 
 We also list the ratio of negatively detected to positively detected
 DiaSources.  That this ratio is significantly greater than 1.0 in most
@@ -578,19 +586,6 @@ cases suggests that there is an over-subtraction of the background in
 the process, which biases this ratio (see Section~\ref{sec-bg}).  The
 optimal configurations yielding these false detection rates are given
 in Table~\ref{tab-bestconfig10}.
-
-We have examined the distribution of these false detections across the
-image, and find no significant overdensities near the borders of the
-images, which would be expected in cases of under or over--fitting of
-the various spatial models (astrometry, backgrounds, PSF--matching
-kernels).  Figure~\ref{edgedist} provides the distribution of
-distances from the edge of the sensor for all false detections in {\it
-  blue}, with a random sample of points in the image given in {\it
-  green}.  Uncertainties are plotted using the square root of the
-number of points in each bin, and the histograms are normalized to
-provide a probability density.  The takeaway is that we find no
-significant correlation of false detections with the boundaries of the
-fitting functions.
 
 \section{Results: False Detection Dependencies}
 
@@ -1042,12 +1037,11 @@ including:
 \item How the system behaves with a realistic mix of stars and galaxies;
 \item How the false detection rate looks in crowded fields;
 \item How to perform measurement on pre--filtered difference images;
+\item Adoption of Gaussian processes for spatial modeling of the kernel;
+\item Investigating the differences in measurement on positive/negative sources;
+\item Developing a measurement suite for sources in prefiltered data;
+\item Determing how much ``on the fly'' configuration we may do to optimize PSF--matching.
 \end{itemize}
-
-Gaussian processes.
-Measuremnt positive and negative asymmetry.
-Measurement on prefiltered data.
-Configure on the fly based on conditoins.
 
 \clearpage
 \bibliographystyle{apj}
@@ -1354,14 +1348,13 @@ seeing example is shown.
 \centering{\includegraphics[width=0.9\textwidth]{figures/corrB.eps}} \\
 \caption{Correlation of the statistics calculated on the control
   sample {\tt KernelCandidates} during the model fitting with the
-  number of false positives per sensor coming from
-  detection and measurement, for the {\bf prefiltering} pipeline.
-  Results for visit v6866601 are shown as {\it red squares}, for
-  v6866602 as {\it green circles}, and for v6866603 {\it blue
-    triangles}.  Three of the statistics, descibed in
-  Section~\ref{sec-stats}, are presented.  They clearly correlate with
-  each other (leftmost panels), and also tend to correlate with the
-  number of false detections (rightmost column).}
+  number of false positives per sensor coming from detection and
+  measurement, for the {\bf prefiltering} pipeline.  Results for visit
+  v6866601 are shown as {\it red squares}, for v6866602 as {\it green
+    circles}, and for v6866603 {\it blue triangles}.  Three of the
+  statistics, descibed in Section~\ref{sec-stats}, are presented.
+  They clearly correlate with each other, and also tend to correlate
+  with the number of false detections (bottom row).}
 \label{corrpre}
 \end{figure}
 
