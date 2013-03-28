@@ -844,7 +844,15 @@ detections per sensor).
 
 For prefiltering, Figure~\ref{corrpre}, 
 
+\section{Results: Measurement {\bf ANDYB}}
 
+Figure~\ref{fluxerr} provides a mosaic of absolute--value S/N
+measurements for the {\tt DiaSources} detected at 5--sigma.  The {\it
+  top} panel shows the PSF flux measurements reported in the
+postfiltered analysis, while the {\it bottom} panel shows the filtered
+flux measurements in the prefiltered analysis.  Both distributions are
+strongly peaked at 5--sigma, indicating we are not grossly
+mismeasuring fluxes in either case.
 
 \section{Results: Computational Performance {\bf ANDYB}}
 
@@ -1325,6 +1333,19 @@ bottom panel shows how the total number of false positives changes for the same 
 seeing example is shown.
 }
 \label{fig-skythresh}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\centering{\includegraphics[width=0.9\textwidth]{figures/fluxpost.eps}} \\
+\centering{\includegraphics[width=0.9\textwidth]{figures/fluxpre.eps}} \\
+\end{center}
+\caption{Histograms of measured absolute value of signal--to--noise
+  for sources detected at 5--sigma in the best postfiltered ({\it
+    top}) and prefiltered ({\it bottom}) data.  In postfiltering, we
+  use the PSF flux, while in prefiltering we use the filtered flux
+  measurement.  }
+\label{fluxerr}
 \end{figure}
 
 
