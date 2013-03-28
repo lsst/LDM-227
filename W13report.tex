@@ -388,9 +388,20 @@ difference image, and the variance is the mean square of the
 difference image.  In both cases, we normalize by the square root of
 the variance so that pixels are in units of sigma.
 
+Ideally, the MSE gives a means for identifying the location in parameter 
+space of optimal fitting without overfitting.  We calculate the median MSE
+for all kernel candidates in each of the test configs.  For each config
+we have two sets of kernel candidates.  The first is the FITTED sample and
+includes all kernel candidates used to fit the kernel and spatial models.  The second,
+the CONTROL sample, is a set of kernel candidates held out of the fitting
+to use as a cross validation sample of the models.
+
+In each case there is a minimum in the measured MSE of the CONTROL sample suggesting
+that the test configs span a sufficient range of complexity in the paramter space to 
+go from under to over fitting.  Table \ref{tab-bestconfig_MSE}.
+
 \subsubsection{Reduced $\chi^2$ {\bf SIMON}}
 
-\subsubsection{Control Sample {\bf SIMON}}
 
 \section{Production Runs {\bf ANDYB}}
 
@@ -518,12 +529,12 @@ variation of false detections with detection threshold in our data,
 and show that our results are consistent with this, indicating that we
 reached the systematic floor in these data.
 
-\subsection{Detection Threshold {\bf SIMON}}
+\subsection{Effect of Uncertainty on Measured ${S}\over{N}$ {\bf SIMON}}
 
 Section \ref{sec-analyticfp} discusses the theoretical foundation 
 that sets the floor on the number of false positives we expect from a 
 pure Gaussian random field.  The number of false positives is a strong
-function of the seeing and and the confidence level of the detection.  
+function of the seeing and the confidence level of the detection.  
 By comparing the empirical false positive rate to the analytic predictions
 we can quantify how close we are getting to the theoretical floor in these
 data.  Because the number of false positives is such a strong function of
@@ -532,7 +543,7 @@ has a large impact on how many false positives are observed.
 
 The Figure \ref{fig-fpthresh} shows the 
 effect of misestimating the noise in the detections for each of three different
-seeing values (0.6\", 0.88\", 1.2\" respectively).  In each case the top panel shows
+seeing values (0.6$^{\prime\prime}$, 0.88$^{\prime\prime}$, 1.2$^{\prime\prime}$ respectively).  In each case the top panel shows
 the number additional false positives in an LSST size CCD given a fractional misestimation
 of the noise in the image and a detection threshold.  A 1\% under-estimate of the noise
 corresponds to ~4 additional false positives at a threshold of $5\sigma$ in the best seeing case.  
@@ -543,6 +554,25 @@ per chip.
 
 By comparing false positive rates to expected rates from the analytic expressions, we may be able to
 estimate the inherent over/under estimation of the reported variance in the images.
+
+The signal of a detection may also be misestimated by over or under subtracting the background.  
+The result of erros in modeling the background is to change the ratio of positive to negative
+false positives.  The top pane of Figure \ref{fig-skythresh} shows how the ratio of sources of 
+different polarities changes as a function of cutoff threshold.  At a threshold of 5$\sigma$
+one can observe 50\% more false of one polarity over the other with only a 1\% error in background
+modeling.  This, of course, also means that different false positives are detected than if the
+background is subtracted perfectly.
+
+Interestingly, the total number of false positives is not nearly as strong a function of background 
+modeling errors.  As the number of one polarity decreases, the number of the other polarity increase
+almost in proportion.  This is shown in the bottom panel for Figure \ref{fig-skythresh}.
+
+The fact that the total number of false positives is depends strongly on the accuracy of the estimation
+of the variance but not the background estimation coupled with the fact that the ratio of positive to negative
+sources should be unaffected by variance misestimation but is very strongly correlated with background
+modeling gives us leverage to estimate the overall accuracy of both noise estimation and background modeling with
+a single measurement of the number of true false positives.
+
 
 %To estimate the numbers of false detections we would expect in a
 %$4000\times4072$ pixel science image with a given FWHM in pixels, we
@@ -655,7 +685,6 @@ and what requirements need to be put both on the kernel basis and its
 spatial variation.
 
 
-\subsection{Background Subtraction {\bf SIMON} \label{sec-bg}}
 
 
 
@@ -980,6 +1009,28 @@ v6866603 & True      & 3      & 5        & 5 \\
 \centering
 \begin{tabular}{clccc}
 \hline
+\multicolumn{5}{|c|}{Best Configs: From Minimum MSE} \\
+\hline
+Visit    & Prefilter & nGauss & degGauss & spatialOrder \\
+\hline
+v6866601 & True      & 3      & 4        & 5 \\
+         & False     & 3      & 1        & 6 \\
+v6866602 & True      & 3      & 4        & 6 \\
+         & False     & 1      & 3        & 5 \\
+v6866603 & True      & 3      & 5        & 5 \\
+         & False     & 3      & 5        & 5 \\
+\end{tabular}
+\caption{The best configs as derived from the minimum in the measured MSE.  It should 
+be noted that the minimum is fairly shallow.
+\label{tab-bestconfig_MSE}}
+\end{table}
+
+\clearpage
+
+\begin{table}
+\centering
+\begin{tabular}{clccc}
+\hline
 \multicolumn{4}{|c|}{Variance Ratios: Empirical / Propagated} \\
 \hline
 Visit    & $D_{pre} = D'_{pre}$ & $D_{post}$ & $D'_{post}$ \\
@@ -1192,6 +1243,7 @@ the total number of false postives in a single 4000x4072 pixel random Gaussian f
 \end{figure}
 
 \begin{figure}
+\centering
 \includegraphics[width=0.8\textwidth]{figures/fp_v_dsky.eps}
 \caption{
 Misestimation of the sky value has an effect on both the number of false positives and relative abundance of positive false positives to negative false postives.
