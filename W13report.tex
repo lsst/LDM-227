@@ -935,16 +935,20 @@ measurement of these false detections is not yet well defined.
 
 \item An empirical computation of the variance from the image plane,
   compared to the median propagated variance in the variance plane,
-  indicates that we consistently underestimate the variance by $1-2\%$
-  (Table~\ref{tab-variance1}).  A proper tracking of covariance during
-  the multiple image convolutions that occur may alleviate this
-  problem.
+  indicates that we consistently underestimate the variance in
+  prefiltering by $1-2\%$, and in postfiltering by $4-5\%$ when not
+  strongly deconvolving (Table~\ref{tab-variance1}).  The latter
+  effect is shown to arise from the PSF--filtering of the difference
+  image immediately before detection.  This is likely due to the
+  double--convolution that is happening to the template image, and our
+  having no current mechanism to track pixel covariance.
 
-\item When convolving to PSF--match, variance planes of postfiltered
-  detection images have {\it lower} variance than their prefiltered
-  counterparts by $2-3\%$ (Table~\ref{tab-variance2}).  These images
-  have gone through one additional convolution compared to the
-  prefiltered data.
+\item The empirical variance of the detection images in prefiltering
+  and postfiltering are similar to within $1\%$
+  (Table~\ref{tab-variance2}).  However, the variance in the
+  postfiltered data is $3-4\%$ {\it lower} in the postfiltered data,
+  leading to a larger number of false positives when using the
+  variance plane as the definition of sigma.
 
 \item When strongly deconvolving, the postfiltered variance is 70\%
   {\it higher} at the time of detection compared to the prefiltered
@@ -964,16 +968,9 @@ measurement of these false detections is not yet well defined.
 \item The false detection rate is seen to scale with detection
   threshold in a manner consistent with theory (Figure~\ref{}).
 
-\item Several statistics that we are able to calculate at the time of
-  image subtraction are shown to correlate strongly with the numbers
-  of false detections, providing real--time quality estimates
-  (Figures~\ref{}).
-
-\item The numbers of false detections that associate with Sources is
-  shown to correlate with the amount of smoothing that occurs in the
-  PSF matching, in the sense that more smoothing leads to fewer false
-  detections (Figure~\ref{}).  In this sense, there is a strong
-  preference for running in prefiltered mode.
+\item The measurement of {\tt DiaSources} detected at 5--sigma are
+  shown to have a commensurate measured signal--to--noise
+  (Figure~\ref{fluxerr}).  
 
 \item Measurements on prefiltered difference images contain less
   information than in postfiltered difference images, because the
@@ -982,6 +979,15 @@ measurement of these false detections is not yet well defined.
   false positives in prefiltered data, we are (so far) able to
   characterize them less well.  This trade--off is clearly something
   to explore in future work.
+
+\item Several statistics that we are able to calculate at the time of
+  image subtraction are shown to correlate strongly with the numbers
+  of false detections (Figure~\ref{corrpost} and
+  Figure~\ref{corrpre}).  However, these relationships have a shallow
+  slope in the area of interest (number of false detections per sensor
+  less than 10).  Additional work will be required to produce a robust
+  predictor of false positive rate.
+
 
 \end{itemize}
 
