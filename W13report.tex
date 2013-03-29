@@ -1490,8 +1490,17 @@ seeing example is shown.
 
 \begin{figure}
 \centering{\includegraphics[width=1.0\textwidth]{figures/cellsize.eps}} \\
-\caption{False detections with cell size {\bf WRITE ME}
-}
+\caption{We show the number of false detections ({\it left}) and {\tt
+    KernelCandidates} used in the spatial kernel fit ({\it right}) as
+  a function of {\tt SpatialCell} size.  Increasing the cell size,
+  while keep all other things equal, effectively decreases the number
+  of constraints on the spatial model.  As shown on the left, the
+  prefiltered data ({\it dashed} lines) have a less strong dependence
+  on the number of constraints compared to the postfiltered data ({\it
+    solid} lines).  The prefiltered data show essentially similar
+  quality when using 300 vs. 600 {\tt KernelCandidates}, while in the
+  postfiltered data the number of false positives increases by nearly
+  a factor of 2 (from cellsize 128 to 384).  }
 \label{cellsize}
 \end{figure}
 
