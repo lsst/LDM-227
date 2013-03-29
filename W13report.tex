@@ -907,7 +907,7 @@ Section~\ref{sec-analyticfp} one can predict the number of false positives expec
 seeing and threshold values.  Some example values of the number of false positives (both +ve and -ve)
 expected in LSST size detectors are given in Table \ref{tab-fprate}.  
 
-As discussed in the Section \ref{sec-sn}, the accuracy of the noise estimation in the dection is crutial to 
+As discussed in the Section \ref{sec-sn}, the accuracy of the noise estimation in the detection is crucial to 
 understanding the false positive rate.  In the previous section we quantify the under--estimation of the variance
 by the variance plane in the case of pre and post filtering.  In our analysis of the threshold dependence of
 our false detection rate we must correct for this under--estimation in order to put the counts from each algorithm
@@ -918,7 +918,7 @@ blue circles are for the prefiltering technique.  All values are for the number 
 Using a Monte Carlo approach we 
 estimate the variance on the predicted false positive rate as a function of threshold.  The 1-$\sigma$ confidence envelope is shown
 as shaded grey about the model line in dark black.  From left to right the panels are for visit 6866601 -- 0.6$^{\prime\prime}$ FWHM,
-6866602 -- 0.88$^{\prime\prime}$ FWHM and 6866603 -- 1.2$^{\prime\prime}$ FWHM respectively.  Except in the case of deconovlution
+6866602 -- 0.88$^{\prime\prime}$ FWHM and 6866603 -- 1.2$^{\prime\prime}$ FWHM respectively.  Except in the case of deconvolution
 in the postfiltering case (visit 6866601) the count rates between the two algorithms agree very well when corrected for the
 observed under--estimation of the noise by the variance plane.  In the case where postfiltering requires a deconvolution, the high $\over{S}{N}$
 detections come primarily from detection of the ringing around stars.
@@ -1550,6 +1550,20 @@ seeing example is shown.
 \end{figure}
 
 
+\begin{figure}%
+\captionsetup[subfloat]{labelformat=empty}
+\centering
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_nocorr.eps}}
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_nocorr.eps}}
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_nocorr.eps}}\\
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_corr.eps}}%
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_corr.eps}}%
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_corr.eps}}%
+\caption{}
+\label{fig-fp_v_thresh}
+\end{figure}
+
+
 \begin{figure}
 \begin{center}
 \centering{\includegraphics[width=0.9\textwidth]{figures/fluxpost.eps}} \\
@@ -1562,7 +1576,6 @@ seeing example is shown.
   measurement.  }
 \label{fluxerr}
 \end{figure}
-
 
 \begin{figure}
 \centering{\includegraphics[width=0.9\textwidth]{figures/corrA.eps}} \\
@@ -1592,19 +1605,6 @@ seeing example is shown.
   They clearly correlate with each other, and also tend to correlate
   with the number of false detections (bottom row).}
 \label{corrpre}
-\end{figure}
-
-\begin{figure}%
-\captionsetup[subfloat]{labelformat=empty}
-\centering
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_nocorr.eps}}
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_nocorr.eps}}
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_nocorr.eps}}\\
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_corr.eps}}%
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_corr.eps}}%
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_corr.eps}}%
-\caption{}
-\label{fig-fp_v_thresh}
 \end{figure}
 
 \clearpage 
