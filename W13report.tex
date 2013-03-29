@@ -76,12 +76,13 @@ expect due to random fluctuations in a background Gaussian field.  The
 latter is a function of both seeing in the images, and of the
 detection threshold used.  At the fiducial detection threshold of
 5--sigma, the number of expected false positives per LSST sensor is of
-order {\bf XX}, and we measure of order {\bf YY}, indicating that we
-are able to achieve the systematic floor in false detection rate.  We
+order 3--10, and we measure a similar number, indicating that we are
+able to achieve the systematic floor in false detection rate.  We
 examined our measured false detection rate as a function of detection
 threshold and find that it roughly scales as expected.  In order for
-there to be less than 1 expected false detection per sensor, we must
-operate at a detection threshold of {\bf X.X} sigma.
+there to be less than 1 expected false detection per sensor (to
+seeings as good as 0.6''), we must operate at a detection threshold of
+5.5--sigma.
 
 We found a severe dependence of the false positive rate on our
 understanding of the variance; even a 1\% misestimate of the noise may
@@ -616,43 +617,55 @@ and degGauss$>$3.  There is not much evidence for an upturn in the
 numbers of false detections, meaning we have likely not reached the
 case of severe overfitting using these configs.
 
-The numbers of false detections in each best case are given in
-Table~\ref{tab-bestfp10}.  We undertook a manual inspection of all
-difference images to associate the {\tt DiaSources} with sources in the
-images, and also use a 3'' association with the input source catalog
-to define matches and orphans.  Associations are listed in the
-N$_{Match}$ column of Table~\ref{tab-bestfp10}, with the unmatched
-false positives in the N$_{Orphan}$ column.  The former are likely to
-come from systematics in the subtractions of stars, while the latter
-would be due to fluctuations in the background.  We note 2 effects
-that may impact N$_{Match}$.  The first is that, with a 3'' matching
-radius, 4\% of random fluctuations will by--chance associate with a
-Source.  Assuming that N$_{Orphan}$ represents 96\% of the background
-fluctuation population, we estimate the number of fluctuations from
-that same population that would have associated with Sources as
-N$_{Random}$.  Finally, we count all matches that occur within 100
-pixels of the image boundary, where we might expect deficiencies in
-the various spatial extrapolations (astrometry, backgrounds,
-PSF--matching kernels) to yield systematic residuals, as N$_{D<100}$.
-Figure~\ref{edgedist} provides the distribution of distances from the
-edge of the sensor for all false detections in {\it blue}, with a
-random sample of points in the image given in {\it green}.
-Uncertainties are plotted using the square root of the number of
-points in each bin, and the histograms are normalized to provide a
-probability density.  Aside from the deconvolution reduction, we find
-no significant correlation of false detections with the boundaries of
-the fitting functions.  To the extent that N$_{Random}$ $<$
-N$_{Match}$, we have a small residual set of systematic false
-detections in our imaging ensemble.  Aside from the deconvolution run,
-this is at the level of 10 total false detections over 9 sensors in 5
-production runs, or 1 every 4--5 images. {\bf REDO BASED ON SIMON'S REANALYSIS}
+The numbers N$_{Measured}$ of false detections in each best case are
+given in Table~\ref{tab-bestfp10}, with the total number expected from
+the Monte Carlo analysis given as N$_{Expect}$.  We undertook a manual
+inspection of all difference images to associate the {\tt DiaSources}
+with sources in the images, and also use a 3'' association with the
+input source catalog to define matches and orphans.  Associations are
+listed in the N$_{Match}$ column of Table~\ref{tab-bestfp10}, with the
+unmatched false positives in the N$_{Orphan}$ column.  The former are
+likely to come from systematics in the subtractions of stars, while
+the latter would be due to fluctuations in the background.  We note 2
+effects that may impact N$_{Match}$.  The first is that, with a 3''
+matching radius, 4\% of random fluctuations will by--chance associate
+with a Source.  Assuming that N$_{Orphan}$ represents 96\% of the
+background fluctuation population, we estimate the number of
+fluctuations from that same population that would have associated with
+Sources as N$_{Random}$.  Finally, we count all matches that occur
+within 100 pixels of the image boundary, where we might expect
+deficiencies in the various spatial extrapolations (astrometry,
+backgrounds, PSF--matching kernels) to yield systematic residuals, as
+N$_{D<100}$.  Figure~\ref{edgedist} provides the distribution of
+distances from the edge of the sensor for all false detections in {\it
+  blue}, with a random sample of points in the image given in {\it
+  green}.  Uncertainties are plotted using the square root of the
+number of points in each bin, and the histograms are normalized to
+provide a probability density.  Aside from the deconvolution
+reduction, we find no significant correlation of false detections with
+the boundaries of the fitting functions.  We note that we are
+performing better than theory for visit v6866601 and prefiltering,
+although this is only 1.4 times the scatter in the expectation value.
+Otherwise, the results are as--expected from our simulations,
+indicating that we are near the systematic floor in false detection
+rate.  We also note that there is a slightly higher number of
+associations with sources than we would expect randomly (N$_{Random}$
+$<$ N$_{Match}$), although this is very small and at the rate of 1
+every 4--5 images.
 
-We also list the ratio of negatively detected to positively detected
-{\tt DiaSources}.  That this ratio is significantly greater than 1.0 in most
-cases suggests that there is an over-subtraction of the background in
-the process, which biases this ratio (see Section~\ref{sec-bg}).  For
-completeness, the optimal configurations yielding these false detection
-rates are given in Table~\ref{tab-bestconfig10}.
+In the last column of Table~\ref{tab-bestfp10} we list the ratio of
+negatively detected to positively detected {\tt DiaSources}.  This
+ratio is significantly higher than 1.0 for all prefiltering visits,
+suggesting that there is an over--subtraction of the background in the
+image processing, which will bias this ratio (see
+Section~\ref{sec-bg}).  The observed ratios of 2--3 suggest that there
+is a background overestimation of order $1-2\%$ causing lower--sigma
+fluctuations to be measured at 5--sigma (Figure~\ref{fig-skythresh}).
+The postfiltering ratios vary by a similar amplitude, but with a
+mixture of possible over-- and under--subtractions.
+
+For completeness, the optimal configurations yielding these false
+detection rates are given in Table~\ref{tab-bestconfig10}.
 
 \section{Results: False Detection Dependencies}
 
@@ -1497,7 +1510,7 @@ the coadd to the science exposure produces an order of magnitude more scatter in
 \centering{\includegraphics[width=1.0\textwidth]{figures/fp_v_dsky.eps}}
 \caption{
 Misestimation of the sky value has an effect on both the number of false positives and relative abundance of positive false positives to negative false positives.
-The top pane of this figure shows the relative number of +ve/-ve (-ve/+ve) if the sky background is under (over) subtracted at a particular fractional level.  The 
+The top pane of this figure shows the relative number of +ve/-ve (-ve/+ve) detections if the sky background is under (over) subtracted at a particular fractional level.  The 
 bottom panel shows how the total number of false positives changes for the same misestimation.  This is not a strong function of the seeing, so only the best
 seeing example is shown.
 }
