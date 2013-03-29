@@ -1216,19 +1216,19 @@ including:
 
 \begin{table}
 \centering
-\begin{tabular}{lcc}
+\begin{tabular}{lcccc}
 \hline
-\multicolumn{3}{|c|}{Theoretical Number of False Detections per Sensor} \\
+\multicolumn{5}{|c|}{Theoretical Number of False Detections per Sensor} \\
 \hline
-Visit    & FWHM (pixels) & N\\
+Visit    & FWHM (pixels) & $\sigma=4.5$ & $\sigma=5.0$ & $\sigma=5.5$\\
 \hline
-v6866601 & 3.0 & N \\
-v6866602 & 4.4 & N \\
-v6866603 & 6.0 & N \\
+v6866601 & 3.0 & 114$\pm$11 & 12$\pm$3& 1$\pm$1\\
+v6866602 & 4.4 & 54$\pm$8 & 5$\pm$2& 0.5$\pm$0.5\\
+v6866603 & 6.0 & 29$\pm$6 & 3$\pm$2&0.2$\pm$0.4\\
 \end{tabular}
 \caption{Total number of false detections that we expect based on
-  {\bf blah}.  We list the total number of positive {\it plus} negative detections;
-  they should be present in equal quantities. \label{tab-fp}
+  a 4000x4072 pixel senser.  We list the total number of positive {\it plus} negative detections;
+  they should be present in equal quantities. The variance is as determined from Monte Carlo simulations.\label{tab-fp}
 }
 \end{table}
 
