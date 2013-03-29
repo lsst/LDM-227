@@ -69,7 +69,7 @@ may expect downstream from the image subtraction.  Once we found an
 optimum configuration, we perturbed the solution along multiple
 dimensions to understand how the false detection rate responded.  
 
-\subsection{Algorithm and Background {\bf ANDYB}}
+\subsection{Algorithm and Background}
 
 We outline the image subtraction process below.  We assume that science
 image $S(x,y)$ can be modeled as a convolution of the template image
@@ -151,7 +151,7 @@ D'_{Post}(x,y) & = & D_{Post}(x,y) \circ PSF_S(x,y,u,v).  \nonumber
 %One complication is that measurement on $D'_{Pre}$ is necessarily
 %different than on $D'_{Post}$.
 
-\section{Input Data {\bf ANDYC}}
+\section{Input Data}
 
 Specialized simulations were developed with constrained astrophysical
 complexity for the initial test data. The purpose of these images was
@@ -214,7 +214,7 @@ Below we describe in detail the overall pipeline that was established
 as the results of these tasks.  We follow with in--depth analysis of
 implemented algorithms that are central to this production.
 
-\subsection{Pipeline Implementation {\bf ANDYB}}
+\subsection{Pipeline Implementation}
 
 At the beginning of the pipeline, we have as an input the science
 image $S(x,y)$ as a {\tt calexp} instance.  The bounding box of the
@@ -400,7 +400,7 @@ repositories.  Finally, the {\tt DiaSource} lists for all production
 repositories were compared to find the configurations that yielded the
 lowest numbers of false detections.
 
-\subsection{Improvements to Measurement {\bf RUSS} \label{sec-meas}}
+\subsection{Improvements to Measurement \label{sec-meas}}
 
 We measured flux of {\tt DiaSources} on postfiltered difference images
 using PSF--weighted flux photometry (as implemented in the LSST
@@ -447,7 +447,7 @@ pixel before applying the equations above.
 
 \subsection{KernelCandidate Statistics \label{sec-stats}}
 
-\subsubsection{Mean Squared Error {\bf SIMON}}
+\subsubsection{Mean Squared Error}
 
 In order to investigate the bias--variance trade--off in the overall
 fit, we calculate the MSE of each {\tt KernelCandidate's} difference
@@ -471,10 +471,10 @@ In each case there is a minimum in the measured MSE of the CONTROL sample sugges
 that the test configs span a sufficient range of complexity in the parameter space to 
 go from under to over fitting.  Table \ref{tab-bestconfig_MSE}.
 
-\subsubsection{Reduced $\chi^2$ {\bf SIMON}}
+\subsubsection{Reduced $\chi^2$}
 
 
-\section{Production Runs {\bf ANDYB}}
+\section{Production Runs}
 
 We ran several pre--productions to tune the following aspects of the
 pipeline: the dimensions of the kernels and {\tt KernelCandidates};
@@ -510,9 +510,9 @@ false detections scales with threshold.
 
 \section{Results: False Detection Rate}
 
-\subsection{Theoretical {\bf ANDYC}\label{sec-analyticfp}}
+\subsection{Theoretical \label{sec-analyticfp}}
 
-\subsection{Empirical {\bf ANDYB}}
+\subsection{Empirical}
 
 After running an ensemble of 144 pipeline configurations, we
 aggregated the numbers of false detections.  We report here the results for
@@ -595,7 +595,7 @@ We compare the empirical variation of false detections with detection
 threshold in our data, and show that our results are consistent with
 reaching the systematic floor in these data.
 
-\subsection{Effect of Uncertainty on Measured ${S}\over{N}$ {\bf SIMON}}
+\subsection{Effect of Uncertainty on Measured ${S}\over{N}$}
 
 Section \ref{sec-analyticfp} discusses the theoretical foundation 
 that sets the floor on the number of false positives we expect from a 
@@ -647,7 +647,7 @@ background modeling with a single measurement of the number of positive and nega
 %false detections due to random Gaussian fluctuations is outlined in
 %\cite{Kaiser-PointSources}.
 
-\subsection{Number of KernelCandidates {\bf ANDYB}}
+\subsection{Number of KernelCandidates}
 
 We effectively decreased the numbers of {\tt KernelCandidates} in the
 spatial solution by increasing the size of {\tt SpatialCells} used to
@@ -678,7 +678,7 @@ number of false detections continually increases as the number of {\tt
 operate in when postfiltering is to maximize the number of constraints
 on the model.
 
-\subsection{Registration Errors {\bf ANDYB}}
+\subsection{Registration Errors}
 
 We implemented two simple perturbations of the inputs to the
 image--to--image RegisterTask: we first added a random offset to each
@@ -698,7 +698,7 @@ dipole residual field associated with the distortion.  However, we
 start with the basics here to investigate the individual terms in such
 misalignments.
 
-\subsubsection{Coordinate RMS {\bf ANDYB}}
+\subsubsection{Coordinate RMS}
 
 We perturbed the coordinates of each template Source that was input to
 RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
@@ -719,7 +719,7 @@ others due to inverse variance weighting.  In this production, with the
 stars having the same brightness, no single random offset is likely to
 drive the fit.
 
-\subsubsection{Coordinate Offsets {\bf ANDYB}}
+\subsubsection{Coordinate Offsets}
 
 We offset the coordinates of each template Source that was input to
 RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
@@ -753,10 +753,7 @@ drive the difference image quality, and what requirements need to be
 put both on the kernel basis and its spatial variation.
 
 
-
-
-
-\subsection{Variance Misestimation {\bf ANDYB/SIMON}}
+\subsection{Variance Misestimation}
 
 {\bf good point: note that the curves nfp vs. threshold are
   correlated, its a cumulative distribution}.
@@ -827,7 +824,7 @@ convolution is where our variance bookkeeping lags the empirical
 variance.
 
 
-\subsection{Correlation with KernelCandidate Statistics {\bf ANDYB}}
+\subsection{Correlation with KernelCandidate Statistics}
 
 In Figures~\ref{corrpre} and \ref{corrpost} we correlate statistics
 calculated on the control sample of {\tt KernelCandidates} with the
@@ -858,7 +855,7 @@ For prefiltering, Figure~\ref{corrpre}, {\bf WRITE ME}.
 However, the trends are encouraging and we will pursue these methods
 in our future work with the more complicated simulations.
 
-\section{Results: Measurement {\bf ANDYB}}
+\section{Results: Measurement}
 
 Figure~\ref{fluxerr} provides a mosaic of absolute--value S/N
 measurements for the {\tt DiaSources} detected at 5--sigma.  The {\it
@@ -868,7 +865,7 @@ flux measurements in the prefiltered analysis.  Both distributions are
 strongly peaked at 5--sigma, indicating we are not grossly
 mismeasuring fluxes or flux uncertainties in either case.
 
-\section{Results: Computational Performance {\bf ANDYB}}
+\section{Results: Computational Performance}
 
 For this production, the understanding of the algorithm and
 optimization of the false detection rates took priority over
@@ -910,7 +907,7 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
 With these caveats, the timings of the {\tt imageDifference} subtasks
 are presented in Table~\ref{tab-timings}.
 
-\section{Conclusions {\bf ANDYB/ANDYC/SIMON}}
+\section{Conclusions}
 
 {\bf DOUBLE CHECK THESE WHEN THE DUST SETTLES}
 
@@ -1005,7 +1002,7 @@ are presented in Table~\ref{tab-timings}.
 
 \end{itemize}
 
-\section{Outstanding Issues {\bf SIMON}}
+\section{Outstanding Issues}
 We ran into several issues during this production that required work--arounds.  
 In some cases we did not have the time to drill all the way down
 to the root cause.  We itemize these issues here so that they may be addressed 
