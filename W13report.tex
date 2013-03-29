@@ -988,8 +988,8 @@ scratch.  This worked fairly will part of the time,
 yielding residuals in the 40--100 mas range, compared to the 250 mas previously.  However,
 as we did not understand the origin of these problems, and there were legitimate bugs
 in meas\_astrom  that were uncovered as a result of this investigation, we reverted to
-using the deep {\tt calexp} as the template directly; the direct {\tt calexp} to {\tt calexp} 
-registration yielded residuals in the range of 5--7 mas (well, its 0.02 pixels).
+using the deep {\tt calexp} as the template directly; the direct deep {\tt calexp} to science {\tt calexp} 
+registration typically yielded residuals in the range of 4--5 mas.
 
 We investigated potential causes of the large residuals.  To do this, we looked at the 
 residuals for template--to--refcat solutions, science image--to--ref solutions, and 
