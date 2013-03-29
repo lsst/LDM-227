@@ -1235,42 +1235,49 @@ v6866601 & 3.0 & 114$\pm$11 & 12$\pm$3& 1$\pm$1\\
 v6866602 & 4.4 & 54$\pm$8 & 5$\pm$2& 0.5$\pm$0.5\\
 v6866603 & 6.0 & 29$\pm$6 & 3$\pm$2&0.2$\pm$0.4\\
 \end{tabular}
-\caption{Total number of false detections that we expect based on
-  a 4000x4072 pixel senser.  We list the total number of positive {\it plus} negative detections;
-  they should be present in equal quantities. The variance is as determined from Monte Carlo simulations.\label{tab-fp}
-}
+
+\caption{Total number of false detections that we expect based on a
+  4000x4072 pixel sensor.  This number is dependent on the seeing and
+  detection threshold, so we list the values at a threshold of 4.5,
+  5.0, and 5.5 sigma for the seeings in the 3 visits used in this
+  production. We list the total number of positive {\it plus} negative
+  detections; they should be present in equal quantities. The variance
+  is as determined from Monte Carlo simulations.\label{tab-fp} }
 \end{table}
 
 
 
 \begin{table}
 \centering
-\begin{tabular}{clcccccc}
+\begin{tabular}{clc|cccccc}
 \hline
-\multicolumn{8}{|c|}{Best Results: Production 10} \\
+\multicolumn{9}{|c|}{Best Results: Production 10} \\
 \hline
-Visit    & Prefilter & Total False Detections &  N$_{Orphan}$ & N$_{Match}$ & N$_{Random}$ & N$_{D<100}$ & Nneg / Npos \\
+Visit    & Prefilter & N$_{Expect}$ & N$_{Measured}$ &  N$_{Orphan}$ & N$_{Match}$ & N$_{Random}$ & N$_{D<100}$ & N$_{-}$ / N$_{+}$ \\
 \hline
-v6866601 & True      & 70      &60         & 10 & 3     & 4   & 1.8 \\ 
-         & False     & 143     &51         & 92 & 2     & 11  & 0.4 \\
-v6866602 & True      & 42      &36         & 6  & 2     & 1   & 2.6 \\
-         & False     & 53      &45         & 8  & 2     & 1   & 0.5 \\
-v6866603 & True      & 23      &23         & 0  & 1     & 0   & 2.8 \\
-         & False     & 36      &35         & 1  & 1     & 0   & 3.4 \\
+v6866601 & True      & 108$\pm$27   & 70      &60         & 10 & 3     & 4   & 1.8 \\ 
+         & False     & $\cdots$     & 143     &51         & 92 & 2     & 11  & 0.4 \\
+v6866602 & True      & 45$\pm$18    & 42      &36         & 6  & 2     & 1   & 2.6 \\
+         & False     & $\cdots$     & 53      &45         & 8  & 2     & 1   & 0.5 \\
+v6866603 & True      & 27$\pm$18    & 23      &23         & 0  & 1     & 0   & 2.8 \\
+         & False     & $\cdots$     & 36      &35         & 1  & 1     & 0   & 3.4 \\
 \end{tabular}
 \caption{Total number of {\tt DiaSources} detected at 5--sigma from
   all 9 sensors in raft 2,2, for the configurations that yielded the
-  lowest number of false detections.  Matches are determined using a
-  3'' match radius with the input reference catalog.  Objects with the
-  {\tt EDGE} flag are ignored.  We list the number of background
-  fluctuations that are expected to randomly associate with a Source
-  N$_{Random}$, given the density of objects in the images and a 3''
-  match radius, assuming that N$_{Orphan}$ represents 96\% of the
-  total population of detections from Gaussian fluctuations.
-  We also list the number of false detections that are found within
-  the outer 100 pixels of the image N$_{D<100}$.  The final column
-  lists ratios of the number of negatively detected false detections
-  to those with positive flux, a 5--sigma. \label{tab-bestfp10}}
+  lowest number of false detections (N$_{Measured}$).  N$_{Expect}$
+  lists the total number we expect to detect as random fluctuations,
+  from Table~\ref{tab-fp}, and are the same for pre and postfiltering.
+  Whether a detection is a match or an orphan (N$_{Match}$ and
+  N$_{Orphan}$) is determined using a 3'' match radius with the input
+  reference catalog.  We list the number of background fluctuations
+  that are expected to randomly associate with a Source N$_{Random}$,
+  given the density of objects in the images and a 3'' match radius,
+  assuming that N$_{Orphan}$ represents 96\% of the total population
+  of detections from Gaussian fluctuations.  We also list the number
+  of false detections that are found within the outer 100 pixels of
+  the image N$_{D<100}$.  The final column lists ratios of the number
+  of negatively detected false detections to those with positive
+  flux. \label{tab-bestfp10}}
 \end{table}
 
 
