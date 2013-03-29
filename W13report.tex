@@ -10,7 +10,7 @@
 \input epsf
 \usepackage{amsmath}
 \usepackage{wasysym}
-\usepackage{subfigure}
+\usepackage{subfig}
 \usepackage{graphicx}
 \usepackage{epsfig}
 \usepackage{color}
@@ -932,14 +932,11 @@ are presented in Table~\ref{tab-timings}.
   understanding that deconvolution increases high frequency noise in
   the images, and provides a {\it lower} detection efficiency in
   deconvolved data.  Prefiltering is clearly preferred in the case of
-  significant deconvolution (v6866601; FWHM of 4.9 pixels matches to a
-  FWHM of 3.5 pixels).
+  significant deconvolution (v6866601).
 
 \item The postfilter pipeline can produce difference images with a
-  minor deconvolution (v6866602; FWHM of 4.9 pixels matched to 4.9
-  pixels) at a quality commensurate with a subtraction that uses a
-  smoothing convolution (v6866603; FWHM of 4.9 pixels matched to 6.7
-  pixels).
+  minor deconvolution (v6866602) at a quality commensurate with a subtraction that uses a
+  smoothing convolution (v6866603).
 
 \item The false detection rate is seen to scale with detection
   threshold in a manner consistent with theory (Figure~\ref{}).
@@ -1047,6 +1044,27 @@ including:
 \bibliography{refs}
 
 \clearpage
+
+\begin{table}
+\centering
+\begin{tabular}{lcc}
+\hline
+\multicolumn{3}{|c|}{Theoretical Number of False Detections per Sensor} \\
+\hline
+Visit    & FWHM (pixels) & N\\
+\hline
+v6866601 & 3.0 & N \\
+v6866602 & 4.4 & N \\
+v6866603 & 6.0 & N \\
+\end{tabular}
+\caption{Total number of false detections that we expect based on
+  {\bf blah}.  We list the total number of positve {\it plus} negative detections;
+  they should be present in equal quantities. \label{tab-fp}
+}
+\end{table}
+
+
+
 \begin{table}
 \centering
 \begin{tabular}{clcccccc}
@@ -1263,18 +1281,31 @@ the coadd to the science exposure produces an order of magnitude more scatter in
 \end{figure}
 
 \begin{figure}
-\centering
-\subfigure[0.6$^{\prime\prime}$ FWHM]{\includegraphics[width=0.45\textwidth]{figures/dfp_v_sigma0.60.eps}}\qquad
-\subfigure[0.88$^{\prime\prime}$ FWHM]{\includegraphics[width=0.45\textwidth]{figures/dfp_v_sigma0.88.eps}}\\
-\subfigure[1.2$^{\prime\prime}$ FWHM]{\includegraphics[width=0.45\textwidth]{figures/dfp_v_sigma1.20.eps}}
-\caption{
-We plot here the effect on the number of false positives as a function of detection threshold and noise misestimate.  The three panels 
-are for three values of seeing.  In each panel the top pane shows what happens when the noise is under-estimated and the
-bottom shows what happens to the false positive rate when the noise is over-estimated.  In all cases the counts are for
-the total number of false positives in a single 4000x4072 pixel random Gaussian field.
-}
-\label{fig-fpthresh}
+  \centering 
+  \subfloat[][0.6$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma0.60.eps}}
+  \caption[]{ We plot here the effect on the number of false positives
+    as a function of detection threshold and noise misestimate.  The
+    panels on these 3 pages are for three values of seeing.  In each panel the
+    top pane shows what happens when the noise is under-estimated and
+    the bottom shows what happens to the false positive rate when the
+    noise is over-estimated.  In all cases the counts are for the
+    total number of false positives in a single 4000x4072 pixel random
+    Gaussian field.
+    }
+  \label{fig-fpthresh}
 \end{figure}
+\clearpage
+\begin{figure}
+  \ContinuedFloat 
+  \centering 
+  \subfloat[][0.88$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma0.88.eps}}
+\end{figure} 
+\clearpage
+\begin{figure}
+  \ContinuedFloat 
+  \centering 
+  \subfloat[][1.2$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma1.20.eps}}
+\end{figure} 
 
 \begin{figure}
 \centering
