@@ -447,32 +447,50 @@ pixel before applying the equations above.
 
 \subsection{KernelCandidate Statistics \label{sec-stats}}
 
-\subsubsection{Mean Squared Error}
+We implemented several diagnostics on the quality of the image
+subtractions for a given {\tt KernelCandidate}.  This was done for the
+original $T_j(x,y)$ to $S_j(x,y)$ kernel fit, yielding LOCAL quality
+statistics.  These were re--evaluated using the spatial kernel model
+$K(u,v,x_j,y_j)$ evaluated at the {\tt KernelCandidate} location,
+yielding SPATIAL quality statistics.  The task metadata was augmented
+with summary statistics of these values (mean, median, RMS), and the
+information on each {\tt KernelCandidate} persisted in a new {\tt
+  kernelSrc} data product.  We briefly describe more useful of these
+statistics below.
 
-In order to investigate the bias--variance trade--off in the overall
-fit, we calculate the MSE of each {\tt KernelCandidate's} difference
-image derived from the evaluation of the spatial model at that
-location.  We define the bias as $\left| data - model \right|$, the
-variance as $\left| (data - model)^2 \right|$, and the MSE as {\tt
-  bias$^2$ + variance}.  In this context, the bias is the mean of the
-difference image, and the variance is the mean square of the
-difference image.  In both cases, we normalize by the square root of
-the variance so that pixels are in units of sigma.
+The first statistic, KCDiffimStDev, measures the standard deviation of
+all the non--{\tt EDGE} pixels in the difference image, normalized by
+the sqrt of the variance in the difference image.  In the idealized
+case, this value should be 1.0, i.e. pixels in the image are drawn
+from a normal (0,1) distribution.  In cases of overfitting or
+underfitting, this value will be lower than / higher than 1.0.
 
-Ideally, the MSE gives a means for identifying the location in parameter 
-space of optimal fitting without overfitting.  We calculated the median MSE
-for all {\tt KernelCandidates} in each of the test configs.  For each config
-we have two sets of {\tt KernelCandidates}.  The first is the FITTED sample and
-includes all {\tt KernelCandidates} used to fit the kernel and spatial models.  The second,
-the CONTROL sample, is a set of {\tt KernelCandidates} held out of the fitting
-to use as a cross validation sample of the models.
+We also calculate a reduced $\chi^2_\nu$ value called KCDiffimChiSq.
+The numerator of this term is the sum of the squares of the
+noise--normalized pixel values.  This sum is normalized by the number
+of pixels in the data, minus the number of basis shapes in the kernel
+plus 1.
 
+Finally in order to investigate the bias--variance trade--off in the
+overall fit, we calculate the mean square error (MSE) of each {\tt
+  KernelCandidate's} difference image as statistic KCDiffimMseResids.
+We define the bias as $\left| data - model \right|$, the variance as
+$\left| (data - model)^2 \right|$, and the MSE as {\tt bias$^2$ +
+  variance}.  In this context, the bias is the mean of the difference
+image, and the variance is the mean square of the difference image.
+Ideally, the MSE gives a means for identifying the location in
+parameter space of optimal fitting without overfitting.
+
+For all statistics, we have a FITTED sample, which are the {\tt
+  KernelCandidates} that were used to derive the spatial model.
+Importantly we also have a CONTROL sample of {\tt KernelCandidates}
+that were explicitly held out of the fitting to use as a cross
+validation sample.
+
+{\bf MOVE ME}
 In each case there is a minimum in the measured MSE of the CONTROL sample suggesting
 that the test configs span a sufficient range of complexity in the parameter space to 
 go from under to over fitting.  Table \ref{tab-bestconfig_MSE}.
-
-\subsubsection{Reduced $\chi^2$}
-
 
 \section{Production Runs}
 
@@ -1245,7 +1263,7 @@ R22:S22&1.4&4.2&4.2&389\\
 \end{tabular}
 \caption{We looked at the resulting RMS from WCS fitting on the source lists of the deep exposure to the reference catalog, the science exposure to the reference catalog,
 fitting the deep exposure directly to the science exposure, and fitting a warped coadd to the science exposure.  Fitting 
-the coadd to the science exposure produces an order of magnitude more scatter in the fit than at any other point.\label{tab-wcsrms}}
+the coadd to the science exposure produces an order of magnitude more scatter in the fit than at any other point. {\bf SIMON MAKE SURE NUMBERS ARE STRAIGHT}\label{tab-wcsrms}}
 \end{table}
 \clearpage
 
