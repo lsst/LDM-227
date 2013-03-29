@@ -929,7 +929,7 @@ the prediction by 2.5\%, 1.5\% and 1\% for visits 6866601, 6866602, and 6866603 
 in the bottom row.  Once this correction is done, the trend of false positive rate with detection threshold agrees to within 1-$\sigma$ for the 
 prefiltering case for all three seeing values.
 
-\section{Results: Correlation with KernelCandidate Statistics {\bf ANDYB}}
+\section{Results: Correlation with KernelCandidate Statistics}
 
 In Figures~\ref{corrpre} and \ref{corrpost} we correlate statistics
 calculated on the control sample of {\tt KernelCandidates} with the
@@ -949,13 +949,22 @@ correlate strongly with each other, meaning there is likely little
 advantage to looking at more than one metric.  The deconvolution visit
 in {\it red} is a clear outlier in this distribution.  While there is
 a relationship between the values of these metrics and the numbers of
-false positives, it is relatively flat until $\sim 100$ false
+false positives, it is relatively flat until $\sim 10^2$ false
 detections per sensor; the scatter below this threshold is similar to
 the trend, meaning there is no single metric studied that may be used
 to predict the numbers of false detections during the fitting process,
 within the range of interest ($<10$ false detections per sensor).
 
-For prefiltering, Figure~\ref{corrpre}, {\bf WRITE ME}.
+For prefiltering, Figure~\ref{corrpre}, the slope between $10^0$ and
+$10^1$ false detections is steeper, but still commensurate with the
+scatter within that range.  The metrics are still strongly correlated
+with each other, but not to the degree as for the postfiltered
+statistics.  A less--noisy relationship may be obtained through a
+linear combination of these metrics, but we have not fully
+investigated this option.  As a summary, these statistics clearly
+correlate with the numbers of false positives, and we plan to quantify
+these correlations in further detail as we continue our work in Summer
+2013.
 
 Using this simplified data set, we can begin to look at how we may predict 
 optimal configs based measured statistics.  We notice that the MSE of the
