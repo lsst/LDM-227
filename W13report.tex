@@ -9,6 +9,7 @@
 \usepackage{rotating}
 \input epsf
 \usepackage{amsmath}
+\usepackage{caption}
 \usepackage{wasysym}
 \usepackage{subfig}
 \usepackage{graphicx}
@@ -554,7 +555,7 @@ We compare the empirical variation of false detections with detection
 threshold in our data, and show that our results are consistent with
 reaching the systematic floor in these data.
 
-\subsection{Effect of Uncertainty on Measured ${S}\over{N}$ {\bf SIMON}}
+\subsection{Effect of Uncertainty on Measured ${S}\over{N}$ {\bf SIMON}\label{sec-sn}}
 
 Section \ref{sec-analyticfp} discusses the theoretical foundation 
 that sets the floor on the number of false positives we expect from a 
@@ -605,6 +606,7 @@ background modeling with a single measurement of the number of positive and nega
 %do the following.  The theoretical expectations for the number of
 %false detections due to random Gaussian fluctuations is outlined in
 %\cite{Kaiser-PointSources}.
+
 
 \subsection{Number of KernelCandidates {\bf ANDYB}}
 
@@ -785,8 +787,38 @@ convolution with the Psf.  As we have demonstrated here, this second
 convolution is where our variance bookkeeping lags the empirical
 variance.
 
+\subsection{Detection Threshold}
+Obviously the number of false positives is strongly dependent on the detection threshold.  In order to
+check the scaling of our false positive rates with detection threshold, we ran the same config (see \ref{tab-bestconfig10} 
+for the config parameters)
+at several detection threshold values for each visit both prefiltering and postfiltering.  As discussed in 
+Section~\ref{sec-analyticfp} one can predict the number of false positives expected in a sensor given
+seeing and threshold values.  Some example values of the number of false positives (both +ve and -ve)
+expected in LSST size detectors are given in Table \ref{tab-fprate}.  
 
-\subsection{Correlation with KernelCandidate Statistics {\bf ANDYB}}
+As discussed in the Section \ref{sec-sn}, the accuracy of the noise estimation in the dection is crutial to 
+understanding the false positive rate.  In the previous section we quantify the under--estimation of the variance
+by the variance plane in the case of pre and post filtering.  In our analysis of the threshold dependence of
+our false detection rate we must correct for this under--estimation in order to put the counts from each algorithm
+on the same normalization.
+
+Figure \ref{fig-fp_v_thresh} shows the results of this analysis.  In all figures red squares are postfiltered data and
+blue circles are for the prefiltering technique.  All values are for the number of false positives in a 4000x4072 sensor.
+Using a Monte Carlo approach we 
+estimate the variance on the predicted false positive rate as a function of threshold.  The 1-$\sigma$ confidence envelope is shown
+as shaded grey about the model line in dark black.  From left to right the panels are for visit 6866601 -- 0.6$^{\prime\prime}$ FWHM,
+6866602 -- 0.88$^{\prime\prime}$ FWHM and 6866603 -- 1.2$^{\prime\prime}$ FWHM respectively.  Except in the case of deconovlution
+in the postfiltering case (visit 6866601) the count rates between the two algorithms agree very well when corrected for the
+observed under--estimation of the noise by the variance plane.  In the case where postfiltering requires a deconvolution, the high $\over{S}{N}$
+detections come primarily from detection of the ringing around stars.
+
+In all cases the empirical results are below the predicted results indicating
+that the number counts are smaller than the theoretical floor.  {\bf What should we say about this here?} We can correct for this by scaling
+the prediction by 2.5\%, 1.5\% and 1\% for visits 6866601, 6866602, and 6866603 respectively.  The data plotted with these corrections are shown
+in the bottom row.  Once this correction is done, the trend of false positive rate with detection threshold agrees to within 1-$\sigma$ for the 
+prefiltering case for all three seeing values.
+
+\section{Results: Correlation with KernelCandidate Statistics {\bf ANDYB}}
 
 In Figures~\ref{corrpre} and \ref{corrpost} we correlate statistics
 calculated on the control sample of {\tt KernelCandidates} with the
@@ -813,6 +845,29 @@ to predict the numbers of false detections during the fitting process,
 within the range of interest ($<10$ false detections per sensor).
 
 For prefiltering, Figure~\ref{corrpre}, {\bf WRITE ME}.
+
+Using this simplified data set, we can begin to look at how we may predict 
+optimal configs based measured statistics.  We notice that the MSE of the
+control sample has a minimum in all cases.  See Figures \ref{fig-MSE_CONTROL}
+and \ref{fig-MSE_FITTED} to see the behavior of the MSE for the control sample and
+fitted sample respectively.  We note that the config at the minimum MSE value is
+not always the same config.  Table \ref{tab-bestconfig_MSE} lists the configs
+at the minimum of the MSE for the control sample.  This can be compared to
+the configs in Table \ref{tab-bestconfig10}.
+
+Since we were looking as MSE values for all chips at once, it's possible that
+each sensor has it's own optimal config and thus the aggregate MSE is not a 
+good indicator of overall config optimization.  To get a handle on this, we
+looked at per sensor MSE values and per sensor false positive rates.  In fact,
+the config that produces the minimum number of false positives is variable
+from sensor to sensor.  It is worth investigating how much the false positive rate
+per chip goes down if per sensor optimal configs are used instead of per visit optimal
+configs.
+
+When we look at the MSE per chip and compare with the minimum false positive config we 
+find good agreement.  The findings are summarized in Table \ref{tab-MSE_persensor}.  Because
+the MSE is sensitive to over fitting, we observe that it tends to lower complexity configs
+even if the false positive rate is slightly higher.
 
 However, the trends are encouraging and we will pursue these methods
 in our future work with the more complicated simulations.
@@ -894,7 +949,10 @@ are presented in Table~\ref{tab-timings}.
   strongly dependent on background fitting, with {\bf XXX}
   (Figure~\ref{XXX}).
 
-\item Our empirical negative to positive false detection ratio is {\bf
+
+and \ref{fig-MSE_FITTED} to see the behavior of the MSE for the control sample and
+fitted sample respectively.  We note that the config at the minimum MSE value is
+not always the same config\item Our empirical negative to positive false detection ratio is {\bf
   X.X}, indicating a bias in the background levels of {\bf X\%}.
 
 \item At the 5--sigma detection threshold, for the range of seeings
@@ -965,7 +1023,7 @@ are presented in Table~\ref{tab-timings}.
 \end{itemize}
 
 \section{Outstanding Issues {\bf SIMON}}
-We ran into several issues during this production that required work--arounds.  
+We ran into some issues during this production that required work--arounds.  
 In some cases we did not have the time to drill all the way down
 to the root cause.  We itemize these issues here so that they may be addressed 
 as part of the Summer 2013 work.
@@ -1423,6 +1481,19 @@ seeing example is shown.
   They clearly correlate with each other, and also tend to correlate
   with the number of false detections (bottom row).}
 \label{corrpre}
+\end{figure}
+
+\begin{figure}%
+\captionsetup[subfloat]{labelformat=empty}
+\centering
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_nocorr.eps}}
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_nocorr.eps}}
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_nocorr.eps}}\\
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_corr.eps}}%
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_corr.eps}}%
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_corr.eps}}%
+\caption{}
+\label{fig-fp_v_thresh}
 \end{figure}
 
 \clearpage 
