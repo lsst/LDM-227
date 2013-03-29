@@ -38,15 +38,71 @@
 \def\aaps{{\it A\&AS}}
 \def\apj{{\it ApJ}}
 
-\author{Andrew Becker, Simon Krughoff, Andrew Connolly, Russell Owen}
-\title{Report on Late Winter2013 Production: Image Differencing}
-\date{\today}
+\author{Andrew Becker, Simon Krughoff, Andrew Connolly, Russell Owen\vspace{-2ex}}
+\title{Report on Late Winter2013 Production: Image Differencing\vspace{-2ex}}
+\date{\vspace{-2ex}\today}
 
 \begin{document}
 
 \maketitle
+\vspace{-2ex}
+We provide here a technical report on the LSST Data Management
+late--Winter 2013 production runs.  This production focused on the
+evaluation of LSST DM image differencing code, in particular on
+evaluating the rate of false detections the pipeline generates.  As
+inputs, we used a suite of simulated images generated in idealized
+conditions and containing no intrinsic variability.  Thus {\it any}
+sources detected in these image differences are ``false positives''.
 
-{\bf WRITE ME}
+We investigated two distinct operational modes of the pipeline.  The
+first pre--filters the science image with its own PSF, yielding a
+point--source maximum likelihood image.  The template is then
+PSF--matched to this image, subtracted from it, and detection and
+measurement happen directly on this difference.  The second mode
+matches the template image to the science image, creates their
+difference, post--filters the difference with the science image PSF,
+and then runs detection on this maximum likelihood image.  Measurement
+happens on the detected footprints, but in the difference image.  We
+also investigated the complexity of the basis functions used to model
+the PSF--matching kernel, and the degree to which this kernel varies
+across the images.  We generated several goodness of fit statistics
+for a control sample of sources that were {\it not} used in the kernel
+fit, in order to assess the interpolation ability of the matching
+kernel.
+
+We compared the measured numbers of false detections to the number we
+expect due to random fluctuations in a background Gaussian field.  The
+latter is a function of both seeing in the images, and of the
+detection threshold used.  At the fiducial detection threshold of
+5--sigma, the number of expected false positives per LSST sensor is of
+order {\bf XX}, and we measure of order {\bf YY}, indicating that we
+are able to achieve the systematic floor in false detection rate.  We
+examined our measured false detection rate as a function of detection
+threshold and find that it roughly scales as expected.  In order for
+there to be less than 1 expected false detection per sensor, we must
+operate at a detection threshold of {\bf X.X} sigma.
+
+We found a severe dependence of the false positive rate on our
+understanding of the variance; even a 1\% misestimate of the noise may
+increase or decrease the false positive rate by a factor of {\bf XX}
+at 5--sigma.  Prefiltering is preferred in this regard, as our
+variance planes are shown to track the variance to higher fidelity at
+the detection stage.  We find that over/undersubtraction of the image
+background leads to a bias in the positive to negative false detection
+ratio, but not on the overall numbers of detections.  Prefiltering
+also prevents, in many cases, a deconvolution of the template image
+when the science image has better seeing, which is a clear advantage
+of the technique.
+
+We outline several additional steps we will pursue on the Summer 2013
+timescale, including operating on images with more astrophysical and
+atmospheric complexity, improving measurement on PSF--filtered
+sources, adopting Gaussian processes for modeling of the spatial
+kernel, and using statistics calculated during the image subtraction
+to tune the algorithm ``on the fly'' (i.e. predict the numbers of
+false positives it will generate).
+
+
 
 \clearpage
 \tableofcontents
