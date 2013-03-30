@@ -76,24 +76,24 @@ expect due to random fluctuations in a background Gaussian field.  The
 latter is a function of both seeing in the images, and of the
 detection threshold used.  At the fiducial detection threshold of
 5--sigma, the number of expected false positives per LSST sensor is of
-order {\bf XX}, and we measure of order {\bf YY}, indicating that we
-are able to achieve the systematic floor in false detection rate.  We
+order 3--10, and we measure a similar number, indicating that we are
+able to achieve the systematic floor in false detection rate.  We
 examined our measured false detection rate as a function of detection
 threshold and find that it roughly scales as expected.  In order for
-there to be less than 1 expected false detection per sensor, we must
-operate at a detection threshold of {\bf X.X} sigma.
+there to be less than 1 expected false detection per sensor (to
+seeings as good as 0.6''), we must operate at a detection threshold of
+5.5--sigma.
 
-We found a severe dependence of the false positive rate on our
-understanding of the variance; even a 1\% misestimate of the noise may
-increase or decrease the false positive rate by a factor of {\bf XX}
-at 5--sigma.  Prefiltering is preferred in this regard, as our
-variance planes are shown to track the variance to higher fidelity at
-the detection stage.  We find that over/undersubtraction of the image
-background leads to a bias in the positive to negative false detection
-ratio, but not on the overall numbers of detections.  Prefiltering
-also prevents, in many cases, a deconvolution of the template image
-when the science image has better seeing, which is a clear advantage
-of the technique.
+We found a significant dependence of the false positive rate on our
+understanding of the variance; even a 2\% misestimate of the noise may
+change the false positive rate by a factor of 1.5--2 at 5--sigma.
+Prefiltering is preferred in this regard, as our variance planes are
+shown to track the variance to higher fidelity at the detection stage.
+We find that over/undersubtraction of the image background leads to a
+bias in the positive to negative false detection ratio, but not on the
+overall numbers of detections.  Prefiltering may also prevent a
+deconvolution of the template image when the science image has better
+seeing, which is a clear advantage of the technique.
 
 We outline several additional steps we will pursue on the Summer 2013
 timescale, including operating on images with more astrophysical and
@@ -102,7 +102,6 @@ sources, adopting Gaussian processes for modeling of the spatial
 kernel, and using statistics calculated during the image subtraction
 to tune the algorithm ``on the fly'' (i.e. predict the numbers of
 false positives it will generate).
-
 
 
 \clearpage
@@ -544,11 +543,6 @@ Importantly we also have a CONTROL sample of {\tt KernelCandidates}
 that were explicitly held out of the fitting to use as a cross
 validation sample.
 
-{\bf MOVE ME}
-In each case there is a minimum in the measured MSE of the CONTROL sample suggesting
-that the test configs span a sufficient range of complexity in the parameter space to 
-go from under to over fitting.  Table \ref{tab-bestconfig_MSE}.
-
 \section{Production Runs}
 
 We ran several pre--productions to tune the following aspects of the
@@ -616,43 +610,55 @@ and degGauss$>$3.  There is not much evidence for an upturn in the
 numbers of false detections, meaning we have likely not reached the
 case of severe overfitting using these configs.
 
-The numbers of false detections in each best case are given in
-Table~\ref{tab-bestfp10}.  We undertook a manual inspection of all
-difference images to associate the {\tt DiaSources} with sources in the
-images, and also use a 3'' association with the input source catalog
-to define matches and orphans.  Associations are listed in the
-N$_{Match}$ column of Table~\ref{tab-bestfp10}, with the unmatched
-false positives in the N$_{Orphan}$ column.  The former are likely to
-come from systematics in the subtractions of stars, while the latter
-would be due to fluctuations in the background.  We note 2 effects
-that may impact N$_{Match}$.  The first is that, with a 3'' matching
-radius, 4\% of random fluctuations will by--chance associate with a
-Source.  Assuming that N$_{Orphan}$ represents 96\% of the background
-fluctuation population, we estimate the number of fluctuations from
-that same population that would have associated with Sources as
-N$_{Random}$.  Finally, we count all matches that occur within 100
-pixels of the image boundary, where we might expect deficiencies in
-the various spatial extrapolations (astrometry, backgrounds,
-PSF--matching kernels) to yield systematic residuals, as N$_{D<100}$.
-Figure~\ref{edgedist} provides the distribution of distances from the
-edge of the sensor for all false detections in {\it blue}, with a
-random sample of points in the image given in {\it green}.
-Uncertainties are plotted using the square root of the number of
-points in each bin, and the histograms are normalized to provide a
-probability density.  Aside from the deconvolution reduction, we find
-no significant correlation of false detections with the boundaries of
-the fitting functions.  To the extent that N$_{Random}$ $<$
-N$_{Match}$, we have a small residual set of systematic false
-detections in our imaging ensemble.  Aside from the deconvolution run,
-this is at the level of 10 total false detections over 9 sensors in 5
-production runs, or 1 every 4--5 images. {\bf REDO BASED ON SIMON'S REANALYSIS}
+The numbers N$_{Measured}$ of false detections in each best case are
+given in Table~\ref{tab-bestfp10}, with the total number expected from
+the Monte Carlo analysis given as N$_{Expect}$.  We undertook a manual
+inspection of all difference images to associate the {\tt DiaSources}
+with sources in the images, and also use a 3'' association with the
+input source catalog to define matches and orphans.  Associations are
+listed in the N$_{Match}$ column of Table~\ref{tab-bestfp10}, with the
+unmatched false positives in the N$_{Orphan}$ column.  The former are
+likely to come from systematics in the subtractions of stars, while
+the latter would be due to fluctuations in the background.  We note 2
+effects that may impact N$_{Match}$.  The first is that, with a 3''
+matching radius, 4\% of random fluctuations will by--chance associate
+with a Source.  Assuming that N$_{Orphan}$ represents 96\% of the
+background fluctuation population, we estimate the number of
+fluctuations from that same population that would have associated with
+Sources as N$_{Random}$.  Finally, we count all matches that occur
+within 100 pixels of the image boundary, where we might expect
+deficiencies in the various spatial extrapolations (astrometry,
+backgrounds, PSF--matching kernels) to yield systematic residuals, as
+N$_{D<100}$.  Figure~\ref{edgedist} provides the distribution of
+distances from the edge of the sensor for all false detections in {\it
+  blue}, with a random sample of points in the image given in {\it
+  green}.  Uncertainties are plotted using the square root of the
+number of points in each bin, and the histograms are normalized to
+provide a probability density.  Aside from the deconvolution
+reduction, we find no significant correlation of false detections with
+the boundaries of the fitting functions.  We note that we are
+performing better than theory for visit v6866601 and prefiltering,
+although this is only 1.4 times the scatter in the expectation value.
+Otherwise, the results are as--expected from our simulations,
+indicating that we are near the systematic floor in false detection
+rate.  We also note that there is a slightly higher number of
+associations with sources than we would expect randomly (N$_{Random}$
+$<$ N$_{Match}$), although this is very small and at the rate of 1
+every 4--5 images.
 
-We also list the ratio of negatively detected to positively detected
-{\tt DiaSources}.  That this ratio is significantly greater than 1.0 in most
-cases suggests that there is an over-subtraction of the background in
-the process, which biases this ratio (see Section~\ref{sec-bg}).  For
-completeness, the optimal configurations yielding these false detection
-rates are given in Table~\ref{tab-bestconfig10}.
+In the last column of Table~\ref{tab-bestfp10} we list the ratio of
+negatively detected to positively detected {\tt DiaSources}.  This
+ratio is significantly higher than 1.0 for all prefiltering visits,
+suggesting that there is an over--subtraction of the background in the
+image processing, which will bias this ratio (see
+Section~\ref{sec-bg}).  The observed ratios of 2--3 suggest that there
+is a background overestimation of order $1-2\%$ causing lower--sigma
+fluctuations to be measured at 5--sigma (Figure~\ref{fig-skythresh}).
+The postfiltering ratios vary by a similar amplitude, but with a
+mixture of possible over-- and under--subtractions.
+
+For completeness, the optimal configurations yielding these false
+detection rates are given in Table~\ref{tab-bestconfig10}.
 
 \section{Results: False Detection Dependencies}
 
@@ -722,7 +728,7 @@ background modeling with a single measurement of the number of positive and nega
 %false detections due to random Gaussian fluctuations is outlined in
 %\cite{Kaiser-PointSources}.
 
-\subsection{Number of KernelCandidates {\bf ANDYB}}
+\subsection{Number of KernelCandidates}
 
 We effectively decreased the numbers of {\tt KernelCandidates} in the
 spatial solution by increasing the size of {\tt SpatialCells} used to
@@ -1148,7 +1154,7 @@ as part of the Summer 2013 work.
 
 \subsection{Astrometric Registration \label{subsec-astrom}}
 The original plan for this production was to use the single deep exposures (v6866600) as 
-inputs to the coadd process, to exercise use of the coadd repository.  As 
+inputs to the coadd process, to exercise use of the coadd process and coadd repository.  As 
 such we warped the exposures to coadd patches for use in the image difference
 task.  The register task was unable to solve a differential WCS between the coadd
 and science {\tt calexp} because in coadds, the parent WCS is for the entire {\tt tract}.
@@ -1157,25 +1163,26 @@ typically off the {\tt patch} image.  TAN--SIP is unable to perform in this circ
 as it expands its polynomials around the CRPIX.  To get around this 
 we tried re--solving the coadd patches using a TAN--SIP solution that was solved from
 scratch.  This worked fairly will part of the time,
-yielding residuals in the 40--100 mas range, compared to the 250 mas previously.  However,
+yielding residuals in the 40--100 mas range, compared to the 100--300 mas previously.  However,
 as we did not understand the origin of these problems, and there were legitimate bugs
 in meas\_astrom  that were uncovered as a result of this investigation, we reverted to
 using the deep {\tt calexp} as the template directly; the direct deep {\tt calexp} to science {\tt calexp} 
 registration typically yielded residuals in the range of 4--5 mas.
 
 We investigated potential causes of the large residuals.  To do this, we looked at the 
-residuals for template--to--refcat solutions, science image--to--ref solutions, and 
+residuals for template--to--reference catalog solutions, science image--to--refcat solutions, and 
 direct template to science image registration to attempt to isolate where the astrometry 
 was being degraded.  The results are shown
-in table \ref{tab-wcsrms}.  We show the results for the nine sensors in the best seeing visit.  
-
+in Table~\ref{tab-wcsrms}.  We show the results for the nine sensors in the best seeing visit.  
 The solutions for the three steps that do not involve any warping show results consistent with 
-the accuracy we expect to get.  We also see the expected trend that the deep exposures have 
-smaller RMS than the solutions of the science images.  The coadd--to--science registration
-depends critically on the WCS fitting and warping process: the WCS of the deep {\tt calexp} is warped
-into the coadd {\tt patch}; the coadd {\tt patch} is then warped into the science {\tt calexp} frame.
-This places two dependencies on the warping code, and two on the WCS fitting, where
-this degradation may have occurred.
+the accuracy we expect to get.  We also see the expected trend that the deep exposure solutions have 
+smaller RMS than the solutions for the science images, due to their higher S/N.  The coadd--to--science 
+registration depends critically on the WCS fitting and warping process: the WCS of the deep {\tt calexp} is 
+warped into the coadd {\tt patch}; the coadd {\tt patch} is then warped into the science {\tt calexp's} WCS
+frame.  This places two dependencies on the warping code, and two on the WCS fitting, where
+this degradation may have occurred.  This 1--2 order of magnitude degradation in the WCS solutions 
+shown in Table~\ref{tab-wcsrms} indicate
+that astrometry and warping are areas that need to be actively addressed.
 
 \subsection{Detection and Measurement on Negative Sources}
 We see more negative false detections than positive false detections.  This drove an investigation 
@@ -1232,42 +1239,49 @@ v6866601 & 3.0 & 114$\pm$11 & 12$\pm$3& 1$\pm$1\\
 v6866602 & 4.4 & 54$\pm$8 & 5$\pm$2& 0.5$\pm$0.5\\
 v6866603 & 6.0 & 29$\pm$6 & 3$\pm$2&0.2$\pm$0.4\\
 \end{tabular}
-\caption{Total number of false detections that we expect based on
-  a 4000x4072 pixel senser.  We list the total number of positive {\it plus} negative detections;
-  they should be present in equal quantities. The variance is as determined from Monte Carlo simulations.\label{tab-fp}
-}
+
+\caption{Total number of false detections that we expect based on a
+  4000x4072 pixel sensor.  This number is dependent on the seeing and
+  detection threshold, so we list the values at a threshold of 4.5,
+  5.0, and 5.5 sigma for the seeings in the 3 visits used in this
+  production. We list the total number of positive {\it plus} negative
+  detections; they should be present in equal quantities. The variance
+  is as determined from Monte Carlo simulations.\label{tab-fp} }
 \end{table}
 
 
 
 \begin{table}
 \centering
-\begin{tabular}{clcccccc}
+\begin{tabular}{clc|cccccc}
 \hline
-\multicolumn{8}{|c|}{Best Results: Production 10} \\
+\multicolumn{9}{|c|}{Best Results: Production 10} \\
 \hline
-Visit    & Prefilter & Total False Detections &  N$_{Orphan}$ & N$_{Match}$ & N$_{Random}$ & N$_{D<100}$ & Nneg / Npos \\
+Visit    & Prefilter & N$_{Expect}$ & N$_{Measured}$ &  N$_{Orphan}$ & N$_{Match}$ & N$_{Random}$ & N$_{D<100}$ & N$_{-}$ / N$_{+}$ \\
 \hline
-v6866601 & True      & 70      &60         & 10 & 3     & 4   & 1.8 \\ 
-         & False     & 143     &51         & 92 & 2     & 11  & 0.4 \\
-v6866602 & True      & 42      &36         & 6  & 2     & 1   & 2.6 \\
-         & False     & 53      &45         & 8  & 2     & 1   & 0.5 \\
-v6866603 & True      & 23      &23         & 0  & 1     & 0   & 2.8 \\
-         & False     & 36      &35         & 1  & 1     & 0   & 3.4 \\
+v6866601 & True      & 108$\pm$27   & 70      &60         & 10 & 3     & 4   & 1.8 \\ 
+         & False     & $\cdots$     & 143     &51         & 92 & 2     & 11  & 0.4 \\
+v6866602 & True      & 45$\pm$18    & 42      &36         & 6  & 2     & 1   & 2.6 \\
+         & False     & $\cdots$     & 53      &45         & 8  & 2     & 1   & 0.5 \\
+v6866603 & True      & 27$\pm$18    & 23      &23         & 0  & 1     & 0   & 2.8 \\
+         & False     & $\cdots$     & 36      &35         & 1  & 1     & 0   & 3.4 \\
 \end{tabular}
 \caption{Total number of {\tt DiaSources} detected at 5--sigma from
   all 9 sensors in raft 2,2, for the configurations that yielded the
-  lowest number of false detections.  Matches are determined using a
-  3'' match radius with the input reference catalog.  Objects with the
-  {\tt EDGE} flag are ignored.  We list the number of background
-  fluctuations that are expected to randomly associate with a Source
-  N$_{Random}$, given the density of objects in the images and a 3''
-  match radius, assuming that N$_{Orphan}$ represents 96\% of the
-  total population of detections from Gaussian fluctuations.
-  We also list the number of false detections that are found within
-  the outer 100 pixels of the image N$_{D<100}$.  The final column
-  lists ratios of the number of negatively detected false detections
-  to those with positive flux, a 5--sigma. \label{tab-bestfp10}}
+  lowest number of false detections (N$_{Measured}$).  N$_{Expect}$
+  lists the total number we expect to detect as random fluctuations,
+  from Table~\ref{tab-fp}, and are the same for pre and postfiltering.
+  Whether a detection is a match or an orphan (N$_{Match}$ and
+  N$_{Orphan}$) is determined using a 3'' match radius with the input
+  reference catalog.  We list the number of background fluctuations
+  that are expected to randomly associate with a Source N$_{Random}$,
+  given the density of objects in the images and a 3'' match radius,
+  assuming that N$_{Orphan}$ represents 96\% of the total population
+  of detections from Gaussian fluctuations.  We also list the number
+  of false detections that are found within the outer 100 pixels of
+  the image N$_{D<100}$.  The final column lists ratios of the number
+  of negatively detected false detections to those with positive
+  flux. \label{tab-bestfp10}}
 \end{table}
 
 
@@ -1308,8 +1322,7 @@ v6866602 & True      & 3      & 4        & 6 \\
 v6866603 & True      & 3      & 5        & 5 \\
          & False     & 3      & 5        & 5 \\
 \end{tabular}
-\caption{The best configs as derived from the minimum in the measured MSE.  It should 
-be noted that the minimum is fairly shallow.
+\caption{The best configs as derived from the minimum in the measured MSE.
 \label{tab-bestconfig_MSE}}
 \end{table}
 
@@ -1407,7 +1420,7 @@ R22:S22&1.4&4.2&4.2&389\\
 \end{tabular}
 \caption{We looked at the resulting RMS from WCS fitting on the source lists of the deep exposure to the reference catalog, the science exposure to the reference catalog,
 fitting the deep exposure directly to the science exposure, and fitting a warped coadd to the science exposure.  Fitting 
-the coadd to the science exposure produces an order of magnitude more scatter in the fit than at any other point. {\bf SIMON MAKE SURE NUMBERS ARE STRAIGHT}\label{tab-wcsrms}}
+the coadd to the science exposure produces 1--2 orders of magnitude more scatter in the fit than at any other point. \label{tab-wcsrms}}
 \end{table}
 \clearpage
 
@@ -1512,7 +1525,7 @@ the coadd to the science exposure produces an order of magnitude more scatter in
 \centering{\includegraphics[width=1.0\textwidth]{figures/fp_v_dsky.eps}}
 \caption{
 Misestimation of the sky value has an effect on both the number of false positives and relative abundance of positive false positives to negative false positives.
-The top pane of this figure shows the relative number of +ve/-ve (-ve/+ve) if the sky background is under (over) subtracted at a particular fractional level.  The 
+The top pane of this figure shows the relative number of +ve/-ve (-ve/+ve) detections if the sky background is under (over) subtracted at a particular fractional level.  The 
 bottom panel shows how the total number of false positives changes for the same misestimation.  This is not a strong function of the seeing, so only the best
 seeing example is shown.
 }
