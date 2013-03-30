@@ -84,17 +84,16 @@ there to be less than 1 expected false detection per sensor (to
 seeings as good as 0.6''), we must operate at a detection threshold of
 5.5--sigma.
 
-We found a severe dependence of the false positive rate on our
-understanding of the variance; even a 1\% misestimate of the noise may
-increase or decrease the false positive rate by a factor of {\bf XX}
-at 5--sigma.  Prefiltering is preferred in this regard, as our
-variance planes are shown to track the variance to higher fidelity at
-the detection stage.  We find that over/undersubtraction of the image
-background leads to a bias in the positive to negative false detection
-ratio, but not on the overall numbers of detections.  Prefiltering
-also prevents, in many cases, a deconvolution of the template image
-when the science image has better seeing, which is a clear advantage
-of the technique.
+We found a significant dependence of the false positive rate on our
+understanding of the variance; even a 2\% misestimate of the noise may
+change the false positive rate by a factor of 1.5--2 at 5--sigma.
+Prefiltering is preferred in this regard, as our variance planes are
+shown to track the variance to higher fidelity at the detection stage.
+We find that over/undersubtraction of the image background leads to a
+bias in the positive to negative false detection ratio, but not on the
+overall numbers of detections.  Prefiltering may also prevent a
+deconvolution of the template image when the science image has better
+seeing, which is a clear advantage of the technique.
 
 We outline several additional steps we will pursue on the Summer 2013
 timescale, including operating on images with more astrophysical and
@@ -103,7 +102,6 @@ sources, adopting Gaussian processes for modeling of the spatial
 kernel, and using statistics calculated during the image subtraction
 to tune the algorithm ``on the fly'' (i.e. predict the numbers of
 false positives it will generate).
-
 
 
 \clearpage
@@ -735,7 +733,7 @@ background modeling with a single measurement of the number of positive and nega
 %false detections due to random Gaussian fluctuations is outlined in
 %\cite{Kaiser-PointSources}.
 
-\subsection{Number of KernelCandidates {\bf ANDYB}}
+\subsection{Number of KernelCandidates}
 
 We effectively decreased the numbers of {\tt KernelCandidates} in the
 spatial solution by increasing the size of {\tt SpatialCells} used to
@@ -1164,7 +1162,7 @@ as part of the Summer 2013 work.
 
 \subsection{Astrometric Registration \label{subsec-astrom}}
 The original plan for this production was to use the single deep exposures (v6866600) as 
-inputs to the coadd process, to exercise use of the coadd repository.  As 
+inputs to the coadd process, to exercise use of the coadd process and coadd repository.  As 
 such we warped the exposures to coadd patches for use in the image difference
 task.  The register task was unable to solve a differential WCS between the coadd
 and science {\tt calexp} because in coadds, the parent WCS is for the entire {\tt tract}.
@@ -1173,25 +1171,26 @@ typically off the {\tt patch} image.  TAN--SIP is unable to perform in this circ
 as it expands its polynomials around the CRPIX.  To get around this 
 we tried re--solving the coadd patches using a TAN--SIP solution that was solved from
 scratch.  This worked fairly will part of the time,
-yielding residuals in the 40--100 mas range, compared to the 250 mas previously.  However,
+yielding residuals in the 40--100 mas range, compared to the 100--300 mas previously.  However,
 as we did not understand the origin of these problems, and there were legitimate bugs
 in meas\_astrom  that were uncovered as a result of this investigation, we reverted to
 using the deep {\tt calexp} as the template directly; the direct deep {\tt calexp} to science {\tt calexp} 
 registration typically yielded residuals in the range of 4--5 mas.
 
 We investigated potential causes of the large residuals.  To do this, we looked at the 
-residuals for template--to--refcat solutions, science image--to--ref solutions, and 
+residuals for template--to--reference catalog solutions, science image--to--refcat solutions, and 
 direct template to science image registration to attempt to isolate where the astrometry 
 was being degraded.  The results are shown
-in table \ref{tab-wcsrms}.  We show the results for the nine sensors in the best seeing visit.  
-
+in Table~\ref{tab-wcsrms}.  We show the results for the nine sensors in the best seeing visit.  
 The solutions for the three steps that do not involve any warping show results consistent with 
-the accuracy we expect to get.  We also see the expected trend that the deep exposures have 
-smaller RMS than the solutions of the science images.  The coadd--to--science registration
-depends critically on the WCS fitting and warping process: the WCS of the deep {\tt calexp} is warped
-into the coadd {\tt patch}; the coadd {\tt patch} is then warped into the science {\tt calexp} frame.
-This places two dependencies on the warping code, and two on the WCS fitting, where
-this degradation may have occurred.
+the accuracy we expect to get.  We also see the expected trend that the deep exposure solutions have 
+smaller RMS than the solutions for the science images, due to their higher S/N.  The coadd--to--science 
+registration depends critically on the WCS fitting and warping process: the WCS of the deep {\tt calexp} is 
+warped into the coadd {\tt patch}; the coadd {\tt patch} is then warped into the science {\tt calexp's} WCS
+frame.  This places two dependencies on the warping code, and two on the WCS fitting, where
+this degradation may have occurred.  This 1--2 order of magnitude degradation in the WCS solutions 
+shown in Table~\ref{tab-wcsrms} indicate
+that astrometry and warping are areas that need to be actively addressed.
 
 \subsection{Detection and Measurement on Negative Sources}
 We see more negative false detections than positive false detections.  This drove an investigation 
@@ -1405,7 +1404,7 @@ R22:S22&1.4&4.2&4.2&389\\
 \end{tabular}
 \caption{We looked at the resulting RMS from WCS fitting on the source lists of the deep exposure to the reference catalog, the science exposure to the reference catalog,
 fitting the deep exposure directly to the science exposure, and fitting a warped coadd to the science exposure.  Fitting 
-the coadd to the science exposure produces an order of magnitude more scatter in the fit than at any other point. {\bf SIMON MAKE SURE NUMBERS ARE STRAIGHT}\label{tab-wcsrms}}
+the coadd to the science exposure produces 1--2 orders of magnitude more scatter in the fit than at any other point. \label{tab-wcsrms}}
 \end{table}
 \clearpage
 
