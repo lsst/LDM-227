@@ -985,12 +985,9 @@ per chip goes down if per sensor optimal configs are used instead of per visit o
 configs.
 
 When we look at the MSE per chip and compare with the minimum false positive config we 
-find good agreement.  The findings are summarized in Table \ref{tab-MSE_persensor}.  Because
+find good agreement, in general.  The findings are summarized in Table \ref{tab-MSE_persensor}.  Because
 the MSE is sensitive to over fitting, we observe that it tends to lower complexity configs
-even if the false positive rate is slightly higher.
-
-However, the trends are encouraging and we will pursue these methods
-in our future work with the more complicated simulations.
+even if the false positive rate is slightly higher.  We will continue working on this with more complicated simulations.
 
 \section{Results: Measurement}
 
@@ -1314,6 +1311,31 @@ v6866603 & True      & 3      & 5        & 5 \\
 \caption{The best configs as derived from the minimum in the measured MSE.  It should 
 be noted that the minimum is fairly shallow.
 \label{tab-bestconfig_MSE}}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{clcccc}
+\hline
+\multicolumn{5}{|c|}{Per Sensor MSE Comparison} \\
+\hline
+Visit    & Prefilter & N$_{Same}$ & N$_{<3}$ & $\Delta FP$ & max($\Delta FP$)\\
+\hline
+v6866601 & True      & 0      & 2        & 22 & 4\\
+         & False     & 4      & 6        & 24 & 10\\
+v6866602 & True      & 3      & 5        & 7 & 2\\
+         & False     & 6      & 7        & 8 & 6\\
+v6866603 & True      & 6      & 7        & 3 & 1\\
+         & False     & 6      & 8        & 3 & 1\\
+\end{tabular}
+\caption{
+We exampine the configs chosen based on the minimum MSE and compare them to the config of the
+minimum number of false positives.  The sample here consists of 9 sensors per visit.  
+N$_{Same}$ is the number of times the minimum MSE coincides with the minimum false positives.  N$_{<3}$
+is the number of times the minimum false positive config has an MSE in the minimum 3.  $\Delta FP$
+is the total change in false positive count using the minimum MSE config as compared to the sum of the minimum 
+false positives per sensor.  max($\Delta FP$) is the maximum change in detected false positives on any sensor in that visit.
+\label{tab-MSE_persensor}}
 \end{table}
 
 \clearpage
