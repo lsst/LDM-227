@@ -709,8 +709,8 @@ the number of additional false positives in an LSST size CCD given a fractional 
 of the noise in the image and a detection threshold (recall the baseline numbers are given in 
 Table~\ref{tab-fp}).  A 1\% under-estimate of the noise
 corresponds to ~4 additional false positives at a threshold of $5\sigma$ in the best seeing case, compared to
-12 expected, and 1 additonal false positive in the worst seeing case, compared to 3 expected.  These numbers roughly
-double if the noise is underestaimted by 2\%.
+12 expected, and 1 additional false positive in the worst seeing case, compared to 3 expected.  These numbers roughly
+double if the noise is underestimated by 2\%.
 The bottom panels show 
 the effect of over-estimating the noise in the measurement.  The effect is to reduce
 the number of false positives.  A 1\% under-estimate of the noise typically results in 2 fewer false positives
@@ -951,10 +951,10 @@ background random Gaussian field.  We find that we can perform a 1--parameter co
 yields both the same slope and zeropoints as the theoretical curves, with the exception of the deconvolution 
 visit.  This correction involves scaling {\it down} the variance in the images by 2.5\%, 1.5\% and 1\% for 
 v6866601, v6866602, and v6866603 respectively.  The data plotted with these corrections are shown
-in the bottom row of Figure\ref{fig-fp_v_thresh}.  These results suggest our varaince estimates 
+in the bottom row of Figure\ref{fig-fp_v_thresh}.  These results suggest our variance estimates 
 are too {\it high}, and we are therefore detecting too {\it few} false detections.  This does not agree 
 entirely with the analysis of the empirical variance, Section~\ref{sec-varmis} and Table~\ref{tab-variance1}, 
-which suggest that our variance planes {\it underestaimte} the true variance.  However, this makes clear that 
+which suggest that our variance planes {\it underestimate} the true variance.  However, this makes clear that 
 while we are at the level of the theoretical floor in false detection rate, it is imperative to track the 
 variance in our data to at the 1\% level or better to optimize both the false detection rate, and the true detection
 efficiency.
@@ -1117,7 +1117,7 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
 
 \item The empirical variance of the detection images in prefiltering
   and postfiltering are similar to within $1\%$
-  (Table~\ref{tab-variance2}).  However, the propogated variance in the
+  (Table~\ref{tab-variance2}).  However, the propagated variance in the
   postfiltered data is $3-4\%$ {\it lower} in the postfiltered data,
   leading to a larger number of false positives when using the
   variance plane as the definition of sigma (Table~\ref{tab-bestfp10}).
@@ -1159,7 +1159,7 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
 \item The measured false detection rate is seen to scale with detection
   threshold in a manner consistent with theory (Figure~\ref{fig-fp_v_thresh}).
   A 1--parameter correction to the variance by 1--2.5\% brings these relationships
-  into almost exact correspndence.  Optimization of the false detection vs. true source
+  into almost exact correspondence.  Optimization of the false detection vs. true source
   detection efficiency will require an understanding of the variance at the 1\% level.
 
 %%%
@@ -1171,7 +1171,7 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
 
 \item The kernel it able to absorb, individually, random scatter in the astrometry (Figure~\ref{wcsrms})
   and offsets in the astrometry  (Figure~\ref{wcsshift}) of order 0.2''
-  without a catastrohic increase in the number of false positives.  
+  without a significant increase in the number of false positives.  
 
 %%%
 
@@ -1179,7 +1179,7 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
   shown to have a commensurate measured signal--to--noise
   (Figure~\ref{fluxerr}).  
 
-\item Higher order measuremnts on filtered sources are not yet available,
+\item Higher order measurements on filtered sources are not yet available,
   meaning feature--based classification of systematic false positives is not yet possible.
 
 %%%
@@ -1192,7 +1192,7 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
   less than 10), although there appears to be more discriminatory
   power in the prefiltered data.
 
-\item Using the mean squared error of a control sample of {\tt KernelCandiates}
+\item Using the mean squared error of a control sample of {\tt KernelCandidates}
   appears to be a promising way to understand the degree of over/underfitting
   of the kernel model (Figure~\ref{fig-MSE_CONTROL}).  This may be a 
   feasible technique to optimize the pipeline on a per--sensor basis.
