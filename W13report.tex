@@ -596,6 +596,37 @@ false detections scales with threshold.
 
 \subsection{Theoretical \label{sec-analyticfp}}
 
+We can model source free image (i.e.\ with a background described by a
+Gaussian process) using the statistics of Gaussian random fields
+(Kaiser 2004). For an image with Gaussian noise convolved with a
+Gaussian PSF with width $\sigma_g$ the density of peaks above a given
+detection threshold, $\nu$ is given by 
+\begin{equation}
+n(>\nu) = \frac{1}{2^{5/2}\pi^{3/2}\sigma_g^{2}} \nu e^{-\nu^2 /2} 
+\end{equation}
+ To estimate the number of random
+positive detections for a given image we must normalize this density
+by the total number of realizations of the PSF within the image, i.e.,
+\begin{equation}
+N_{total}(>\nu) = n(\nu)*nrow*ncol/PSF_{FWHM}^2
+\end{equation}
+where nrow and ncol are the number of rows and columns in an images
+and $PSF_{FWHM}$ is the FWHM of the PSF. 
+
+Figure~\ref{fig:peaks} shows good agreement in a comparison of this
+model to a Monte-Carlo simulation for thresholds $4<\nu<6$ for a
+4000x4072 pixel image with 0.88 arcsec seeing. The variance on these
+measures is shown in Figure XXX
+\begin{figure}
+\includegraphics[width=0.5\textwidth,
+height=0.25\textwidth]{figures/peaks.eps} 
+\caption{A comparison of the predicted number of random peaks (solid
+  line) detected in an image, as a function of significance, with
+  those derived from a Monte-Carlo realization of a Gaussian noise
+  image (solid points).}
+\label{fig:peaks}
+\end{figure}
+
 \subsection{Empirical}
 
 After running an ensemble of 144 pipeline configurations, we
