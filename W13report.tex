@@ -1106,8 +1106,10 @@ We have also
 looked at per--sensor MSE values and per--sensor false positive rates.  In both cases, 
 the config that produces the minimum number of false positives is variable
 from sensor to sensor.  It is worth investigating how much the false positive rate
-per chip goes down if per sensor optimal configs are used instead of per visit optimal
-configs.
+goes down if per--sensor optimal configs are used instead of per--visit optimal
+configs.  On the other hand, because the false positive rate is relatively flat beyond a critical 
+configuration (Figure~\ref{fp_heatmap}), we are not strongly sensitive to getting the per--sensor
+tunings perfect.
 %
 When we look at the MSE per chip and compare with the minimum false positive config we 
 find good agreement, in general.  The findings are summarized in Table \ref{tab-MSE_persensor}.  Because
@@ -1382,9 +1384,6 @@ including:
   performance of the prefiltered measurements.
 \item Determining how much ``on the fly'' configuration we may do to optimize PSF--matching.
 \end{itemize}
-
-{XXX: Figure 4 : we should note that flat is good as we are less
-  sensitive to getting the tuning perfect\\
 
 \clearpage
 \bibliographystyle{apj}
