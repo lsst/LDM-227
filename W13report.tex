@@ -679,17 +679,17 @@ For an image with Gaussian noise convolved with a
 Gaussian PSF with width $\sigma_g$ the density of peaks above a given
 detection threshold, $\nu$ is given by 
 \begin{equation}
-n(>\nu) = \frac{1}{2^{5/2}\pi^{3/2}\sigma_g^{2}} \nu e^{-\nu^2 /2} 
+n(>\nu) = \frac{1}{2^{5/2}\pi^{3/2}} \nu e^{-\nu^2 /2} 
 \label{eq-theory}
 \end{equation}
- To estimate the number of random
+To estimate the number of random
 positive detections for a given image we must normalize this density
 by the total number of realizations of the PSF within the image, i.e.,
 \begin{equation}
-N_{total}(>\nu) = n(\nu)*nrow*ncol/PSF_{FWHM}^2
+N_{total}(>\nu) = n(>\nu)*nrow*ncol/ \sigma_g^2
 \end{equation}
-where nrow and ncol are the number of rows and columns in an images
-and $PSF_{FWHM}$ is the FWHM of the PSF.  In difference image analysis, we expect
+where nrow and ncol are the number of rows and columns.  
+In difference image analysis, we expect
 twice this number, since we are sensitive to both positive and negative--going
 fluctuations.
 
@@ -1699,7 +1699,7 @@ point. \label{tab-wcsrms}}
 
 \begin{figure}
   \centering 
-  \subfloat[][0.6$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma0.60.eps}}
+  \subfloat[][0.6$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma060.eps}}
   \caption[]{ We plot here the expected change in the number of false positives
     as a function of detection threshold and noise misestimate.  The
     panels on these 3 pages are for three values of seeing.  In each panel the
@@ -1715,14 +1715,14 @@ point. \label{tab-wcsrms}}
 \begin{figure}
   \ContinuedFloat 
   \centering 
-  \subfloat[][0.88$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma0.88.eps}}
+  \subfloat[][0.88$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma088.eps}}
   \caption[]{}
 \end{figure} 
 \clearpage
 \begin{figure}
   \ContinuedFloat 
   \centering 
-  \subfloat[][1.2$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma1.20.eps}}
+  \subfloat[][1.2$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma120.eps}}
   \caption[]{}
 \end{figure} 
 
