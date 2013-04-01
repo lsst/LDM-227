@@ -214,7 +214,8 @@ Gaussian, or the sole Gaussian in the sequences when we use only one.
 Detection on the difference image occurs through correlation of
 $D(x,y)$ with the science image's PSF, yielding optimally filtered
 detection image $D'(x,y) = D(x,y) \circ PSF_S(u,v;x,y)$ where $\circ$
-denotes correlation.  The values of the pixels in $D'(x,y)$ provide a
+denotes correlation (currently the DM stack uses convolution instead of correlation,
+reported as ticket #2552).  The values of the pixels in $D'(x,y)$ provide a
 maximum likelihood estimate of there being a point source at that
 position.  Detection occurs by simply finding pixels that are more
 than N sigma above the square root of the per--pixel variance.  
@@ -390,7 +391,6 @@ number of shapes in each basis were: $\sum_i^{\rm nGauss} ({\rm
   template to.  This is the case for v6866601 in this study, where the
   postfiltered analysis yields deconvolution of the template, while
   the prefiltered analysis does not.  }.
-%{XXX footnote should note be a * as it confuses the math...
 The dimensions of the PSF matching kernel were chosen to be 6 times
 the largest Gaussian width, with a minimum kernelSize of 21x21 pixels.
 For kernels that are significantly smaller than this, the Gaussians
@@ -463,8 +463,7 @@ We next ran the SourceDetectionTask on the difference image, using a
 ``polarity'' of {\it both} to search for both positive and negative
 deviations.  We initially used a nominal detection threshold of 5
 sigma.  In the case of pre--filtering, we detected on the difference
-image directly.  In post--filtering, we correlated the difference
-{XXX correlated?}
+image directly.  In post--filtering, we convolved the difference
 image with its PSF (by design, the same as the PSF of $S$) before
 detection.  Since the fundamental image operations are the same, the images immediately preceding the
 detection step ($D'$) should be {\it exactly} the same.  Detections
@@ -963,7 +962,7 @@ the other visits.
 
 We next investigated the variance properties of the images that are
 input to the detection stage, i.e. the difference image itself in the
-case of prefiltering, and the difference image correlated with its PSF
+case of prefiltering, and the difference image convolved with its PSF
 in postfiltering.  These results are summarized in
 Table~\ref{tab-variance2}.  We find that the image planes have very
 similar empirical noise properties at the detection stage, with the
@@ -1635,7 +1634,7 @@ point. \label{tab-wcsrms}}
   Figure~\ref{fig_galleryBad}.  The {\it top} set of data are from
   postfiltered analysis, while the {\it lower} set are from
   prefiltered data.  Note that the noise is smoother in the
-  prefiltered data due to correlation with the PSF. }
+  prefiltered data due to convolution with the PSF. }
 \label{fig_galleryGood}
 \end{figure}
 
