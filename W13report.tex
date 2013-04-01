@@ -647,14 +647,14 @@ detection threshold, $\nu$ is given by
 n(>\nu) = \frac{1}{2^{5/2}\pi^{3/2}\sigma_g^{2}} \nu e^{-\nu^2 /2} 
 \label{eq-theory}
 \end{equation}
- To estimate the number of random
+To estimate the number of random
 positive detections for a given image we must normalize this density
-by the total number of realizations of the PSF within the image, i.e.,
+by the total area of the image, i.e.,
 \begin{equation}
-N_{total}(>\nu) = n(\nu)*nrow*ncol/PSF_{FWHM}^2
+N_{total}(>\nu) = n(>\nu) * nrow * ncol 
 \end{equation}
-where nrow and ncol are the number of rows and columns in an images
-and $PSF_{FWHM}$ is the FWHM of the PSF.  In difference image analysis, we expect
+where nrow and ncol are the number of rows and columns in an image.  
+In difference image analysis, we expect
 twice this number, since we are sensitive to both positive and negative--going
 fluctuations.
 
