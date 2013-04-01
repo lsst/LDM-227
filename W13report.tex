@@ -215,7 +215,7 @@ Detection on the difference image occurs through correlation of
 $D(x,y)$ with the science image's PSF, yielding optimally filtered
 detection image $D'(x,y) = D(x,y) \circ PSF_S(u,v;x,y)$ where $\circ$
 denotes correlation (currently the DM stack uses convolution instead of correlation,
-reported as ticket #2552).  The values of the pixels in $D'(x,y)$ provide a
+reported as ticket \#2552).  The values of the pixels in $D'(x,y)$ provide a
 maximum likelihood estimate of there being a point source at that
 position.  Detection occurs by simply finding pixels that are more
 than N sigma above the square root of the per--pixel variance.  
@@ -638,9 +638,9 @@ false detections scales with threshold.
 
 \subsection{Theoretical \label{sec-analyticfp}}
 
-We can model source free image (i.e.\ with a background described by a
-Gaussian process) using the statistics of Gaussian random fields
-(Kaiser 2004). For an image with Gaussian noise convolved with a
+We model a source--free image (i.e.\ with a background described by a
+Gaussian process) using the statistics of Gaussian random fields \citep{Kaiser-PointSources}.  
+For an image with Gaussian noise convolved with a
 Gaussian PSF with width $\sigma_g$ the density of peaks above a given
 detection threshold, $\nu$ is given by 
 \begin{equation}
@@ -654,15 +654,16 @@ by the total number of realizations of the PSF within the image, i.e.,
 N_{total}(>\nu) = n(\nu)*nrow*ncol/PSF_{FWHM}^2
 \end{equation}
 where nrow and ncol are the number of rows and columns in an images
-and $PSF_{FWHM}$ is the FWHM of the PSF. 
+and $PSF_{FWHM}$ is the FWHM of the PSF.  In difference image analysis, we expect
+twice this number, since we are sensitive to both positive and negative--going
+fluctuations.
 
 Figure~\ref{fig:peaks} shows good agreement in a comparison of this
 model to a Monte-Carlo simulation for thresholds $4<\nu<6$ for a
 4000x4072 pixel image with 0.88 arcsec seeing. The variance on these
-measures is shown in Figure XXX {\bf Simon: I can make this figure on Monday morn, if needed.}
+measures is calculated using 1e6 random realizations.
 \begin{figure}
-\includegraphics[width=0.5\textwidth,
-height=0.25\textwidth]{figures/peaks.eps} 
+\centering{\includegraphics[width=0.5\textwidth]{figures/peaks.eps}}
 \caption{A comparison of the predicted number of random peaks (solid
   line) detected in an image, as a function of significance, with
   those derived from a Monte-Carlo realization of a Gaussian noise
@@ -1787,7 +1788,7 @@ In the bottom row we undertaken a 1--parameter correction to align the predicted
 for how this correction is applied.  The 2.5\%, 1.5\% and 1\% scaling in $k$ correspond to a 5\%, 3\%, 2\% over-estimation of the image variance, respectively
 from Left to Right in the bottom pane.  
 The shaded area is the 1-$\sigma$ confidence envelope
-determined from Monte Carlo simulations assuming the analytic form of the false detection rate and a Gaussian distribution.}
+determined from Monte Carlo simulations (Section~\ref{sec-analyticfp}).}
 \label{fig-fp_v_thresh}
 \end{figure}
 
