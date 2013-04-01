@@ -186,8 +186,6 @@ denotes correlation.  The values of the pixels in $D'(x,y)$ provide a
 maximum likelihood estimate of there being a point source at that
 position.  Detection occurs by simply finding pixels that are more
 than N sigma above the square root of the per--pixel variance.  
-{XXX are you sure this is correlation - I thought it was convolution
-  and should be cross_circ}
 
 
 In this production, we investigated two orders of operations for the
@@ -655,10 +653,10 @@ no other cuts other than requiring that the {\tt centroid.sdss} is
 finite.  We separated the {\tt DiaSources} that match with the reference
 catalog (3'' matching radius) from those that don't (referred to as
 orphans) to investigate the origins of the detections.  We found no
-significant correlation of false detections with sensor within the
-raft; therefore we report the aggregate results for all 9 sensors in
+significant correlation of false detections rate with sensor within the
+raft (although the per--sensor optimal configs may be different, Section~\ref{sec-stats}); 
+therefore we report the aggregate results for all 9 sensors in
 the analyses that follow.
-{XXX is this true - Simon said it does vary from device to device}
 
 A set of ``heat maps'' is presented in Figure~\ref{fp_heatmap}, that
 demonstrate the total number of detections across all 9 sensors as a
@@ -1018,7 +1016,7 @@ while we are at the level of the theoretical floor in false detection rate, it i
 variance in our data to at the 1\% level or better to optimize both the false detection rate, and the true detection
 efficiency. This will be the subject of the Summer 2013 work.
 
-\section{Results: Correlation with KernelCandidate Statistics}
+\section{Results: Correlation with KernelCandidate Statistics \label{sec-stats}}
 
 In Figures~\ref{corrpost} and \ref{corrpre}  we correlate statistics
 calculated on the control sample of {\tt KernelCandidates} with the
@@ -1177,10 +1175,9 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
   deconvolved data.  Prefiltering is clearly preferred to postfiltering 
   in the case of significant deconvolution (v6866601).
 
-\item For non-deconvolved image subtraction, prefiltering performs as
-  well as post filtering in terms of the number of false positives.
-{XXX true}
-
+\item For non--deconvolved image subtraction, prefiltering performs as
+  well as postfiltering in terms of the number of false positives, when 
+  corrected for the variance underestimate (Figure~\ref{fig-fp_v_thresh}).
 
 \item An empirical computation of the variance from the image plane,
   compared to the median propagated variance in the variance plane,
@@ -1247,7 +1244,8 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
 
 \item The kernel is able to absorb, individually, random scatter in the astrometry (Figure~\ref{wcsrms})
   and offsets in the astrometry  (Figure~\ref{wcsshift}) of order 0.2''
-  without a significant increase in the number of false positives.  
+  without a significant increase in the number of false positives.  Because the prefiltering
+  Gaussians tend to have larger sigmas, they are able to compensate for larger offsets.
 
 %%%
 
@@ -1383,7 +1381,6 @@ v6866601 & 3.0 & 114$\pm$11 & 12$\pm$3& 1$\pm$1\\
 v6866602 & 4.4 & 54$\pm$8 & 5$\pm$2& 0.5$\pm$0.5\\
 v6866603 & 6.0 & 29$\pm$6 & 3$\pm$2&0.2$\pm$0.4\\
 \end{tabular}
-
 \caption{Total number of false detections that we expect based on a
   4000x4072 pixel sensor.  This number is dependent on the seeing and
   detection threshold, so we list the values at a threshold of 4.5,
@@ -1786,6 +1783,8 @@ determined from Monte Carlo simulations assuming the analytic form of the false 
   each other.  For the deconvolution visit v6866601, the statistics
   are very poor even for the ``best'' solutions.  Points come from 
   all 144 production reductions of the same data, and detection at 5--sigma.
+  The minimum numbers of 5--sigma false detections per--sensor (Table~\ref{tab-fp})
+  are given by the horizontal lines.
 }
 \label{corrpost}
 \end{figure}
@@ -1800,7 +1799,10 @@ determined from Monte Carlo simulations assuming the analytic form of the false 
     circles}, and for v6866603 {\it blue triangles}.  Three of the
   statistics, described in Section~\ref{sec-stats}, are presented.
   They clearly correlate with each other, and also tend to correlate
-  with the number of false detections (bottom row).}
+  with the number of false detections (bottom row).
+  The minimum numbers of 5--sigma false detections per--sensor (Table~\ref{tab-fp})
+  are given by the horizontal lines.
+}
 \label{corrpre}
 \end{figure}
 
