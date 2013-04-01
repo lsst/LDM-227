@@ -528,21 +528,46 @@ Hence the equation for measuring its flux reduces to:
 %
 \[flux = \frac{Ipeak_{filt}}{\sum_{(x',y')}\phi^2(x',y')}\]
 
-Similarly, the predicted uncertainty of the flux measurement is:
+If we define 
+
+\[w(x,y) \equiv \frac{\phi(x,y)}{\sum_{(x',y')}\phi^2(x',y')}\]
+
+To calculate the variance, we assume a point source model for the intensity 
+
+\[I(x,y) = A\phi(x,y) + \epsilon(x,y)\]
+
+\[\langle flux \rangle = \langle \sum_{(x,y)} w(x,y)(A\phi(x,y) +\epsilon(x,y))\rangle\]
+
+Since $\langle \epsilon(x,y) \rangle = 0$ and $\langle \epsilon(x,y) * \epsilon(x',y') \rangle = \sigma^2(x,y)\delta$,
+
+
+\[\langle flux \rangle = \sum_{(x,y)} w(x,y)A\phi(x,y)\]
+and
+\[Var(flux) \equiv \langle(flux - \langle flux \rangle)^2\rangle\]
+\[Var(flux) = \left\langle{\left(\sum_{(x,y)} w(x,y)\epsilon(x,y)\right)^2}\right\rangle\]
+\[Var(flux) = \sum_{(x,y)} w^2(x,y)\sigma^2(x,y)\]
+Substituting $w(x,y)$
+\[Var(flux) = \frac{\sum_{(x,y)}\phi^2(x,y)\sigma^2(x,y)}{(\sum_{(x',y')} \phi^2(x,y))^2}\]
+This implies that the error $\sigma_{filt}$ on the flux at the location of $Ipeak_{filt}$ is
+\[\sigma_{filt} = \frac{\sqrt{(\sum_{(x,y)} \phi^2(x,y)\sigma^2(x,y))}}{\sum_{(x',y')} \phi^2(x,y)}\]
+%Similarly, the predicted uncertainty of the flux measurement is:
 %
-\[\sigma = \frac{\sqrt{\sum_{x,y}\sigma{^2(x,y)}\phi^2(x,y)}}{\sum_{x',y'}\phi^2(x',y')}\]
+%\[\sigma = \frac{\sqrt{\sum_{x,y}\sigma{^2(x,y)}\phi^2(x,y)}}{\sum_{x',y'}\phi^2(x',y')}\]
 %
-where $\sigma{^2(x,y)}$ is the is the per-–pixel variance of the
-unfiltered image. This reduces to the following:
+%where $\sigma{^2(x,y)}$ is the is the per--pixel variance of the
+%unfiltered image. This reduces to the following:
 %{XXX is this correct? - does it agree with Lupton?}
-\[\sigma = \frac{\sqrt{\sigma peak{_{filt}^2}}}{\sum_{x',y'}\phi^2(x',y')}\]
+%\[\sigma = \frac{\sqrt{\sigma peak{_{filt}^2}}}{\sum_{x',y'}\phi^2(x',y')}\]
 %
-where $\sigma peak{_{filt}^2}$ is the value of the variance plane,
-after filtering, at the peak of the source.
+%where $\sigma peak{_{filt}^2}$ is the value of the variance plane,
+%after filtering, at the peak of the source.
+
+In practice, the numerator evaluates to the square root of the value in the variance plane
+at the location of the peak flux.
 
 The center of each source is determined using an LSST adaptation of
-the SDSS centroiding algorithm "centroid.sdss". In general the source
-will not be centered on a pixel, so "flux.filtered" uses a Lanczos 4
+the SDSS centroiding algorithm ``centroid.sdss". In general the source
+will not be centered on a pixel, so ```flux.filtered" uses a Lanczos 4
 resampling kernel to shift the source to be centered on the nearest
 pixel before applying the equations above.
 
@@ -606,12 +631,22 @@ pre--filtering or post--filtering for detection; variations of the
 complexity of the Kernel basis, including the number of Gaussians
 (nGauss = 1,3) and the degree of the modifying Laguerre polynomials
 (degGauss = 1..6); and the spatial order of the Chebyshev polynomials
-on $a_i(x,y)$ (spatialKernelOrder = 1..6).  The final production run
+on $a_i(x,y)$ (spatialKernelOrder = 1..6).  This results in $2*2*6*6=144$ permutations
+of the configs.  See the following pseudocode
+for how the loops iterate over the configs.
+
+\clearpage
+\begin{verbatim}
+for prefilter in (True, False):
+    for nGauss in (1,3):
+        for degGauss in xrange(1,7):
+            for order in xrange(1,7):
+                runDiffimPipelin(prefilter, nGauss, degGauss, order)
+\end{verbatim}
+
+The final production run
 was labeled {\bf production10}, and data are available on the NCSA compute
 cluster\footnote{/nfs/lsst8/becker/sparse\_diffim/production10\_sparse}.
-
-{XXX it is hard to work through all of these permutations in the text
-  and keep them in your head. Why not a table of the permutations}
 
 In the postfilter analysis, matching of the template image
 with visit 6866601 yielded a template {\it deconvolution}.  Matching of the template 
@@ -683,7 +718,7 @@ finite.  We separated the {\tt DiaSources} that match with the reference
 catalog (3'' matching radius) from those that don't (referred to as
 orphans) to investigate the origins of the detections.  We found no
 significant correlation of false detections rate with sensor within the
-raft (although the per--sensor optimal configs may be different, Section~\ref{sec-stats}); 
+raft (although the per--sensor optimal configs may be different, Section~\ref{sec-resstats}); 
 therefore we report the aggregate results for all 9 sensors in
 the analyses that follow.
 
@@ -1043,7 +1078,7 @@ while we are at the level of the theoretical floor in false detection rate, it i
 variance in our data to at the 1\% level or better to optimize both the false detection rate, and the true detection
 efficiency. This will be the subject of the Summer 2013 work.
 
-\section{Results: Correlation with KernelCandidate Statistics \label{sec-stats}}
+\section{Results: Correlation with KernelCandidate Statistics \label{sec-resstats}}
 
 In Figures~\ref{corrpost} and \ref{corrpre}  we correlate statistics
 calculated on the control sample of {\tt KernelCandidates} with the
@@ -1349,13 +1384,15 @@ into the symmetry of detection and measurement on positive/negative sources.  To
 results of the image difference task and compared it to the same runs when the difference image was inverted
 (multiplied by -1) before measurement.  The results are as follows:
 \begin{itemize}
-\item Centroids of negative sources always have integer or half--integer values.
-\item The {\tt DiaSource} lists are always the same length.  {XXX dont
-    understand this}
+\item Centroids of negative sources always have integer values.
+\item Whether detected on the original difference image or the inverted image, the {\tt DiaSource} lists are the same length in every
+case.  That is to say {\tt len(afwTable.SourceCatalog.readFits(\it{path}))} returns the same value in both cases.  We take this to mean
+that the same objects trigger detection in both situations although this cannot be directly varified since the objects with failed centroids are
+not the same in both lists.  
 \item Centroiding on negative sources fails almost all the time: 99.7\% sources with negative flux
 have the {\tt badcentroid} flag set.
-\item psfFlux can be measured at 0. even when no flags are set.  {XXX dont
-    understand this}
+\item In some instances psfFlux is stored as 0.0 (not {\tt NaN}) without any centroid or photometry flag set in the {\tt Source} object.  This
+happens more than we would expect if it was just a chance event.  This indicates an uncaught failure mode.
 \item psfFlux can be measured as NaN with valid centroid values and no other flags set.
 \item Fitted psfFlux can have the same sign in both the initial and inverted image in 0.1\% of measurements.
 \item Some sources have the {\tt EDGE} bit set at one polarity but not the other.  
