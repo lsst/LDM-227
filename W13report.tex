@@ -351,7 +351,7 @@ Images $S(x,y)$ (optionally pre-filtered with $PSF_S(u,v;x,y)$) and
 $T(x,y)$ were sent to ImagePsfMatchTask, whose purpose is to fit for
 $K(u,v;x,y)$ and to produce the difference image $D(x,y)$. 
 
-\subsubsection{Pipeline optimization}
+%\subsubsection{Pipeline optimization}
 
  The first step is to use the
 PSF Gaussian sigmas to define the {\it sizes} of the Gaussians shapes
@@ -522,34 +522,32 @@ measurements.
 Filtering is performed by convolving the image with its PSF, so the
 peak of the filtered image of a given source is:
 %
-\[Ipeak_{filt} = \sum_{(x,y)}I(x,y) * \phi(x,y)\]
+\[Ipeak_{filt} = \sum_{(x,y)}I(x,y) * \phi(x,y).\]
 %
 Hence the equation for measuring its flux reduces to:
 %
-\[flux = \frac{Ipeak_{filt}}{\sum_{(x',y')}\phi^2(x',y')}\]
+\[flux = \frac{Ipeak_{filt}}{\sum_{(x',y')}\phi^2(x',y')}.\]
 
-If we define 
-
-\[w(x,y) \equiv \frac{\phi(x,y)}{\sum_{(x',y')}\phi^2(x',y')}\]
+We further define
+%
+\[w(x,y) \equiv \frac{\phi(x,y)}{\sum_{(x',y')}\phi^2(x',y')}.\]
 
 To calculate the variance, we assume a point source model for the intensity 
-
+%
 \[I(x,y) = A\phi(x,y) + \epsilon(x,y)\]
-
 \[\langle flux \rangle = \langle \sum_{(x,y)} w(x,y)(A\phi(x,y) +\epsilon(x,y))\rangle\]
-
-Since $\langle \epsilon(x,y) \rangle = 0$ and $\langle \epsilon(x,y) * \epsilon(x',y') \rangle = \sigma^2(x,y)\delta$,
-
-
+%
+with a white noise contribution $\epsilon(x,y)$.  Since $\langle \epsilon(x,y) \rangle = 0$ and $\langle \epsilon(x,y) * \epsilon(x',y') \rangle = \sigma^2(x,y)\delta(x-x', y-y')$:
+%
 \[\langle flux \rangle = \sum_{(x,y)} w(x,y)A\phi(x,y)\]
 and
 \[Var(flux) \equiv \langle(flux - \langle flux \rangle)^2\rangle\]
 \[Var(flux) = \left\langle{\left(\sum_{(x,y)} w(x,y)\epsilon(x,y)\right)^2}\right\rangle\]
-\[Var(flux) = \sum_{(x,y)} w^2(x,y)\sigma^2(x,y)\]
+\[Var(flux) = \sum_{(x,y)} w^2(x,y)\sigma^2(x,y).\]
 Substituting $w(x,y)$
-\[Var(flux) = \frac{\sum_{(x,y)}\phi^2(x,y)\sigma^2(x,y)}{(\sum_{(x',y')} \phi^2(x,y))^2}\]
+\[Var(flux) = \frac{\sum_{(x,y)}\phi^2(x,y)\sigma^2(x,y)}{(\sum_{(x',y')} \phi^2(x,y))^2}.\]
 This implies that the error $\sigma_{filt}$ on the flux at the location of $Ipeak_{filt}$ is
-\[\sigma_{filt} = \frac{\sqrt{(\sum_{(x,y)} \phi^2(x,y)\sigma^2(x,y))}}{\sum_{(x',y')} \phi^2(x,y)}\]
+\[\sigma_{filt} = \frac{\sqrt{(\sum_{(x,y)} \phi^2(x,y)\sigma^2(x,y))}}{\sum_{(x',y')} \phi^2(x,y)}.\]
 %Similarly, the predicted uncertainty of the flux measurement is:
 %
 %\[\sigma = \frac{\sqrt{\sum_{x,y}\sigma{^2(x,y)}\phi^2(x,y)}}{\sum_{x',y'}\phi^2(x',y')}\]
@@ -635,13 +633,13 @@ on $a_i(x,y)$ (spatialKernelOrder = 1..6).  This results in $2*2*6*6=144$ permut
 of the configs.  See the following pseudocode
 for how the loops iterate over the configs.
 
-\clearpage
+%\clearpage
 \begin{verbatim}
 for prefilter in (True, False):
     for nGauss in (1,3):
         for degGauss in xrange(1,7):
-            for order in xrange(1,7):
-                runDiffimPipelin(prefilter, nGauss, degGauss, order)
+            for spatialKernelOrder in xrange(1,7):
+                runDiffimPipeline(prefilter, nGauss, degGauss, spatialKernelOrder)
 \end{verbatim}
 
 The final production run
@@ -1063,9 +1061,9 @@ curves that
 yields both the same slope and zeropoints as the theoretical curves, with the exception of the deconvolution 
 visit.  
 
-Specifically, we define:
+Specifically, we define scaling factor $k$ to correct the counts at a given threshold:
 \begin{equation}
-n\prime(>\nu) = n(>k\dot\nu)
+n_{corrected}(>\nu) = n(> k\nu)
 \label{correction}
 \end{equation}  
 For our data we scale {\it down} $\nu$ in the model by $k = 0.975, 0.985 $~and~$ 0.99$ for 
@@ -1387,7 +1385,7 @@ results of the image difference task and compared it to the same runs when the d
 \item Centroids of negative sources always have integer values.
 \item Whether detected on the original difference image or the inverted image, the {\tt DiaSource} lists are the same length in every
 case.  That is to say {\tt len(afwTable.SourceCatalog.readFits(\it{path}))} returns the same value in both cases.  We take this to mean
-that the same objects trigger detection in both situations although this cannot be directly varified since the objects with failed centroids are
+that the same objects trigger detection in both situations although this cannot be directly verified since the objects with failed centroids are
 not the same in both lists.  
 \item Centroiding on negative sources fails almost all the time: 99.7\% sources with negative flux
 have the {\tt badcentroid} flag set.
