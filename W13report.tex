@@ -619,6 +619,7 @@ Gaussian PSF with width $\sigma_g$ the density of peaks above a given
 detection threshold, $\nu$ is given by 
 \begin{equation}
 n(>\nu) = \frac{1}{2^{5/2}\pi^{3/2}\sigma_g^{2}} \nu e^{-\nu^2 /2} 
+\label{eq-theory}
 \end{equation}
  To estimate the number of random
 positive detections for a given image we must normalize this density
@@ -632,7 +633,7 @@ and $PSF_{FWHM}$ is the FWHM of the PSF.
 Figure~\ref{fig:peaks} shows good agreement in a comparison of this
 model to a Monte-Carlo simulation for thresholds $4<\nu<6$ for a
 4000x4072 pixel image with 0.88 arcsec seeing. The variance on these
-measures is shown in Figure XXX
+measures is shown in Figure XXX {\bf Simon: I can make this figure on Monday morn, if needed.}
 \begin{figure}
 \includegraphics[width=0.5\textwidth,
 height=0.25\textwidth]{figures/peaks.eps} 
@@ -969,7 +970,7 @@ convolution with the Psf.  As we have demonstrated here, this second
 convolution is where our variance bookkeeping lags the empirical
 variance.
 
-\subsection{Detection Threshold}
+\subsection{Detection Threshold \label{sec-thresh}}
 Obviously the number of false positives is strongly dependent on the detection threshold.  In order to
 check the scaling of our false positive rates with detection threshold, we ran the same config (see Table~\ref{tab-bestconfig10} 
 for the config parameters)
@@ -997,9 +998,17 @@ detections come primarily from detection of the ringing around stars.
 In all cases the empirical results are below the predicted results indicating
 that the number counts are smaller than the theoretical floor.  This is not entirely unexpected, as each
 curve is strongly correlated, being a cumulative distribution, and represents only 9 samplings of the
-background random Gaussian field.  We find that we can perform a 1--parameter correction to these curves that
+background random Gaussian field.  We find that we can perform a 1--parameter correction to Equation \ref{eq-theory}
+curves that
 yields both the same slope and zeropoints as the theoretical curves, with the exception of the deconvolution 
-visit.  This correction involves scaling {\it down} the variance in the images by 2.5\%, 1.5\% and 1\% for 
+visit.  
+
+Specifically, we define:
+\begin{equation}
+n\prime(>\nu) = n(>k\dot\nu)
+\label{correction}
+\end{equation}  
+For our data we scale {\it down} $\nu$ in the model by $k = 0.975, 0.985 $~and~$ 0.99$ for 
 v6866601, v6866602, and v6866603 respectively.  The data plotted with these corrections are shown
 in the bottom row of Figure\ref{fig-fp_v_thresh}.  These results suggest our variance estimates 
 are too {\it high}, and we are therefore detecting too {\it few} false detections.  This does not agree 
@@ -1062,7 +1071,7 @@ to suggest the optimal configuration for image differencing, along with false po
 However, MSE of a control sample is a metric that may be applied to data where the truth is not known, and thus has
 potential to be used in the nightly processing.
 For more discussion on this see Section $8.11$ in
-``The Second Best Book in the World'' (i.e. {Ivezi{\'c} et al., in press).
+``The Second Best Book in the World'' (i.e. {Ivezi{\'c} et al., in press}).
 
 We note that the config at the minimum MSE value is
 not always the same config that yields the lowest numbers of false detections.  
@@ -1477,11 +1486,12 @@ v6866603 & True      & 6      & 7        & 3 & 1\\
          & False     & 6      & 8        & 3 & 1\\
 \end{tabular}
 \caption{
-We examine the configs chosen based on the minimum MSE and compare them to the config of the
+We examine the configs chosen based on the minimum $\langle $MSE$\rangle$ and compare them to the config of the
 minimum number of false positives.  The sample here consists of 9 sensors per visit.  
-N$_{Same}$ is the number of times the minimum MSE coincides with the minimum in false positives.  N$_{<3}$
-is the number of times the minimum false positive config is within the best 3 of MSE.  $\Delta FP$
-is the total change in false positive count using the minimum MSE config as compared to the sum of the minimum 
+N$_{Same}$ is the number of times the minimum $\langle $MSE$\rangle$ coincides with the minimum in false positives.  N$_{<3}$
+is the number of times the minimum false positive config is one of the top three configs when rank ordered by increasing
+$\langle MSE \rangle$ value.  $\Delta FP$
+is the total change in false positive count using the minimum $\langle $MSE$\rangle$ config as compared to the sum of the minimum 
 false positives per sensor.  Column max($\Delta FP$) is the maximum change in detected false positives on any sensor in that visit.
 \label{tab-MSE_persensor}}
 \end{table}
@@ -1754,8 +1764,9 @@ seeing example is shown.
 \caption{Here we show the comparison of detected false positive count to the analytic prediction.
 In all cases the blue circles are the prefilter case and the red squares are the postfilter case.  
 The top row has had the counts corrected for the underestimate of the noise by the variance plane (Table~\ref{tab-variance1}).  
-In the bottom row we undertaken a 1--parameter correction to align the predicted and measured values.  From left to right
-this is requires a 5\%, 3\%, 2\% reduction of the image variance, respectively.  
+In the bottom row we undertaken a 1--parameter correction to align the predicted and measured values.  See Section~\ref{sec-thresh}
+for how this correction is applied.  The 2.5\%, 1.5\% and 1\% scaling in $k$ correspond to a 5\%, 3\%, 2\% over-estimation of the image variance, respectively
+from Left to Right in the bottom pane.  
 The shaded area is the 1-$\sigma$ confidence envelope
 determined from Monte Carlo simulations assuming the analytic form of the false detection rate and a Gaussian distribution.}
 \label{fig-fp_v_thresh}
