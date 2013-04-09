@@ -96,7 +96,8 @@ late--Winter 2013 production runs.  This production focused on the
 evaluation of LSST DM image differencing code and, in particular, 
 the rate of false detections the pipeline generates.  As
 inputs, we used a suite of simulated images generated in semi-idealized
-conditions and containing no intrinsic variability.  Thus {\it any}
+(stars only, no saturation, cosmic rays, or defects) conditions and containing no intrinsic variability.  
+Thus {\it any}
 sources detected in these image differences are ``false positives''.
 
 We investigated two distinct operational modes of the pipeline.  The
@@ -155,6 +156,7 @@ kernel, and using statistics calculated during the image subtraction
 to tune the algorithm ``on the fly'' (i.e. predict the numbers of
 false positives it will generate).
 
+Please address any questions about this document to LSST-data@lsstcorp.org.
 
 \clearpage
 \tableofcontents
