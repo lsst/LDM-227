@@ -3,6 +3,7 @@
 % latex W13report.tex; bibtex W13report; latex W13report; latex W13report; dvips W13report; ps2pdf W13report.ps ; gv W13report.pdf
 
 \usepackage[paperwidth=8.5in,paperheight=11in,centering,margin=1in]{geometry}
+\usepackage{float}
 \usepackage{amsmath}
 \usepackage{amsbsy}
 \usepackage{natbib}
@@ -98,7 +99,7 @@ We investigated the complexity of the basis functions used to model
 the PSF--matching kernel, and the degree to which this kernel varies
 across the images.  We generate several goodness of fit statistics for
 a control sample of sources that were {\it not} used in the kernel fit
-notably the mean squared error, in order to assess the interpolation ability
+(notably the mean squared error), in order to assess the interpolation ability
 of the matching kernel.  These metrics are shown to correlate with the
 numbers of false positives.  We calculate a mean squared error metric
 that shows a minimum value close to the configurations that yielded
@@ -110,7 +111,8 @@ expect due to random fluctuations in a background Gaussian field.  The
 latter is a function of both seeing in the images, and of the
 detection threshold used.  At the fiducial detection threshold of
 5--sigma, the number of expected false positives per LSST sensor is
-3--12, depending upon seeing.  We measure a similar number in the
+3--12, depending upon seeing (see Section \ref{sec-analyticfp}).  
+We measure a similar number in the
 difference images, indicating that we are able to achieve the
 systematic floor in false detection rate.  We examined our measured
 false detection rate as a function of detection threshold and find
@@ -123,11 +125,11 @@ result is seeing dependent.
 We found a significant dependence of the false positive rate on our
 understanding of the variance; even a 2\% misestimate of the noise may
 change the false positive rate by a factor of 1.5--2 at 5--sigma.
-Prefiltering is preferred in this regard, as our variance planes are
+Pre--filtering is preferred in this regard, as our variance planes are
 shown to track the variance to higher fidelity at the detection stage.
-We find that over/undersubtraction of the image background leads to a
+We find that over/under subtraction of the image background leads to a
 bias in the positive to negative false detection ratio, but not on the
-overall number of detections.  Prefiltering may obviate the need for
+overall number of detections.  Pre--filtering may obviate the need for
 deconvolution of the template image when the science image has better
 seeing, which is a clear advantage of the technique.
 
@@ -198,7 +200,7 @@ image difference is then calculated through $D(x,y) = S(x,y) - T(x,y)
 The basis functions themselves $K_i(u,v)$ are a degree of freedom in
 this problem.  The original implementations \citep{Alard98,Alard00}
 used a set of 3 Gaussians (represented by our {\tt Config} variable
-nGauss), each with a different sigma (sigGauss), and each modified by
+nGauss), each with a different width (sigGauss), and each modified by
 a Laguerre polynomial to a given order (degGauss).  Subsequent studies
 \citep[e.g.][]{2007AN....328...16I} have suggested that a constant
 ratio be maintained between the different Gaussian widths, such that
@@ -223,7 +225,7 @@ than N sigma above the square root of the per--pixel variance.
 
 In this production, we investigated two orders of operations for the
 optimal filtering by the PSF.  In the first method, called
-prefiltering, we PSF--match the template image to a pre--filtered
+pre--filtering, we PSF--match the template image to a pre--filtered
 science image:
 \begin{eqnarray}
 D_{Pre}(x,y) & = & S(x,y) \circ PSF_S(u,v;x,y) - T(x,y) \otimes K(u,v;x,y) \nonumber \\ 
@@ -231,13 +233,14 @@ D'_{Pre}(x,y) & = & D_{Pre}(x,y). \nonumber
 \end{eqnarray}
 By pre--smoothing the image that we are matching the template to --
 $S(x,y) \circ PSF_S(u,v;x,y)$ -- we more frequently avoid the case of
-PSF--matching {\it deconvolution}, where the FWHM of $T$ is broader
-than $S$.  This pre--filtering increases $\sigma_S$ by $\sqrt{2}$.
+PSF--matching {\it deconvolution}, where the full width at half maximum (FWHM)
+ of $T$ is broader
+than $S$.  This pre--filtering increases $\sigma_S$ by a factor of $\sqrt{2}$.
 The PSF matching kernels will need to be correspondingly larger to
 account for the larger effective PSFs.  We are able to run detection
-directly on this image.
+directly on this image with different measurement algorithms (see Section \ref{sec-meas}).
 
-In the second, which is the classical postfiltering implementation of
+In the second, which is the classical post--filtering implementation of
 the technique, we create a difference image that is then
 post--filtered with the PSF for detection:
 \begin{eqnarray}
@@ -259,13 +262,15 @@ this the data comprised $i$-band simulations of a random distribution
 of stars with a density of $\sim 1000$ stars per CCD and with an
 equivalent $r$-band magnitude range ($19<r<21$). All stars in this
 sample had identical spectral energy distributions
-(km50\_5000.fits\_g20\_5140.gz), and, for all sources, variability,
+(km50\_5000.fits\_g20\_5140.gz; see the phosim page,{\tt http://ls.st/1vo} for links to the
+spectra), and, for all sources, variability,
 proper motion, and parallax were set to zero. All simulations were
 made at the zenith.
 
 Nine sensors of the central raft were simulated, for a total of 27
 difference images per configuration to use in our comparative
-analysis.  Each simulation run was generated using the following
+analysis.  In each case a pair of snap exposures was generated, however only
+the first snap was used in the analysis.  Each simulation run was generated using the following
 configurations:
 \begin{itemize}
 \item Visit 6866600: A pair of 300s exposure template images with
@@ -278,7 +283,8 @@ configurations:
  arcsec atmospheric seeing.
 \end{itemize}
 
-For each configuration, v3.2.5 of the LSST phosim package was used to
+For each configuration, v3.2.5 of the LSST phosim package (see {\tt http://ls.st/1vo} for usage)
+ was used to
 generate the data. The sky background was dark and set to produce
 $\sim$150 counts per pixel, with airglow variations set to
 zero. Telescope and camera perturbations, tracking errors, field
@@ -298,7 +304,7 @@ Appendix~\ref{sec-phosimextend}.
 \section{Work Performed}
 
 Major tasks that were completed in the run--up to production include:
-implementing prefiltering for image subtraction (ticket \#2551);
+implementing pre--filtering for image subtraction (ticket \#2551);
 implementing source selection for image subtraction (\#2554, \#2596);
 implementing measurement for difference image source ({\tt DiaSource})
 characterization (\#2595); implementing RegisterTask for
@@ -327,7 +333,8 @@ Next, we used the DiaCatalogSourceSelector to query the ImSim
 reference catalog for appropriate sources to use for PSF matching.
 This selector allows the user to specify the brightness and color
 range of the objects, toggle star or galaxy selection, and to include
-variable objects or not.  We selected a fraction (1/5) of these
+variable objects or not.  In this semi-ideal case we use all sources.
+We selected a fraction (1/5) of these
 objects to serve as a control sample, in order to assess the
 effectiveness of $K(u,v;x,y)$ to subtract objects that were {\it not}
 used in the least squares fit.
@@ -352,9 +359,16 @@ $T(x,y)$ were sent to ImagePsfMatchTask, whose purpose is to fit for
 $K(u,v;x,y)$ and to produce the difference image $D(x,y)$. 
 
 %\subsubsection{Pipeline optimization}
+\begin{figure}[!hpb]
+\centering{\includegraphics[width=0.8\textwidth]{figures/basis3.eps}}
+\caption{Example basis set with nGauss=3 (highlighted in red),
+  sigGauss=(0.5 sig, 1.0 sig, 2.0 sig), and degGauss=4, yielding
+  Laguerre polynomials of order (4,2,2).}
+\label{basis}
+\end{figure}
 
  The first step is to use the
-PSF Gaussian sigmas to define the {\it sizes} of the Gaussians shapes
+PSF Gaussian widths to define the {\it sizes} of the Gaussians' shapes
 in $K_i(u,v)$.  As mentioned above, the main width was chosen to be
 $\sqrt{\sigma_S^2 - \sigma_T^2}$.  We investigated variations on the
 configuration where we used one Gaussian with the above width, and
@@ -362,7 +376,7 @@ where we used three Gaussians, the central of which has this width and
 the others being a factor of $\beta = 2.0$ smaller and larger.  We
 modified each of the Gaussians by a set of Laguerre polynomials of a
 given order.  The smallest Gaussian was modified to the specified
-order, with the others modified by order/2.  Figure~\ref{basis}
+order, with the others modified by floor(order/2).  Figure~\ref{basis}
 provides an example basis set with this configuration.  The total
 number of shapes in each basis were: $\sum_i^{\rm nGauss} ({\rm
   degGauss}_i+1)\times({\rm degGauss}_i+2)/2$ \footnote{ A notable
@@ -389,23 +403,42 @@ number of shapes in each basis were: $\sum_i^{\rm nGauss} ({\rm
   pre--filter the science image, which will in the vast majority of
   cases provide a larger PSF (by a factor of $\sqrt{2}$) to match the
   template to.  This is the case for v6866601 in this study, where the
-  postfiltered analysis yields deconvolution of the template, while
-  the prefiltered analysis does not.  }.
+  post--filtered analysis yields deconvolution of the template, while
+  the pre--filtered analysis does not.  }.
 The dimensions of the PSF matching kernel were chosen to be 6 times
 the largest Gaussian width, with a minimum kernelSize of 21x21 pixels.
 For kernels that are significantly smaller than this, the Gaussians
 have significant (non--zero) power at the kernel boundaries, leading
 to square systematic artifacts at the scale of the kernel in the
 difference images (see Figure~\ref{fig_galleryBad}).
-
-
-\begin{figure}
-\centering{\includegraphics[width=0.8\textwidth]{figures/basis3.eps}}
-\caption{Example basis set with nGauss=3 (highlighted in red),
-  sigGauss=(0.5 sig, 1.0 sig, 2.0 sig), and degGauss=4, yielding
-  Laguerre polynomials of order (4,2,2).}
-\label{basis}
+\begin{figure}[!hpb]
+\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/deconv2.eps} 
+\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/size2.eps} \\
+\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/order2.eps} 
+\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/shape2.eps} \\
+\caption{Four example panels showing failure modes of the image
+  subtraction software.  Each panel itself shows a 2x2 pair of
+  {\tt KernelCandidate} difference images; on the {\it left} subpanel is the residual from
+  the LOCAL fitting, and on the {\it right} from the SPATIAL fitting.
+  Starting in the upper left and going clockwise, the first panel
+  shows the residuals when deconvolving the template image; the
+  ringing is characteristic of the deconvolution process.  Next, a set
+  of difference images where the kernel dimensions (kernelSize) are
+  too small to match the sources, leaving square kernel--sized
+  residuals around each object.  Next, a set of images where the
+  kernel shape (sigGauss) is inappropriate to match the sources; note
+  that the LOCAL residuals show circular residuals, indicating the
+  basis set itself is at fault (as opposed to the spatial model).
+  Finally, in the lower--left, a set of images that demonstrate how
+  the residuals degrade when the spatial kernel model is at fault.
+  Note that the LOCAL residuals appear to be white noise, while the
+  SPATIAL residuals show a clear dipole signature.  For this reason, a
+  comparison between the LOCAL and SPATIAL residuals is a useful
+  diagnostic of the spatial model.  }
+\label{fig_galleryBad}
 \end{figure}
+
+
 
 For each source $j$ returned by DiaCatalogSourceSelector, we created a
 {\tt KernelCandidate} instance, which holds substamps of $T_j(x,y)$
@@ -424,7 +457,7 @@ in the kernel, which is fewer than the number of bases $i$).  For each
 {\tt KernelCandidate}, we solved for $K_j(u,v)$ and create a local
 difference image $D_j(x,y)$.  We evaluated several statistics on this
 local difference image, normalized by the square root of its variance,
-which puts the pixels in units of sigma (see also
+which puts the pixels in units of $\sigma$ (see also
 Section~\ref{sec-stats}).  We measured the mean sigma, the RMS of this
 distribution, the $\chi^2$ of these pixels normalized by the degrees
 of freedom (number of pixels in $D_j(x,y)$ minus the number of kernel
@@ -456,13 +489,13 @@ the {\tt KernelCandidate} LOCAL and SPATIAL metrics, as well as the
 values of the SPATIAL metrics for the control sample, reflect the
 appropriateness of the spatial model and our ability to interpolate
 and extrapolate to the full extent of the images.  We used the Mean
-Square Error (MSE) of the control sample to example the tradeoff
+Square Error (MSE) of the control sample to examine the tradeoff
 between bias and variance in the spatial interpolation.
 
 We next ran the SourceDetectionTask on the difference image, using a
 ``polarity'' of {\it both} to search for both positive and negative
 deviations.  We initially used a nominal detection threshold of 5
-sigma.  In the case of pre--filtering, we detected on the difference
+$\sigma$.  In the case of pre--filtering, we detected on the difference
 image directly.  In post--filtering, we convolved the difference
 image with its PSF (by design, the same as the PSF of $S$) before
 detection.  Since the fundamental image operations are the same, the images immediately preceding the
@@ -478,7 +511,7 @@ post--filtering, detection happens on the filtered maximum likelihood
 image and measurement on the associated pixels in the unfiltered
 difference image.  In pre--filtering, the latter image does not exist,
 and thus detection and measurement happen on the same image.  This
-restricts the types of measurements that may be made on the sources
+influences how measurements made on the sources are interpreted
 (see Section~\ref{sec-meas}).  While these measurements were
 straightforward to implement, additional work needs to be done on how
 to implement the remainder of the measurement suite on post--filtered
@@ -502,31 +535,31 @@ lowest numbers of false detections.
 
 \subsection{Improvements to Measurement \label{sec-meas}}
 
-We measured the flux of {\tt DiaSources} on postfiltered difference images
+We measured the flux of {\tt DiaSources} on post--filtered difference images
 using PSF--weighted flux photometry (as implemented in the LSST
-measurement algorithm "flux.psf").  For measuring fluxes of point
-sources on prefiltered images we implemented a new algorithm
-"flux.filtered".
+measurement algorithm ``flux.psf").  For measuring fluxes of point
+sources on pre--filtered images we implemented a new algorithm
+``flux.filtered".
 
-We start with the definition of PSF--weighted flux:
+We start with the definition of PSF--weighted flux assuming a normalized psf, $\phi$:
 %
-\[flux = \frac{\sum_{(x,y)}I(x,y) * \phi(x,y)}{\sum_{(x',y')}\phi^2(x',y')}\]
+\[flux = \frac{\sum_{(x,y)}I(x,y) * \phi(x,y)}{\sum_{(u,v)}\phi^2(u,v)}\]
 %
 where $I(x,y)$ is the image before PSF filtering and $\phi(x,y)$ is an
 image of the PSF centered on the source. This equation assumes an
 isolated point source, an assumption that is reasonable for difference
 images.  We do not weight by the per--pixel variance to avoid
 non--linearity in the flux measurement, at the expense of less precise
-measurements.
+measurements at the bright end.
 
 Filtering is performed by convolving the image with its PSF, so the
 peak of the filtered image of a given source is:
 %
-\[Ipeak_{filt} = \sum_{(x,y)}I(x,y) * \phi(x,y).\]
+\[max(I_{filt}) = \sum_{(x,y)}I(x,y) * \phi(x,y).\]
 %
 Hence the equation for measuring its flux reduces to:
 %
-\[flux = \frac{Ipeak_{filt}}{\sum_{(x',y')}\phi^2(x',y')}.\]
+\[flux = \frac{max(I_{filt})}{\sum_{(x',y')}\phi^2(x',y')}.\]
 
 We further define
 %
@@ -546,7 +579,7 @@ and
 \[Var(flux) = \sum_{(x,y)} w^2(x,y)\sigma^2(x,y).\]
 Substituting $w(x,y)$
 \[Var(flux) = \frac{\sum_{(x,y)}\phi^2(x,y)\sigma^2(x,y)}{(\sum_{(x',y')} \phi^2(x,y))^2}.\]
-This implies that the error $\sigma_{filt}$ on the flux at the location of $Ipeak_{filt}$ is
+This implies that the error $\sigma_{filt}$ on the flux at the location of $max(I_{filt})$ is
 \[\sigma_{filt} = \frac{\sqrt{(\sum_{(x,y)} \phi^2(x,y)\sigma^2(x,y))}}{\sum_{(x',y')} \phi^2(x,y)}.\]
 %Similarly, the predicted uncertainty of the flux measurement is:
 %
@@ -560,12 +593,12 @@ This implies that the error $\sigma_{filt}$ on the flux at the location of $Ipea
 %where $\sigma peak{_{filt}^2}$ is the value of the variance plane,
 %after filtering, at the peak of the source.
 
-In practice, the numerator evaluates to the square root of the value in the variance plane
+The numerator evaluates to the square root of the value in the variance plane
 at the location of the peak flux.
 
 The center of each source is determined using an LSST adaptation of
 the SDSS centroiding algorithm ``centroid.sdss". In general the source
-will not be centered on a pixel, so ```flux.filtered" uses a Lanczos 4
+will not be centered on a pixel, so ``flux.filtered" uses a Lanczos 4
 resampling kernel to shift the source to be centered on the nearest
 pixel before applying the equations above.
 
@@ -584,7 +617,7 @@ statistics below.
 
 The first statistic, KCDiffimStDev, measures the standard deviation of
 all the non--{\tt EDGE} pixels in the difference image, normalized by
-the sqrt of the variance of the difference image.  In the idealized
+the square root of the variance of the difference image.  In the idealized
 case, this value should be 1.0, i.e. pixels in the image are drawn
 from a normal (0,1) distribution.  In cases of overfitting or
 underfitting, this value will be lower than / higher than 1.0.
@@ -592,14 +625,14 @@ underfitting, this value will be lower than / higher than 1.0.
 We also calculate a reduced $\chi^2_\nu$ value called KCDiffimChiSq.
 The numerator of this term is the sum of the squares of the
 noise--normalized pixel values.  This sum is normalized by the number
-of pixels in the data, minus the number of basis shapes in the kernel
-plus 1.
+of pixels in the data minus (the number of basis shapes in the kernel
+plus 1).
 
 Finally in order to investigate the bias--variance trade--off in the
 overall fit, we calculate the mean square error (MSE) of each {\tt
   KernelCandidate's} difference image as statistic KCDiffimMseResids.
 We define the bias as $\left| data - model \right|$, the variance as
-$\left| (data - model)^2 \right|$, and the MSE as {\tt bias$^2$ +
+$(data - model)^2$, and the MSE as {\tt bias$^2$ +
   variance}.  In this context, the bias is the mean of the difference
 image, and the variance is the mean square of the difference image.
 Ideally, the MSE gives a means for identifying the location in
@@ -617,20 +650,20 @@ We ran several pre--productions to tune the following aspects of the
 pipeline: the dimensions of the kernels and {\tt KernelCandidates};
 the widths of the Gaussians (sigGauss) based on the FWHM of the input
 images; and the scaling of the Gaussians ($\beta$) in the basis
-sequence.  Figure~\ref{fig_galleryBad} provides a rogue's gallery of
+sequence.  Figure~\ref{fig_galleryBad} provides a rogues gallery of
 image subtraction failures encountered at this stage, each centered on
 {\tt KernelCandidates}, and outlines reasons for each failure.
 Figure~\ref{fig_galleryGood} provides a gallery showing what the
 results from a successful image subtraction appeared like, for
-postfiltering on the {\it top} and prefiltering on the {\it bottom}.
+post--filtering on the {\it top} and pre--filtering on the {\it bottom}.
 
 The main production runs included: an outer loop over the use of
 pre--filtering or post--filtering for detection; variations of the
 complexity of the Kernel basis, including the number of Gaussians
 (nGauss = 1,3) and the degree of the modifying Laguerre polynomials
 (degGauss = 1..6); and the spatial order of the Chebyshev polynomials
-on $a_i(x,y)$ (spatialKernelOrder = 1..6).  This results in $2*2*6*6=144$ permutations
-of the configs.  See the following pseudocode
+on $a_i(x,y)$ (spatialKernelOrder = 1..6).  This results in $2\times2\times6\times6=144$ permutations
+of the configs.  See the following example python code
 for how the loops iterate over the configs.
 
 %\clearpage
@@ -646,14 +679,29 @@ The final production run
 was labeled {\bf production10}, and data are available on the NCSA compute
 cluster\footnote{/nfs/lsst8/becker/sparse\_diffim/production10\_sparse}.
 
-In the postfilter analysis, matching of the template image
+\begin{figure}[!hpb]
+\begin{center}
+\centering{\includegraphics[width=0.9\textwidth]{figures/normal2.eps}} \\
+\centering{\includegraphics[width=0.9\textwidth]{figures/preconv2.eps}} \\
+\end{center}
+\caption{Pairs of LOCAL:SPATIAL {\tt KernelCandidate} difference images in the case of
+  successful image subtraction, similar to
+  Figure~\ref{fig_galleryBad}.  The {\it top} set of data are from
+  post--filtered analysis, while the {\it lower} set are from
+  pre--filtered data.  Note that the noise is smoother in the
+  pre--filtered data due to convolution with the PSF. }
+\label{fig_galleryGood}
+\end{figure}
+
+
+In the post--filter analysis, matching of the template image
 with visit 6866601 yielded a template {\it deconvolution}.  Matching of the template 
 image with visit 6866602 also yields a deconvolution (the images were generated to
 have the same seeing) for 5/9 sensors.  This provides a test
 of how well the pipeline is able to perform in the case of moderate deconvolution 
 (FWHM the same to within 0.1 pixels).  The matching of the template
-with visit 6866603 with postfiltering, and of all visits with
-prefiltering, yields a convolution (smoothing) of the image. 
+with visit 6866603 with post--filtering, and of all visits with
+pre--filtering, yields a convolution (smoothing) of the image. 
 
 Finally, we ran several post--productions focused on perturbing the
 solutions that yielded the fewest numbers of {\tt DiaSources} along specific
@@ -664,7 +712,8 @@ accommodate astrometric misregistration; the size of the {\tt
   SpatialCells} used in the spatial interpolation, which effectively
 regulates the numbers of constraints that go into the spatial fit; and
 modifying the detection thresholds to determine how the number of
-false detections scales with threshold.
+false detections scales with threshold.  See Section \ref{sec-fp_dep} for
+discussion of how these perturbations affect the results.
 
 
 \section{Results: False Detection Rate}
@@ -691,11 +740,7 @@ In difference image analysis, we expect
 twice this number, since we are sensitive to both positive and negative--going
 fluctuations.
 
-Figure~\ref{fig:peaks} shows good agreement in a comparison of this
-model to a Monte-Carlo simulation for thresholds $4<\nu<6$ for a
-4000x4072 pixel image with 0.88 arcsec seeing. The variance on these
-measures is calculated using 1e6 random realizations.
-\begin{figure}
+\begin{figure}[!hpb]
 \centering{\includegraphics[width=0.5\textwidth]{figures/peaks.eps}}
 \caption{A comparison of the predicted number of random peaks (solid
   line) detected in an image, as a function of significance, with
@@ -704,11 +749,16 @@ measures is calculated using 1e6 random realizations.
 \label{fig:peaks}
 \end{figure}
 
+Figure~\ref{fig:peaks} shows good agreement in a comparison of this
+model to a Monte-Carlo simulation for thresholds $4<\nu<6$ for a
+4000x4072 pixel image with 0.88 arcsec seeing. The variance on these
+measures is calculated using 1e6 random realizations.
+
 \subsection{Empirical}
 
 After running an ensemble of 144 pipeline configurations, we
 aggregated the numbers of false detections.  We report here the results for
-each of the 3 visits, and for pre-- and postfiltering for
+each of the 3 visits, and for pre-- and post--filtering for
 detection.  We cut on {\tt flags.pixel.edge} to remove spurious
 detections on the immediate border of the image; other than that we do
 no other cuts other than requiring that the {\tt centroid.sdss} is
@@ -733,6 +783,52 @@ slope in the number of false detections beyond spatialKernelOrder$>$3
 and degGauss$>$3.  There is not much evidence for an upturn in the
 numbers of false detections, meaning we have likely not reached the
 case of severe overfitting using these configs.
+\begin{figure}[!hpb]
+\centering{\includegraphics[width=1.0\textwidth]{figures/heatmap10.eps}} \\
+\caption{``Heat--map'' detailing the total numbers of 5--sigma false
+  positives as a function of two main degrees of freedom: the maximum
+  order of basis Laguerre polynomials along the y--axis, and the
+  spatial order of the Chebyshev expansion of the spatial model along
+  the x--axis.  The {\it left} column shows these results for
+  pre--filtering, while the {\it right} column shows this for the
+  post--filtered analysis.  The best results listed in
+  Table~\ref{tab-bestfp10}, with the associated configurations from
+  Table~\ref{tab-bestconfig10}, correspond to the minimum in each of the
+  subpanels.  }
+\label{fp_heatmap}
+\end{figure}
+\begin{table}[t]
+\centering
+\begin{tabular}{clc|cccccc}
+\hline
+\multicolumn{9}{|c|}{Best Results: Production 10} \\
+\hline
+Visit    & Pre--filter & N$_{Expect}$ & N$_{Measured}$ &  N$_{Orphan}$ & N$_{Match}$ & N$_{Random}$ & N$_{D<100}$ & N$_{-}$ / N$_{+}$ \\
+\hline
+v6866601 & True      & 108$\pm$27   & 70      &60         & 10 & 3     & 4   & 1.8 \\ 
+         & False     & $\cdots$     & 143     &51         & 92 & 2     & 11  & 0.4 \\
+v6866602 & True      & 45$\pm$18    & 42      &36         & 6  & 2     & 1   & 2.6 \\
+         & False     & $\cdots$     & 53      &45         & 8  & 2     & 1   & 0.5 \\
+v6866603 & True      & 27$\pm$18    & 23      &23         & 0  & 1     & 0   & 2.8 \\
+         & False     & $\cdots$     & 36      &35         & 1  & 1     & 0   & 3.4 \\
+\end{tabular}
+\caption{Total number of {\tt DiaSources} detected at 5--sigma from
+  all 9 sensors in raft 2,2, for the configurations that yielded the
+  lowest number of false detections (N$_{Measured}$).  N$_{Expect}$
+  lists the total number we expect to detect as random fluctuations,
+  from Table~\ref{tab-fp}, and are the same for pre and post--filtering.
+  Whether a detection is a match or an orphan (N$_{Match}$ and
+  N$_{Orphan}$) is determined using a 3'' match radius with the input
+  reference catalog.  We list the number of background fluctuations
+  that are expected to randomly associate with a Source N$_{Random}$,
+  given the density of objects in the images and a 3'' match radius,
+  assuming that N$_{Orphan}$ represents 96\% of the total population
+  of detections from Gaussian fluctuations.  We also list the number
+  of false detections that are found within the outer 100 pixels of
+  the image N$_{D<100}$.  The final column lists ratios of the number
+  of negatively detected false detections to those with positive
+  flux. \label{tab-bestfp10}}
+\end{table}
 
 The numbers N$_{Measured}$ of false detections in each best case are
 given in Table~\ref{tab-bestfp10}, with the total number expected from
@@ -761,7 +857,7 @@ number of points in each bin, and the histograms are normalized to
 provide a probability density.  Aside from the deconvolution
 reduction, we find no significant correlation of false detections with
 the boundaries of the fitting functions.  We note that we are
-performing better than theory for visit v6866601 and prefiltering,
+performing better than theory for visit v6866601 and pre--filtering,
 although this is only 1.4 times the scatter in the expectation value.
 Otherwise, the results are as--expected from our simulations,
 indicating that we are near the systematic floor in false detection
@@ -769,21 +865,61 @@ rate.  We also note that there is a slightly higher number of
 associations with sources than we would expect randomly (N$_{Random}$
 $<$ N$_{Match}$), although this is very small and at the rate of 1
 every 4--5 images.
+\begin{figure}[!hpb]
+\centering{\includegraphics[width=1.0\textwidth]{figures/edge.eps}} \\
+\caption{Distribution of false detections as a function of the minimum
+  distance from the edge of the sensor.  The {\it green} line shows
+  the results from a random distribution of points.  The {\it blue}
+  lines show the measured distributions, normalized as a probability
+  density ($\sum y~\Delta x = 1$).  Error bars come from the square
+  root of the number of points in each bin. }
+\label{edgedist}
+\end{figure}
 
 In the last column of Table~\ref{tab-bestfp10} we list the ratio of
 negatively detected to positively detected {\tt DiaSources}.  This
-ratio is significantly higher than 1.0 for all prefiltering visits,
+ratio is significantly higher than 1.0 for all pre--filtering visits,
 suggesting that there is an over--subtraction of the background in the
 image processing, which will bias this ratio.  The observed ratios of 2--3 suggest that there
 is a background overestimation of order $1-2\%$ causing lower--sigma
 fluctuations to be measured at 5--sigma (Figure~\ref{fig-skythresh}).
-The postfiltering ratios vary by a similar amplitude, but with a
+The post--filtering ratios vary by a similar amplitude, but with a
 mixture of possible over-- and under--subtractions.
+\begin{figure}[!hpb]
+\centering
+\centering{\includegraphics[width=1.0\textwidth]{figures/fp_v_dsky.eps}}
+\caption{
+Misestimation of the sky value has an effect on both the number of false detections and relative abundance of positive to negative false detections.
+The top pane of this figure shows the relative number of +ve/-ve (-ve/+ve) detections if the sky background is under (over) subtracted at a particular fractional level.  The 
+bottom panel shows how the total number of false detections changes for the same misestimation.  This is not a strong function of the seeing, so only the best
+seeing example is shown.
+}
+\label{fig-skythresh}
+\end{figure}
 
 For completeness, the optimal configurations yielding these false
 detection rates are given in Table~\ref{tab-bestconfig10}.
+\begin{table}[t]
+\centering
+\begin{tabular}{clccc}
+\hline
+\multicolumn{5}{|c|}{Best Configs: Production 10} \\
+\hline
+Visit    & Pre--filter & nGauss & degGauss & spatialOrder \\
+\hline
+v6866601 & True      & 3      & 6        & 6 \\
+         & False     & 3      & 1        & 5 \\
+v6866602 & True      & 3      & 6        & 6 \\
+         & False     & 3      & 6        & 5 \\
+v6866603 & True      & 3      & 5        & 5 \\
+         & False     & 3      & 4        & 6 \\
+\end{tabular}
+\caption{Configurations that led to the best results listed in
+  Table~\ref{tab-bestfp10}.  All post-production runs include
+  perturbations about these configurations. \label{tab-bestconfig10}}
+\end{table}
 
-\section{Results: False Detection Dependencies}
+\section{Results: False Detection Dependencies \label{sec-fp_dep}}
 
 After finding the configurations that yielded the minimal numbers of
 false detections, we then perturbed the solutions to examine how the
@@ -811,10 +947,30 @@ data.  Because the number of false positives is such a strong function of
 detection threshold, misestimation of the signal to noise of the detections
 has a large impact on how many false positives are observed.  
 
+\begin{table}[t]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\multicolumn{5}{|c|}{Theoretical Number of False Detections per Sensor} \\
+\hline
+Visit    & FWHM (pixels) & $\sigma=4.5$ & $\sigma=5.0$ & $\sigma=5.5$\\
+\hline
+v6866601 & 3.0 & 114$\pm$11 & 12$\pm$3& 1$\pm$1\\
+v6866602 & 4.4 & 54$\pm$8 & 5$\pm$2& 0.5$\pm$0.5\\
+v6866603 & 6.0 & 29$\pm$6 & 3$\pm$2&0.2$\pm$0.4\\
+\end{tabular}
+\caption{Total number of false detections that we expect based on a
+  4000x4072 pixel sensor.  This number is dependent on the seeing and
+  detection threshold, so we list the values at a threshold of 4.5,
+  5.0, and 5.5 sigma for the seeings in the 3 visits used in this
+  production. We list the total number of positive {\it plus} negative
+  detections; they should be present in equal quantities. The variance
+  is as determined from Monte Carlo simulations.\label{tab-fp} }
+\end{table}
 The Figure \ref{fig-fpthresh} shows the 
 effect of misestimating the noise in the detections for each of three different
 seeing values (0.6$^{\prime\prime}$, 0.88$^{\prime\prime}$, 1.2$^{\prime\prime}$ respectively).  In each case the top panel shows
-the number of additional false positives in an LSST size CCD given a fractional misestimation
+the number of additional theoretically expected false positives in an LSST size CCD given a fractional misestimation
 of the noise in the image and a detection threshold (recall the baseline numbers are given in 
 Table~\ref{tab-fp}).  A 1\% under-estimate of the noise
 corresponds to ~4 additional false positives at a threshold of $5\sigma$ in the best seeing case, compared to
@@ -824,6 +980,33 @@ The bottom panels show
 the effect of over-estimating the noise in the measurement.  The effect is to reduce
 the number of false positives.  A 1\% under-estimate of the noise typically results in 2 fewer false positives
 per chip, at 5--sigma.
+\begin{figure}[!hpb]
+  \centering 
+  \subfloat[][0.6$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma060.eps}}
+  \caption[]{ We plot here the expected change in the number of false positives
+    as a function of detection threshold and noise misestimate.  The
+    panels on these 3 pages are for three values of seeing.  In each panel the
+    top pane shows what happens when the noise is under-estimated and
+    the bottom shows what happens to the false positive rate when the
+    noise is over-estimated.  In all cases the counts are for the
+    total number of false positives in a single 4000x4072 pixel random
+    Gaussian field.
+    }
+  \label{fig-fpthresh}
+\end{figure}
+\begin{figure}[!hbp]
+  \ContinuedFloat 
+  \centering 
+  \subfloat[][0.88$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma088.eps}}
+  \caption[]{}
+\end{figure} 
+\begin{figure}[!hbp]
+  \ContinuedFloat 
+  \centering 
+  \subfloat[][1.2$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma120.eps}}
+  \caption[]{}
+\end{figure} 
+\clearpage
 
 %By comparing false positive rates to expected rates from the analytic expressions, we may be able to
 %estimate the inherent over/under estimation of the reported variance in the images.
@@ -864,23 +1047,38 @@ and these curves are displayed in Figure~\ref{cellsize}.  The {\it
   left} panel shows the numbers of false detections, while on the {\it
   right} the numbers of {\tt KernelCandidates} used, summed across all
 9 sensors.
+\begin{figure}[!hpb]
+\centering{\includegraphics[width=1.0\textwidth]{figures/cellsize.eps}} \\
+\caption{We show the number of false detections ({\it left}) and {\tt
+    KernelCandidates} used in the spatial kernel fit ({\it right}) as
+  a function of {\tt SpatialCell} size.  Increasing the cell size,
+  while keep all other things equal, effectively decreases the number
+  of constraints on the spatial model.  As shown on the left, the
+  pre--filtered data ({\it dashed} lines) have a less strong dependence
+  on the number of constraints compared to the post--filtered data ({\it
+    solid} lines).  The pre--filtered data show essentially similar
+  quality when using 300 vs.~600 {\tt KernelCandidates}, while in the
+  post--filtered data the number of false positives increases by nearly
+  a factor of 2 (from cellsize 128 to 384).  }
+\label{cellsize}
+\end{figure}
 
-We note that in the prefiltered data the numbers of false detections
+We note that in the pre--filtered data the numbers of false detections
 are not strongly dependent on the number of constraints on the spatial
 solution.  For visits v6866601 and v6866603 this number is even seen
 to decrease with decreasing {\tt KernelCandidates}.  This suggests
-that in prefiltering there is not a significant difference in quality
+that in pre--filtering there is not a significant difference in quality
 of fit when using $\sim$600 vs. $\sim$300 {\tt KernelCandidates} per
 sensor.  The overall fit is demonstrably worse when using only
 $\sim$100 constraints on the model (cell size = 640).  The indication
 is that 300 constraints on the spatial model (which has 28, 28, and 21
 terms per basis for visits v6866601, v6866602, and v6866603
-respectively) appears sufficient in the case of prefiltering.
+respectively) appears sufficient in the case of pre--filtering.
 
-In the case of postfiltering, aside from the deconvolution case, the
+In the case of post--filtering, aside from the deconvolution case, the
 number of false detections continually increases as the number of {\tt
   KernelCandidates} decreases.  This indicates that the best mode to
-operate in when postfiltering is to maximize the number of constraints
+operate in when post--filtering is to maximize the number of constraints
 on the model.
 
 \subsection{Registration Errors}
@@ -912,6 +1110,17 @@ and to randomize the effects we multiplied each offset by a number
 pulled from a normal (0,1) distribution.  The output RMS reported by
 RegisterTask was noted to track these offsets.  
 
+\begin{figure}[!hpb]
+\centering{\includegraphics[width=1.0\textwidth]{figures/wcs_rms.eps}} \\
+\caption{Fractional increase in false detections as a function of the
+  amplitude of random astrometric offsets added to the coordinates of
+  sources before image-to-image registration.  The {\it red}, {\it
+    green}, and {\it blue} lines correspond to visits v6866601,
+  v6866602, and v6866603 respectively, while the {\it dashed} and {\it
+    solid} lines correspond to pre--filtering and post--filtering,
+  respectively.}
+\label{wcsrms}
+\end{figure}
 Figure~\ref{wcsrms} shows how the numbers of false positives scales
 with this RMS.  Note that the distribution is very flat out to 1.0
 pixel (0.2'') for all images except for the deconvolution
@@ -932,20 +1141,60 @@ RegisterTask with amplitudes of (0.025, 0.05, 0.075, 0.1, 0.125, 0.15,
 Post--registration, this will offset the positions of sources in the
 two images by the desired amount.
 
+\begin{figure}[!hpb]
+\centering{\includegraphics[width=1.0\textwidth]{figures/wcs_shift.eps}} \\
+\caption{Fractional increase in false detections as a function of bulk
+  astrometric offsets added to the coordinates of sources before
+  image-to-image registration.  The {\it red}, {\it green}, and {\it
+    blue} lines correspond to visits v6866601, v6866602, and v6866603
+  respectively, while the {\it dashed} and {\it solid} lines
+  correspond to pre--filtering and post--filtering, respectively.}
+\label{wcsshift}
+\end{figure}
 Figure~\ref{wcsshift} shows how the numbers of false positives scales
-with this shift.  Surprisingly, the distribution is very flat out to
+with this shift.  We note that the distribution is very flat out to
 nearly 1.0 pixels (0.2'') for all images except for the deconvolution
 configuration.  The number of false positives doubles after a shift of
 1.5''.  This test indicates that, for this very simplified case, bulk
 astrometric offsets of the degree expected from nightly processing
 should not drive the false positive rate.  
 
+\begin{figure}[!hpb]
+\centering{\includegraphics[width=0.8\textwidth]{figures/shift.eps}} \\
+\caption{Figure illustrating the ability of the kernel basis to
+  compensate, locally, for the effects of misregistration.  Each
+  element of the grid shows a single {\tt KernelCandidate} local
+  difference image (visit=6866603, doPreFilter=True).  Columns
+  indicate the Gaussian sigma of the basis, which is designed to have
+  one Gaussian with the prescribed width, modified to fourth order.
+  Rows indicate the amplitude of the astrometric offset that was
+  introduced into the Source positions before image-to-image
+  registration.  In the {\it top} row, we see that even with a small
+  astrometric offset, the sigma=2 basis is unable to produce a quality
+  subtraction, because the width is inappropriate for matching the two
+  input PSFs (the theoretical Gaussian matching sigma here is 3.4 pixels).  At
+  sigma=4 the basis is able to produce a quality subtraction, and by
+  sigma=5 the basis is too large to match the PSFs.  In {\it row 4},
+  we show that even for an astrometric offset of 4 pixels (0.8''), the
+  sigma=4 basis can produce a reasonable difference image without
+  structured residuals.  However, by {\it row 5}, with an offset of 6
+  pixels, none of the Gaussians provide a successful local difference
+  image.  The ability of the basis to compensate for bulk astrometric
+  offsets is a function of the kernel width, and the kernel width is
+  itself a function of the two input PSF FWHMs.  Thus there is a
+  complicated dependence of the ability of the kernel to shift the
+  centroids of stars.  Roughly, in our implementation, the basis may
+  compensate for local astrometric residuals at a scale up to $\beta
+  \times \sqrt{\sigma_S^2 - \sigma_T^2}$, which is the width of the
+  largest Gaussian in our bases.}
+\label{kernel_offsets}
+\end{figure}
 Figure~\ref{kernel_offsets} demonstrates the ability of the
 PSF--matching kernel to redistribute flux to account for bulk
 astrometric misalignments.  Since these offsets are common--mode
 amongst all {\tt KernelCandidates}, the basis shapes themselves drive
 the pipeline's ability to compensate for them.  Having a Gaussian
-basis function whose sigma is commensurate with the amplitude of the
+basis function whose width is commensurate with the amplitude of the
 offset enables the software to place significant power in this basis
 term.  We expect that, if these misalignments are a vector field, the
 ability of the spatial kernel model to account for the spatial
@@ -972,6 +1221,26 @@ designed to preserve the noise properties of the images, we expect
 that the kernel convolution and PSF--filtering will provide the largest
 sources of such error.
 
+\begin{table}[t]
+\centering
+\begin{tabular}{clccc}
+\hline
+\multicolumn{4}{|c|}{Variance Ratios: Empirical / Propagated} \\
+\hline
+Visit    & $D_{pre} = D'_{pre}$ & $D_{post}$ & $D'_{post}$ \\
+\hline
+v6866601 &$1.012 \pm 0.002$&$1.018 \pm 0.005$&$0.599 \pm 0.017$ \\
+v6866602 &$1.010 \pm 0.002$&$1.007 \pm 0.001$&$1.046 \pm 0.002$ \\
+v6866603 &$1.015 \pm 0.003$&$1.008 \pm 0.001$&$1.045 \pm 0.003$ \\
+\end{tabular}
+\caption{Ratio of the empirical variance in the difference images,
+  calculated via (0.741 times the interquartile range)$^2$, to the
+  median of the variance plane.  In all cases (except the deconvolution configuration) the variance plane
+  represents an {\it underestimate} of the true variance in the
+  images.  We report the mean and RMS across all sensors for the best
+  configurations.  }
+\label{tab-variance1}
+\end{table}
 To quantify this, we first compared the empirical variance in
 the image planes with the level tracked by the variance planes, for images $D$ and $D'$.  We
 calculated the ratio of the interquartile range of unmasked pixels in
@@ -981,26 +1250,48 @@ empirical variance, while the latter the propagated variance.  We
 investigate their ratio (empirical/propagated) at 2 stages in the
 processing: after creation of the difference image (image $D$), and
 immediately preceding detection (image $D'$).  Recall that for
-prefiltering, $D = D'$.  These results are summarized in
-Table~\ref{tab-variance1}.  For prefiltering, we find that the
+pre--filtering, $D = D'$.  These results are summarized in
+Table~\ref{tab-variance1}.  For pre--filtering, we find that the
 variance plane typically underestimates the true variance by $1\%$ for
-all visits.  When using postfiltering, the deconvolution visit
+all visits.  When using post--filtering, the deconvolution visit
 v6866601 yields a similar underestimate in the difference image, but
 for the other two visits the variance is tracked to better than 1\%,
-with a small RMS.  However, when postfiltering with the PSF, the
+with a small RMS.  However, when post--filtering with the PSF, the
 variance becomes {\it overestimated} by nearly a factor of two for
 deconvolution visit v6866601, and {\it underestimated} by $4-5\%$ for
 the other visits.
+\begin{table}[t]
+\centering
+\begin{tabular}{ccc}
+\hline
+\multicolumn{3}{|c|}{Variance Ratios: $D'_{post} / D'_{pre}$} \\
+\hline
+Visit    & Empirical & Propagated \\
+\hline
+v6866601 & $1.011 \pm 0.016$    & $1.710 \pm 0.049$    \\
+v6866602 & $1.001 \pm 0.001$    & $0.967 \pm 0.001$    \\
+v6866603 & $1.002 \pm 0.001$    & $0.974 \pm 0.002$    \\
+\end{tabular}
+\caption{Ratios of the variance planes immediately before detection
+  $D'$.  Ratios are in the sense of the variance of the post--filtered
+  image divided by the variance of the pre--filtered image.  The first
+  column represents the ratios of the empirical variance, calculated
+  via (0.741 times the interquartile range)$^2$.  The second column
+  reports the ratios of the medians of the propagated variance planes.
+  We report the mean and RMS across all sensors for the best
+  configurations.}
+\label{tab-variance2}
+\end{table}
 
 We next investigated the variance properties of the images that are
 input to the detection stage, i.e. the difference image itself in the
-case of prefiltering, and the difference image convolved with its PSF
-in postfiltering.  These results are summarized in
+case of pre--filtering, and the difference image convolved with its PSF
+in post--filtering.  These results are summarized in
 Table~\ref{tab-variance2}.  We find that the image planes have very
 similar empirical noise properties at the detection stage, with the
 deconvolution visit having larger variance by $1\%$ but the other
 visits having essentially equal noise properties, with a bias towards
-the postfiltered data having slightly higher variance (while the RMS
+the post--filtered data having slightly higher variance (while the RMS
 is small, all values are greater than 1.0)\footnote{For completeness,
   we note the median differences between the image planes at the time
   of detection are 3--4 counts (or 0.2 sigma relative to the empirical
@@ -1010,19 +1301,19 @@ the variance planes tell a different story though.  For the
 deconvolution visit, the median per--pixel variance is $70\%$ higher.
 While this will suppress the detections of false positives, it will
 also significantly suppress the detection efficiency for true
-variability.  For the other visits, the postfiltered per--pixel
+variability.  For the other visits, the post--filtered per--pixel
 variance is relatively {\it lower} by $3-4\%$.  This will increase
-the sensitivity of the postfiltered data to false positives; as shown
-above, the rate is indeed larger using the postfiltering pipeline.
+the sensitivity of the post--filtered data to false positives; as shown
+above, the rate is indeed larger using the post--filtering pipeline.
 This analysis demonstrates that this is primarily due to an {\it
-  underestimate} of the per--pixel variance in the postfilter
-processing: while the prefiltered variance is a 1\% underestimate, the
-postfiltered variance is a 5\% underestimate.  As outlined by
-\cite{Price-Stacking}, this may be due to loss of pixel covariance
+  underestimate} of the per--pixel variance in the post--filter
+processing: while the pre--filtered variance is a 1\% underestimate, the
+post--filtered variance is a 5\% underestimate.  As outlined by
+\cite{Price-Stacking}, this due, at least in part, to loss of pixel covariance
 when undergoing multiple convolutions, as covariance is not currently
-tracked in the DM stack.  In prefiltering, the science image undergoes
+tracked in the DM stack.  In pre--filtering, the science image undergoes
 a single convolution, and the template image a single convolution.  In
-postfiltering, the template image undergoes a convolution, is
+post--filtering, the template image undergoes a convolution, is
 subtracted from the science image, and then undergoes a second
 convolution with the Psf.  As we have demonstrated here, this second
 convolution is where our variance bookkeeping lags the empirical
@@ -1040,17 +1331,38 @@ expected in LSST size detectors are given in Table~\ref{tab-fp}.
 As discussed in the Section \ref{sec-sn}, the accuracy of the noise estimation in the detection is crucial to 
 understanding the false positive rate.  In the previous section we quantify the under--estimation of the variance
 by the variance plane in the case of pre-- and post--filtering.  In our analysis of the threshold--dependence of
-our false detection rate, we correct for this under--estimation in order to put the counts from each algorithm
+our false detection rate, we correct for this under--estimation by multiplying the requested detection threshold 
+by a scaling factor
+in order to put the counts from each algorithm
 on the same normalization (Table~\ref{tab-variance1}).
 
-Figure~\ref{fig-fp_v_thresh} shows the results of this analysis.  In all figures red squares are postfiltered data and
-blue circles are for the prefiltering technique.  All values are for the number of false positives in a 4000x4072 sensor.
+\begin{figure}[!hpb]
+\captionsetup[subfloat]{labelformat=empty}
+\centering
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_nocorr.eps}}
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_nocorr.eps}}
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_nocorr.eps}}\\
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_corr.eps}}%
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_corr.eps}}%
+\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_corr.eps}}%
+\caption{Here we show the comparison of detected false positive count to the analytic prediction.
+In all cases the blue circles are the pre--filter case and the red squares are the post--filter case.  
+The top row has had the counts corrected for the underestimate of the noise by the variance plane (Table~\ref{tab-variance1}).  
+In the bottom row we undertaken a 1--parameter correction to align the predicted and measured values.  See Section~\ref{sec-thresh}
+for how this correction is applied.  The 2.5\%, 1.5\% and 1\% scaling in $k$ correspond to a 5\%, 3\%, 2\% over-estimation of the image variance, respectively
+from Left to Right in the bottom pane.  
+The shaded area is the 1-$\sigma$ confidence envelope
+determined from Monte Carlo simulations (Section~\ref{sec-analyticfp}).}
+\label{fig-fp_v_thresh}
+\end{figure}
+Figure~\ref{fig-fp_v_thresh} shows the results of this analysis.  In all figures red squares are post--filtered data and
+blue circles are for the pre--filtering technique.  All values are for the number of false positives in a 4000$\times$4072 sensor.
 Using a Monte Carlo approach we 
 estimate the variance on the predicted false positive rate as a function of threshold.  The 1-$\sigma$ confidence envelope is shown
 as shaded grey about the model line in dark black.  From left to right the panels are for v6866601 (0.6$^{\prime\prime}$ FWHM),
 v6866602 (0.88$^{\prime\prime}$ FWHM) and v6866603 (1.2$^{\prime\prime}$ FWHM) respectively.  Except in the case of deconvolution
-in the postfiltering case (v6866601) the count rates between the two algorithms agree very well when corrected for the
-observed under--estimation of the noise by the variance plane.  In the case where postfiltering requires a deconvolution, the high ${S}\over{N}$
+in the post--filtering case (v6866601) the count rates between the two algorithms agree very well when corrected for the
+observed under--estimation of the noise by the variance plane.  In the case where post--filtering requires a deconvolution, the high $S/N$
 detections come primarily from detection of the ringing around stars.
 
 In all cases the empirical results are below the predicted results indicating
@@ -1066,14 +1378,14 @@ Specifically, we define scaling factor $k$ to correct the counts at a given thre
 n_{corrected}(>\nu) = n(> k\nu)
 \label{correction}
 \end{equation}  
-For our data we scale {\it down} $\nu$ in the model by $k = 0.975, 0.985 $~and~$ 0.99$ for 
+For our data we scale $\nu$ in the model by $k = 0.975, 0.985 $~and~$ 0.99$ for 
 v6866601, v6866602, and v6866603 respectively.  The data plotted with these corrections are shown
-in the bottom row of Figure\ref{fig-fp_v_thresh}.  These results suggest our variance estimates 
+in the bottom row of Figure~\ref{fig-fp_v_thresh}.  These results suggest our variance estimates 
 are too {\it high}, and we are therefore detecting too {\it few} false detections.  This does not agree 
 entirely with the analysis of the empirical variance, Section~\ref{sec-varmis} and Table~\ref{tab-variance1}, 
 which suggest that our variance planes {\it underestimate} the true variance.  However, this makes clear that 
 while we are at the level of the theoretical floor in false detection rate, it is imperative to track the 
-variance in our data to at the 1\% level or better to optimize both the false detection rate, and the true detection
+variance in our data at the 1\% level or better to optimize both the false detection rate, and the true detection
 efficiency. This will be a subject of the Summer 2013 work.
 
 \section{Results: Correlation with KernelCandidate Statistics \label{sec-resstats}}
@@ -1081,17 +1393,17 @@ efficiency. This will be a subject of the Summer 2013 work.
 In Figures~\ref{corrpost} and \ref{corrpre}  we correlate statistics
 calculated on the control sample of {\tt KernelCandidates} with the
 numbers of false detections that come out of detection and
-measurement, for the prefiltering and postfiltering cases
+measurement, for the pre--filtering and post--filtering cases
 respectively.  We do this for statistics that represent the median
 standard deviation of the pixels in the {\tt KernelCandidate} SPATIAL
 difference image (KCDiffimStDev), the median reduced chi2 of the
 pixels in the difference image (KCDiffimChiSq), and median MSE of the
 residuals (KCDiffimMseResids).  These values are defined in
 Section~\ref{sec-stats}.  There is one point in each figure from each
-sensor in each of the 72 production runs per prefilter and postfilter
+sensor in each of the 72 production runs per pre--filter and post--filter
 configuration.
 
-For postfiltering, Figure~\ref{corrpost} indicates that these metrics
+For post--filtering, Figure~\ref{corrpost} indicates that these metrics
 correlate strongly with each other, meaning there is likely little
 advantage to looking at more than one metric.  The deconvolution visit
 in {\it red} is a clear outlier in this distribution.  While there is
@@ -1102,13 +1414,48 @@ the trend, meaning there is no single metric studied that may be used
 to predict the numbers of false detections during the fitting process,
 within the range of interest ($<10$ false detections per sensor).
 
-For prefiltering, Figure~\ref{corrpre}, the slope between $10^0$ and
+For pre--filtering, Figure~\ref{corrpre}, the slope between $10^0$ and
 $10^1$ false detections is steeper, but still commensurate with the
 scatter within that range.  The metrics are still strongly correlated
-with each other, but not to the degree as for the postfiltered
-statistics.  A less--noisy relationship may be obtained through a
+with each other, but not to the degree as for the post--filtered
+statistics.  A less--noisy relationship might be obtained through a
 linear combination of these metrics, but we have not fully
 investigated this option.  
+\begin{figure}[!hpb]
+\centering{\includegraphics[width=0.9\textwidth]{figures/corrA.eps}} \\
+\caption{Correlation of the statistics calculated on the control
+  sample {\tt KernelCandidates} during the model fitting with the
+  number of false positives per sensor coming from
+  detection and measurement, for the {\bf post--filtering} pipeline.
+  Results for visit v6866601 are shown as {\it red squares}, for
+  v6866602 as {\it green circles}, and for v6866603 {\it blue
+    triangles}.  Three of the statistics, described in
+  Section~\ref{sec-stats}, are presented.  They clearly correlate with
+  each other.  For the deconvolution visit v6866601, the statistics
+  are very poor even for the ``best'' solutions.  Points come from 
+  all 144 production reductions of the same data, and detection at 5--sigma.
+  The minimum numbers of 5--sigma false detections per--sensor (Table~\ref{tab-fp})
+  are given by the horizontal lines.
+}
+\label{corrpost}
+\end{figure}
+
+\begin{figure}[!hpb]
+\centering{\includegraphics[width=0.9\textwidth]{figures/corrB.eps}} \\
+\caption{Correlation of the statistics calculated on the control
+  sample {\tt KernelCandidates} during the model fitting with the
+  number of false positives per sensor coming from detection and
+  measurement, for the {\bf pre--filtering} pipeline.  Results for visit
+  v6866601 are shown as {\it red squares}, for v6866602 as {\it green
+    circles}, and for v6866603 {\it blue triangles}.  Three of the
+  statistics, described in Section~\ref{sec-stats}, are presented.
+  They clearly correlate with each other, and also tend to correlate
+  with the number of false detections (bottom row).
+  The minimum numbers of 5--sigma false detections per--sensor (Table~\ref{tab-fp})
+  are given by the horizontal lines.
+}
+\label{corrpre}
+\end{figure}
 %
 We do note that these distributions are internally correlated, since they come from many runs
 of the pipeline (in different configurations) on the same data.  A better
@@ -1118,6 +1465,29 @@ data, where the different points are uncorrelated.
 We plan to quantify
 these correlations in further detail as we continue our work in Summer
 2013.
+\begin{figure}[!hpb]
+\centering
+\subfloat[PREFILTERED]{\includegraphics[width=0.49\textwidth]{figures/MSE_FITTED_PREFILTER.eps}}
+\subfloat[POSTFILTERED]{\includegraphics[width=0.49\textwidth]{figures/MSE_FITTED_POSTFILTER.eps}}
+\caption{We plot the $\langle MSE \rangle$ for each visit using the sample used in the model fitting.  
+The left is for the pre--filtering case and the right is for the 
+post--filtering case.  In each case we have plotted only the nGauss=3 and spatial order=(4,5,6) because we find that a spatial
+order of at least 4 is needed.  The top pane in the post--filtering case just shows the spatial order since the other 
+values are held constant in the case that deconvolution is requested.  Notice that there is typically no minimum.}
+\label{fig-MSE_FITTED}
+\end{figure}
+\begin{figure}[!hpb]
+\centering
+\subfloat[PREFILTERED]{\includegraphics[width=0.49\textwidth]{figures/MSE_CONTROL_PREFILTER.eps}}
+\subfloat[POSTFILTERED]{\includegraphics[width=0.49\textwidth]{figures/MSE_CONTROL_POSTFILTER.eps}}
+\caption{We plot the $\langle MSE \rangle$ for each visit using the control sample which was not used in the
+model fitting.  The left is for the pre--filtering case and the right is for the 
+post--filtering case.  In each case we have plotted only the nGauss=3 and spatial order=(4,5,6) because the minimum MSE came
+from these for all visits.  The top pane in the post--filtering case just shows the spatial order since the other 
+values are held constant in the case that deconvolution is requested.  Notice that all visits have a minimum.
+Compare this to the same statistic calculated on the fitted sample in Figure \ref{fig-MSE_FITTED} where there is no minimum.}
+\label{fig-MSE_CONTROL}
+\end{figure}
 
 Using this simplified data set, we can begin to look at how we may predict 
 optimal configs based on measured statistics.  In particular, we investigate
@@ -1135,6 +1505,24 @@ We note that the config at the minimum MSE value is
 not always the same config that yields the lowest numbers of false detections.  
 Table \ref{tab-bestconfig_MSE} lists the configs
 at the minimum of the MSE for the control sample (compare to Table~\ref{tab-bestconfig10}).
+\begin{table}[t]
+\centering
+\begin{tabular}{clccc}
+\hline
+\multicolumn{5}{|c|}{Best Configs: From Minimum MSE} \\
+\hline
+Visit    & Pre--filter & nGauss & degGauss & spatialOrder \\
+\hline
+v6866601 & True      & 3      & 4        & 5 \\
+         & False     & 3      & 1        & 6 \\
+v6866602 & True      & 3      & 4        & 6 \\
+         & False     & 1      & 3        & 5 \\
+v6866603 & True      & 3      & 5        & 5 \\
+         & False     & 3      & 5        & 5 \\
+\end{tabular}
+\caption{The best configs as derived from the minimum in the measured MSE.
+\label{tab-bestconfig_MSE}}
+\end{table}
 %
 We have also 
 looked at per--sensor MSE values and per--sensor false positive rates.  In both cases, 
@@ -1150,18 +1538,55 @@ find good agreement, in general.  The findings are summarized in Table \ref{tab-
 the MSE is sensitive to over fitting, we observe that it tends to lower complexity configs
 even if the false positive rate is slightly higher.  We will continue to investigate this metric
 in Summer 2013.
+\begin{table}[b]
+\centering
+\begin{tabular}{clcccc}
+\hline
+\multicolumn{6}{|c|}{Per Sensor MSE Comparison} \\
+\hline
+Visit    & Pre--filter & N$_{Same}$ & N$_{<3}$ & $\Delta FP$ & max($\Delta FP$)\\
+\hline
+v6866601 & True      & 0      & 2        & 22 & 4\\
+         & False     & 4      & 6        & 24 & 10\\
+v6866602 & True      & 3      & 5        & 7 & 2\\
+         & False     & 6      & 7        & 8 & 6\\
+v6866603 & True      & 6      & 7        & 3 & 1\\
+         & False     & 6      & 8        & 3 & 1\\
+\end{tabular}
+\caption{
+We examine the configs chosen based on the minimum $\langle $MSE$\rangle$ and compare them to the config of the
+minimum number of false positives.  The sample here consists of 9 sensors per visit.  
+N$_{Same}$ is the number of times the minimum $\langle $MSE$\rangle$ coincides with the minimum in false positives.  N$_{<3}$
+is the number of times the minimum false positive config is one of the top three configs when rank ordered by increasing
+$\langle MSE \rangle$ value.  $\Delta FP$
+is the total change in false positive count using the minimum $\langle $MSE$\rangle$ config as compared to the sum of the minimum 
+false positives per sensor.  Column max($\Delta FP$) is the maximum change in detected false positives on any sensor in that visit.
+\label{tab-MSE_persensor}}
+\end{table}
 
 \section{Results: Measurement}
 
 Figure~\ref{fluxerr} provides a mosaic of absolute--value S/N
 measurements for the {\tt DiaSources} detected at 5--sigma.  The {\it
   top} panel shows the PSF flux measurements reported in the
-postfiltered analysis, while the {\it bottom} panel shows the filtered
-flux measurements in the prefiltered analysis.  Both distributions are
+post--filtered analysis, while the {\it bottom} panel shows the filtered
+flux measurements in the pre--filtered analysis.  Both distributions are
 strongly peaked at 5--sigma, indicating we are not grossly
 mismeasuring fluxes or flux uncertainties in either case. A detailed
-estimate of the accuracy of the prefiltering photometry will be
+estimate of the accuracy of the pre--filtering photometry will be
 undertaken in the summer 2013 work.
+\begin{figure}[!hpb]
+\begin{center}
+\centering{\includegraphics[width=0.9\textwidth]{figures/fluxpost.eps}} \\
+\centering{\includegraphics[width=0.9\textwidth]{figures/fluxpre.eps}} \\
+\end{center}
+\caption{Histograms of measured $|$ signal--to--noise $|$
+  for sources detected at 5--sigma in the best post--filtered ({\it
+    top}) and pre--filtered ({\it bottom}) data.  In post--filtering, we
+  use the PSF flux, while in pre--filtering we use the filtered flux
+  measurement.  }
+\label{fluxerr}
+\end{figure}
 
 \section{Results: Computational Performance}
 
@@ -1229,42 +1654,42 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
   having the noise underestimated by 2\% leads to an increase
   in false detections by a factor of 1.5--2 (Figure~\ref{fig-fpthresh}).
 
-\item When strongly deconvolving, the postfiltered variance is 70\%
-  {\it higher} at the time of detection compared to the prefiltered
+\item When strongly deconvolving, the post--filtered variance is 70\%
+  {\it higher} at the time of detection compared to the pre--filtered
   data (Table~\ref{tab-variance2}).  This is consistent with the
   understanding that deconvolution increases high frequency noise in
   the images, and provides a {\it lower} detection efficiency in
-  deconvolved data.  Prefiltering is clearly preferred to postfiltering 
+  deconvolved data.  Pre--filtering is clearly preferred to post--filtering 
   in the case of significant deconvolution (v6866601).
 
-\item For non--deconvolved image subtraction, prefiltering performs as
-  well as postfiltering in terms of the number of false positives, when 
+\item For non--deconvolved image subtraction, pre--filtering performs as
+  well as post--filtering in terms of the number of false positives, when 
   corrected for the variance underestimate (Figure~\ref{fig-fp_v_thresh}).
 
 \item An empirical computation of the variance from the image plane,
   compared to the median propagated variance in the variance plane,
   indicates that we consistently underestimate the variance in
-  prefiltering by $1-2\%$, and in postfiltering by $4-5\%$ when not
-  strongly deconvolving (Table~\ref{tab-variance1}).  The postfiltering
+  pre--filtering by $1-2\%$, and in post--filtering by $4-5\%$ when not
+  strongly deconvolving (Table~\ref{tab-variance1}).  The post--filtering
   issue is shown to arise from the PSF--filtering of the difference
-  image immediately before detection.  This is likely due to the
+  image immediately before detection.  This is due, at least in part, to the
   double--convolution that is happening to the template image, and our
   lack of covariance tracking. The dependence on template noise and
   the number of convolutions will impact the requirements on the
   variance within the template images (and thereby the number of
   images going into a template image).
 
-\item The empirical variance of the detection images in prefiltering
-  and postfiltering are similar to within $1\%$
+\item The empirical variance of the detection images in pre--filtering
+  and post--filtering are similar to within $1\%$
   (Table~\ref{tab-variance2}).  However, the propagated variance in the
-  postfiltered data is $3-4\%$ {\it lower} in the postfiltered data,
+  post--filtered data is $3-4\%$ {\it lower} in the post--filtered data,
   leading to a larger number of false positives when using the
   variance plane as the definition of sigma (Table~\ref{tab-bestfp10}).
 
 
 %%%
 
-\item The postfilter pipeline can produce difference images with a
+\item The post--filter pipeline can produce difference images with a
   minor deconvolution (v6866602) at a quality commensurate with a subtraction that uses a
   smoothing convolution (v6866603).
 
@@ -1279,9 +1704,9 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
   causing 50\% more false detections of one polarity over another
   (Figure~\ref{fig-skythresh}).
 
-\item Our empirical negative to positive false detection ratio is 2--3 for prefiltering, 
+\item Our empirical negative to positive false detection ratio is 2--3 for pre--filtering, 
   indicating a bias in the background levels of 1--2\%.  Similar ratios are seen
-  in postfiltering, although they vary from over-- to
+  in post--filtering, although they vary from over-- to
   under--subtraction of the background
   (Table~\ref{tab-bestfp10}). This will be a subject of investigation
   in Summer 2013.
@@ -1306,8 +1731,8 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
 
 \item The kernel is able to absorb, individually, random scatter in the astrometry (Figure~\ref{wcsrms})
   and offsets in the astrometry  (Figure~\ref{wcsshift}) of order 0.2''
-  without a significant increase in the number of false positives.  Because the prefiltering
-  Gaussians tend to have larger sigmas, they are able to compensate for larger offsets.
+  without a significant increase in the number of false positives.  Because the pre--filtering
+  Gaussians tend to have larger widths, they are able to compensate for larger offsets.
 
 %%%
 
@@ -1326,7 +1751,7 @@ sub--optimal, in that its centroid fitting algorithm is a 4--deep {\tt
   Figure~\ref{corrpre}).  These relationships have a shallow
   slope in the area of interest (number of false detections per sensor
   less than 10), although there appears to be more discriminatory
-  power in the prefiltered data.
+  power in the pre--filtered data.
 
 \item Using the mean squared error of a control sample of {\tt KernelCandidates}
   appears to be a promising way to understand the degree of over/underfitting
@@ -1350,7 +1775,7 @@ exposures to coadd patches for use in the image difference task.  The
 register task was unable to solve a differential WCS between the coadd
 and science {\tt calexp} because in coadds, the parent WCS is for the
 entire {\tt tract}.  Each coadd {\tt patch} thus has a CRPIX at the
-center of the {\tt tract}, which is typically off the {\tt patch}
+center of the {\tt tract}, which is typically far off the {\tt patch}
 image.  The TAN--SIP model is unable to perform adequately in this
 circumstance, as it expands its polynomials around the CRPIX.  To get
 around this we tried re--fitting the coadd patches using a TAN--SIP
@@ -1360,246 +1785,7 @@ meas\_astrom that were uncovered as a result of this investigation,
 required reverting to using the deep {\tt calexp} as the template
 directly; the direct deep {\tt calexp} to science {\tt calexp}
 registration typically yielded residuals in the range of 4--5 mas.
-
-We investigated potential causes of the large astrometry residuals.  To do this, we looked at the 
-residuals for template--to--reference catalog solutions, science image--to--refcat solutions, and 
-direct template to science image registration to attempt to isolate where the astrometry 
-was being degraded.  The results are shown
-in Table~\ref{tab-wcsrms}.  We show the results for the nine sensors in the best seeing visit.  
-The solutions for the three steps that do not involve any warping show results consistent with 
-the accuracy we expect to get.  We also see the expected trend that the deep exposure solutions have 
-smaller RMS than the solutions for the science images, due to their higher S/N.  The coadd--to--science 
-registration depends critically on the WCS fitting and warping process: the WCS of the deep {\tt calexp} is 
-warped into the coadd {\tt patch}; the coadd {\tt patch} is then warped into the science {\tt calexp's} WCS
-frame.  This places two dependencies on the warping code, and two on the WCS fitting, where
-this degradation may have occurred.  This 1--2 order of magnitude degradation in the WCS solutions 
-shown in Table~\ref{tab-wcsrms} indicate
-that astrometry and warping are areas that need to be actively addressed.
-
-\subsection{Detection and Measurement on Negative Sources}
-We see more negative false detections than positive false detections.  This drove an investigation 
-into the symmetry of detection and measurement on positive/negative sources.  To do this we looked at the 
-results of the image difference task and compared it to the same runs when the difference image was inverted
-(multiplied by -1) before measurement.  The results are as follows:
-\begin{itemize}
-\item Centroids of negative sources always have integer values.
-\item Whether detected on the original difference image or the inverted image, the {\tt DiaSource} lists are the same length in every
-case.  That is to say {\tt len(afwTable.SourceCatalog.readFits(\it{path}))} returns the same value in both cases.  We take this to mean
-that the same objects trigger detection in both situations although this cannot be directly verified since the objects with failed centroids are
-not the same in both lists.  
-\item Centroiding on negative sources fails almost all the time: 99.7\% sources with negative flux
-have the {\tt badcentroid} flag set.
-\item In some instances psfFlux is stored as 0.0 (not {\tt NaN}) without any centroid or photometry flag set in the {\tt Source} object.  This
-happens more than we would expect if it was just a chance event.  This indicates an uncaught failure mode.
-\item psfFlux can be measured as NaN with valid centroid values and no other flags set.
-\item Fitted psfFlux can have the same sign in both the initial and inverted image in 0.1\% of measurements.
-\item Some sources have the {\tt EDGE} bit set at one polarity but not the other.  
-  This leads to a difference in the reported number of false positives as we only consider 
-  those without the {\tt EDGE} flag set.
-\end{itemize}
-
-The suspicion is that the differences in the precision of the centroids is linked to the differences in flags.
-We have not had the time to chase this down completely, but plan on doing so in Summer 2013.
-
-
-\section{Future Work}
-
-We intend to research additional aspects of the problem going forward,
-including:
-\begin{itemize}
-\item How the false detection rate varies with more realistic SEDs;
-\item How the false detection rate varies with airmass and passband;
-\item How the system behaves with a realistic mix of stars and galaxies;
-\item How the false detection rate looks in crowded fields;
-\item Investigate the propagation of covariances as a function of
-  convolution and requirements on the template signal-to-noise.
-\item Adoption of Gaussian processes for spatial modeling of the kernel;
-\item Investigating the differences in measurement on positive/negative sources;
-\item Developing a measurement suite (shape, moment, goodness of fit)
-  for sources in prefiltered data and evaluating the photometric
-  performance of the prefiltered measurements.
-\item Determining how much ``on the fly'' configuration we may do to optimize PSF--matching.
-\end{itemize}
-
-\clearpage
-\bibliographystyle{apj}
-\bibliography{refs}
-
-\clearpage
-
-\begin{table}
-\centering
-\begin{tabular}{lcccc}
-\hline
-\multicolumn{5}{|c|}{Theoretical Number of False Detections per Sensor} \\
-\hline
-Visit    & FWHM (pixels) & $\sigma=4.5$ & $\sigma=5.0$ & $\sigma=5.5$\\
-\hline
-v6866601 & 3.0 & 114$\pm$11 & 12$\pm$3& 1$\pm$1\\
-v6866602 & 4.4 & 54$\pm$8 & 5$\pm$2& 0.5$\pm$0.5\\
-v6866603 & 6.0 & 29$\pm$6 & 3$\pm$2&0.2$\pm$0.4\\
-\end{tabular}
-\caption{Total number of false detections that we expect based on a
-  4000x4072 pixel sensor.  This number is dependent on the seeing and
-  detection threshold, so we list the values at a threshold of 4.5,
-  5.0, and 5.5 sigma for the seeings in the 3 visits used in this
-  production. We list the total number of positive {\it plus} negative
-  detections; they should be present in equal quantities. The variance
-  is as determined from Monte Carlo simulations.\label{tab-fp} }
-\end{table}
-
-
-
-\begin{table}
-\centering
-\begin{tabular}{clc|cccccc}
-\hline
-\multicolumn{9}{|c|}{Best Results: Production 10} \\
-\hline
-Visit    & Prefilter & N$_{Expect}$ & N$_{Measured}$ &  N$_{Orphan}$ & N$_{Match}$ & N$_{Random}$ & N$_{D<100}$ & N$_{-}$ / N$_{+}$ \\
-\hline
-v6866601 & True      & 108$\pm$27   & 70      &60         & 10 & 3     & 4   & 1.8 \\ 
-         & False     & $\cdots$     & 143     &51         & 92 & 2     & 11  & 0.4 \\
-v6866602 & True      & 45$\pm$18    & 42      &36         & 6  & 2     & 1   & 2.6 \\
-         & False     & $\cdots$     & 53      &45         & 8  & 2     & 1   & 0.5 \\
-v6866603 & True      & 27$\pm$18    & 23      &23         & 0  & 1     & 0   & 2.8 \\
-         & False     & $\cdots$     & 36      &35         & 1  & 1     & 0   & 3.4 \\
-\end{tabular}
-\caption{Total number of {\tt DiaSources} detected at 5--sigma from
-  all 9 sensors in raft 2,2, for the configurations that yielded the
-  lowest number of false detections (N$_{Measured}$).  N$_{Expect}$
-  lists the total number we expect to detect as random fluctuations,
-  from Table~\ref{tab-fp}, and are the same for pre and postfiltering.
-  Whether a detection is a match or an orphan (N$_{Match}$ and
-  N$_{Orphan}$) is determined using a 3'' match radius with the input
-  reference catalog.  We list the number of background fluctuations
-  that are expected to randomly associate with a Source N$_{Random}$,
-  given the density of objects in the images and a 3'' match radius,
-  assuming that N$_{Orphan}$ represents 96\% of the total population
-  of detections from Gaussian fluctuations.  We also list the number
-  of false detections that are found within the outer 100 pixels of
-  the image N$_{D<100}$.  The final column lists ratios of the number
-  of negatively detected false detections to those with positive
-  flux. \label{tab-bestfp10}}
-\end{table}
-
-
-\begin{table}
-\centering
-\begin{tabular}{clccc}
-\hline
-\multicolumn{5}{|c|}{Best Configs: Production 10} \\
-\hline
-Visit    & Prefilter & nGauss & degGauss & spatialOrder \\
-\hline
-v6866601 & True      & 3      & 6        & 6 \\
-         & False     & 3      & 1        & 5 \\
-v6866602 & True      & 3      & 6        & 6 \\
-         & False     & 3      & 6        & 5 \\
-v6866603 & True      & 3      & 5        & 5 \\
-         & False     & 3      & 4        & 6 \\
-\end{tabular}
-\caption{Configurations that led to the best results listed in
-  Table~\ref{tab-bestfp10}.  All post-production runs include
-  perturbations about these configurations. \label{tab-bestconfig10}}
-\end{table}
-
-\clearpage
-
-\begin{table}
-\centering
-\begin{tabular}{clccc}
-\hline
-\multicolumn{5}{|c|}{Best Configs: From Minimum MSE} \\
-\hline
-Visit    & Prefilter & nGauss & degGauss & spatialOrder \\
-\hline
-v6866601 & True      & 3      & 4        & 5 \\
-         & False     & 3      & 1        & 6 \\
-v6866602 & True      & 3      & 4        & 6 \\
-         & False     & 1      & 3        & 5 \\
-v6866603 & True      & 3      & 5        & 5 \\
-         & False     & 3      & 5        & 5 \\
-\end{tabular}
-\caption{The best configs as derived from the minimum in the measured MSE.
-\label{tab-bestconfig_MSE}}
-\end{table}
-
-\begin{table}
-\centering
-\begin{tabular}{clcccc}
-\hline
-\multicolumn{6}{|c|}{Per Sensor MSE Comparison} \\
-\hline
-Visit    & Prefilter & N$_{Same}$ & N$_{<3}$ & $\Delta FP$ & max($\Delta FP$)\\
-\hline
-v6866601 & True      & 0      & 2        & 22 & 4\\
-         & False     & 4      & 6        & 24 & 10\\
-v6866602 & True      & 3      & 5        & 7 & 2\\
-         & False     & 6      & 7        & 8 & 6\\
-v6866603 & True      & 6      & 7        & 3 & 1\\
-         & False     & 6      & 8        & 3 & 1\\
-\end{tabular}
-\caption{
-We examine the configs chosen based on the minimum $\langle $MSE$\rangle$ and compare them to the config of the
-minimum number of false positives.  The sample here consists of 9 sensors per visit.  
-N$_{Same}$ is the number of times the minimum $\langle $MSE$\rangle$ coincides with the minimum in false positives.  N$_{<3}$
-is the number of times the minimum false positive config is one of the top three configs when rank ordered by increasing
-$\langle MSE \rangle$ value.  $\Delta FP$
-is the total change in false positive count using the minimum $\langle $MSE$\rangle$ config as compared to the sum of the minimum 
-false positives per sensor.  Column max($\Delta FP$) is the maximum change in detected false positives on any sensor in that visit.
-\label{tab-MSE_persensor}}
-\end{table}
-
-\clearpage
-
-\begin{table}
-\centering
-\begin{tabular}{clccc}
-\hline
-\multicolumn{4}{|c|}{Variance Ratios: Empirical / Propagated} \\
-\hline
-Visit    & $D_{pre} = D'_{pre}$ & $D_{post}$ & $D'_{post}$ \\
-\hline
-v6866601 &$1.012 \pm 0.002$&$1.018 \pm 0.005$&$0.599 \pm 0.017$ \\
-v6866602 &$1.010 \pm 0.002$&$1.007 \pm 0.001$&$1.046 \pm 0.002$ \\
-v6866603 &$1.015 \pm 0.003$&$1.008 \pm 0.001$&$1.045 \pm 0.003$ \\
-\end{tabular}
-\caption{Ratio of the empirical variance in the difference images,
-  calculated via (0.741 times the interquartile range)$^2$, to the
-  median of the variance plane.  In all cases (except the deconvolution configuration) the variance plane
-  represents an {\it underestimate} of the true variance in the
-  images.  We report the mean and RMS across all sensors for the best
-  configurations.  }
-\label{tab-variance1}
-\end{table}
-
-\begin{table}
-\centering
-\begin{tabular}{ccc}
-\hline
-\multicolumn{3}{|c|}{Variance Ratios: $D'_{post} / D'_{pre}$} \\
-\hline
-Visit    & Empirical & Propagated \\
-\hline
-v6866601 & $1.011 \pm 0.016$    & $1.710 \pm 0.049$    \\
-v6866602 & $1.001 \pm 0.001$    & $0.967 \pm 0.001$    \\
-v6866603 & $1.002 \pm 0.001$    & $0.974 \pm 0.002$    \\
-\end{tabular}
-\caption{Ratios of the variance planes immediately before detection
-  $D'$.  Ratios are in the sense of the variance of the postfiltered
-  image divided by the variance of the prefiltered image.  The first
-  column represents the ratios of the empirical variance, calculated
-  via (0.741 times the interquartile range)$^2$.  The second column
-  reports the ratios of the medians of the propagated variance planes.
-  We report the mean and RMS across all sensors for the best
-  configurations.}
-\label{tab-variance2}
-\end{table}
-
-
-\clearpage
-\begin{table}
+\begin{table}[t]
 \centering
 \begin{tabular}{|c|c|c|c|c|}
 \hline
@@ -1624,285 +1810,69 @@ fitting the deep exposure directly to the science exposure (col 3), and fitting 
 Fitting the coadd to the science exposure produces 1--2 orders of magnitude more scatter in the fit than at any other 
 point. \label{tab-wcsrms}}
 \end{table}
+
+We investigated potential causes of the large astrometry residuals.  To do this, we looked at the 
+residuals for template--to--reference catalog solutions, science image--to--refcat solutions, and 
+direct template to science image registration to attempt to isolate where the astrometry 
+was being degraded.  The results are shown
+in Table~\ref{tab-wcsrms}.  We show the results for the nine sensors in the best seeing visit.  
+The solutions for the three steps that do not involve any warping show results consistent with 
+the accuracy we expect to get.  We also see the expected trend that the deep exposure solutions have 
+smaller RMS than the solutions for the science images, due to their higher S/N.  The coadd--to--science 
+registration depends critically on the WCS fitting and warping process: the WCS of the deep {\tt calexp} is 
+warped into the coadd {\tt patch}; the coadd {\tt patch} is then warped into the science {\tt calexp's} WCS
+frame.  This places two dependencies on the warping code, and two on the WCS fitting, where
+this degradation may have occurred.  This 1--2 order of magnitude degradation in the WCS solutions 
+shown in Table~\ref{tab-wcsrms} indicate
+that astrometry and warping are areas that need to be actively addressed.
+
+\subsection{Detection and Measurement on Negative Sources}
+We see more negative false detections than positive false detections.  This drove an investigation 
+into the symmetry of detection and measurement on positive/negative sources.  To do this we looked at the 
+results of the image difference task and compared it to the same runs when the difference image was inverted
+(multiplied by -1) before measurement.  The results are as follows:
+\begin{itemize}
+\item Centroiding on negative sources fails almost all the time: 99.7\% sources with negative flux
+have the {\tt badcentroid} flag set and have integer value centroids.
+\item Whether detected on the original difference image or the inverted image, the {\tt DiaSource} lists are the same length in every
+case.  That is to say {\tt len(afwTable.SourceCatalog.readFits(\it{path}))} returns the same value in both cases.  We take this to mean
+that the same objects trigger detection in both situations although this cannot be directly verified since the objects with failed centroids are
+not the same in both lists.  
+\item In some instances psfFlux is stored as 0.0 (not {\tt NaN}) without any centroid or photometry flag set in the {\tt Source} object.  This
+happens more than we would expect if it was just a chance event.  This could be an uncaught failure mode.
+\item psfFlux can be measured as NaN with valid centroid values and no other flags set.
+\item Measured psfFlux can have the same sign in both the initial and inverted image in 0.1\% of measurements.
+\item Some sources have the {\tt EDGE} bit set at one polarity but not the other.  
+  This leads to a difference in the reported number of false positives as we only consider 
+  those without the {\tt EDGE} flag set.
+\end{itemize}
+
+The suspicion is that the differences in the precision of the centroids is linked to the differences in flags.
+We have not had the time to chase this down completely, but plan on doing so in Summer 2013.
+
+
+\section{Future Work}
+
+We intend to research additional aspects of the problem going forward,
+including:
+\begin{itemize}
+\item How the false detection rate varies with more realistic SEDs;
+\item How the false detection rate varies with airmass and passband;
+\item How the system behaves with a realistic mix of stars and galaxies;
+\item How the false detection rate looks in crowded fields;
+\item Investigate the propagation of covariances as a function of
+  convolution and requirements on the template signal-to-noise.
+\item Adoption of Gaussian processes for spatial modeling of the kernel;
+\item Investigating the differences in measurement on positive/negative sources;
+\item Developing a measurement suite (shape, moment, goodness of fit)
+  for sources in pre--filtered data and evaluating the photometric
+  performance of the pre--filtered measurements.
+\item Determining how much ``on the fly'' configuration we may do to optimize PSF--matching.
+\end{itemize}
+
 \clearpage
-
-
-\begin{figure}
-\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/deconv2.eps} 
-\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/size2.eps} \\
-\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/order2.eps} 
-\includegraphics[width=0.5\textwidth, height=0.25\textwidth]{figures/shape2.eps} \\
-\caption{Four example panels showing failure modes of the image
-  subtraction software.  Each panel itself shows a 2x2 pair of
-  {\tt KernelCandidate} difference images; on the {\it left} subpanel is the residual from
-  the LOCAL fitting, and on the {\it right} from the SPATIAL fitting.
-  Starting in the upper left and going clockwise, the first panel
-  shows the residuals when deconvolving the template image; the
-  ringing is characteristic of the deconvolution process.  Next, a set
-  of difference images where the kernel dimensions (kernelSize) are
-  too small to match the sources, leaving square kernel--sized
-  residuals around each object.  Next, a set of images where the
-  kernel shape (sigGauss) is inappropriate to match the sources; note
-  that the LOCAL residuals show circular residuals, indicating the
-  basis set itself is at fault (as opposed to the spatial model).
-  Finally, in the lower--left, a set of images that demonstrate how
-  the residuals degrade when the spatial kernel model is at fault.
-  Note that the LOCAL residuals appear to be white noise, while the
-  SPATIAL residuals show a clear dipole signature.  For this reason, a
-  comparison between the LOCAL and SPATIAL residuals is a useful
-  diagnostic of the spatial model.  }
-\label{fig_galleryBad}
-\end{figure}
-
-\begin{figure}
-\begin{center}
-\centering{\includegraphics[width=0.9\textwidth]{figures/normal2.eps}} \\
-\centering{\includegraphics[width=0.9\textwidth]{figures/preconv2.eps}} \\
-\end{center}
-\caption{Pairs of LOCAL:SPATIAL {\tt KernelCandidate} difference images in the case of
-  successful image subtraction, similar to
-  Figure~\ref{fig_galleryBad}.  The {\it top} set of data are from
-  postfiltered analysis, while the {\it lower} set are from
-  prefiltered data.  Note that the noise is smoother in the
-  prefiltered data due to convolution with the PSF. }
-\label{fig_galleryGood}
-\end{figure}
-
-\begin{figure}
-\centering{\includegraphics[width=1.0\textwidth]{figures/heatmap10.eps}} \\
-\caption{``Heat--map'' detailing the total numbers of 5--sigma false
-  positives as a function of two main degrees of freedom: the maximum
-  order of basis Laguerre polynomials along the y--axis, and the
-  spatial order of the Chebyshev expansion of the spatial model along
-  the x--axis.  The {\it left} column shows these results for
-  prefiltering, while the {\it right} column shows this for the
-  postfiltered analysis.  The best results listed in
-  Table~\ref{tab-bestfp10}, with the associated configurations from
-  Table~\ref{tab-bestconfig10}, correspond to the minimum in each of the
-  subpanels.  }
-\label{fp_heatmap}
-\end{figure}
-
-
-\begin{figure}
-\centering{\includegraphics[width=1.0\textwidth]{figures/edge.eps}} \\
-\caption{Distribution of false detections as a function of the minimum
-  distance from the edge of the sensor.  The {\it green} line shows
-  the results from a random distribution of points.  The {\it blue}
-  lines show the measured distributions, normalized as a probability
-  density ($\sum y~\Delta x = 1$).  Error bars come from the square
-  root of the number of points in each bin. }
-\label{edgedist}
-\end{figure}
-
-\begin{figure}
-  \centering 
-  \subfloat[][0.6$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma060.eps}}
-  \caption[]{ We plot here the expected change in the number of false positives
-    as a function of detection threshold and noise misestimate.  The
-    panels on these 3 pages are for three values of seeing.  In each panel the
-    top pane shows what happens when the noise is under-estimated and
-    the bottom shows what happens to the false positive rate when the
-    noise is over-estimated.  In all cases the counts are for the
-    total number of false positives in a single 4000x4072 pixel random
-    Gaussian field.
-    }
-  \label{fig-fpthresh}
-\end{figure}
-\clearpage
-\begin{figure}
-  \ContinuedFloat 
-  \centering 
-  \subfloat[][0.88$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma088.eps}}
-  \caption[]{}
-\end{figure} 
-\clearpage
-\begin{figure}
-  \ContinuedFloat 
-  \centering 
-  \subfloat[][1.2$^{\prime\prime}$ FWHM]{\includegraphics[width=1.0\textwidth]{figures/dfp_v_sigma120.eps}}
-  \caption[]{}
-\end{figure} 
-
-\begin{figure}
-\centering
-\centering{\includegraphics[width=1.0\textwidth]{figures/fp_v_dsky.eps}}
-\caption{
-Misestimation of the sky value has an effect on both the number of false detections and relative abundance of positive to negative false detections.
-The top pane of this figure shows the relative number of +ve/-ve (-ve/+ve) detections if the sky background is under (over) subtracted at a particular fractional level.  The 
-bottom panel shows how the total number of false detections changes for the same misestimation.  This is not a strong function of the seeing, so only the best
-seeing example is shown.
-}
-\label{fig-skythresh}
-\end{figure}
-
-\begin{figure}
-\centering{\includegraphics[width=1.0\textwidth]{figures/cellsize.eps}} \\
-\caption{We show the number of false detections ({\it left}) and {\tt
-    KernelCandidates} used in the spatial kernel fit ({\it right}) as
-  a function of {\tt SpatialCell} size.  Increasing the cell size,
-  while keep all other things equal, effectively decreases the number
-  of constraints on the spatial model.  As shown on the left, the
-  prefiltered data ({\it dashed} lines) have a less strong dependence
-  on the number of constraints compared to the postfiltered data ({\it
-    solid} lines).  The prefiltered data show essentially similar
-  quality when using 300 vs.~600 {\tt KernelCandidates}, while in the
-  postfiltered data the number of false positives increases by nearly
-  a factor of 2 (from cellsize 128 to 384).  }
-\label{cellsize}
-\end{figure}
-
-\begin{figure}
-\centering{\includegraphics[width=1.0\textwidth]{figures/wcs_rms.eps}} \\
-\caption{Fractional increase in false detections as a function of the
-  amplitude of random astrometric offsets added to the coordinates of
-  sources before image-to-image registration.  The {\it red}, {\it
-    green}, and {\it blue} lines correspond to visits v6866601,
-  v6866602, and v6866603 respectively, while the {\it dashed} and {\it
-    solid} lines correspond to prefiltering and postfiltering,
-  respectively.}
-\label{wcsrms}
-\end{figure}
-
-\begin{figure}
-\centering{\includegraphics[width=1.0\textwidth]{figures/wcs_shift.eps}} \\
-\caption{Fractional increase in false detections as a function of bulk
-  astrometric offsets added to the coordinates of sources before
-  image-to-image registration.  The {\it red}, {\it green}, and {\it
-    blue} lines correspond to visits v6866601, v6866602, and v6866603
-  respectively, while the {\it dashed} and {\it solid} lines
-  correspond to prefiltering and postfiltering, respectively.}
-\label{wcsshift}
-\end{figure}
-
-\begin{figure}
-\centering{\includegraphics[width=0.8\textwidth]{figures/shift.eps}} \\
-\caption{Figure illustrating the ability of the kernel basis to
-  compensate, locally, for the effects of misregistration.  Each
-  element of the grid shows a single {\tt KernelCandidate} local
-  difference image (visit=6866603, doPreFilter=True).  Columns
-  indicate the Gaussian sigma of the basis, which is designed to have
-  one Gaussian with the prescribed width, modified to fourth order.
-  Rows indicate the amplitude of the astrometric offset that was
-  introduced into the Source positions before image-to-image
-  registration.  In the {\it top} row, we see that even with a small
-  astrometric offset, the sigma=2 basis is unable to produce a quality
-  subtraction, because the width is inappropriate for matching the two
-  input PSFs (the theoretical Gaussian matching sigma here is 3.4 pixels).  At
-  sigma=4 the basis is able to produce a quality subtraction, and by
-  sigma=5 the basis is too large to match the PSFs.  In {\it row 4},
-  we show that even for an astrometric offset of 4 pixels (0.8''), the
-  sigma=4 basis can produce a reasonable difference image without
-  structured residuals.  However, by {\it row 5}, with an offset of 6
-  pixels, none of the Gaussians provide a successful local difference
-  image.  The ability of the basis to compensate for bulk astrometric
-  offsets is a function of the kernel width, and the kernel width is
-  itself a function of the two input PSF FWHMs.  Thus there is a
-  complicated dependence of the ability of the kernel to shift the
-  centroids of stars.  Roughly, in our implementation, the basis may
-  compensate for local astrometric residuals at a scale up to $\beta
-  \times \sqrt{\sigma_S^2 - \sigma_T^2}$, which is the width of the
-  largest Gaussian in our bases.}
-\label{kernel_offsets}
-\end{figure}
-
-
-\begin{figure}%
-\captionsetup[subfloat]{labelformat=empty}
-\centering
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_nocorr.eps}}
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_nocorr.eps}}
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_nocorr.eps}}\\
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_01_corr.eps}}%
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_02_corr.eps}}%
-\subfloat[]{\includegraphics[width=0.3\textwidth]{figures/fp_v_thresh_03_corr.eps}}%
-\caption{Here we show the comparison of detected false positive count to the analytic prediction.
-In all cases the blue circles are the prefilter case and the red squares are the postfilter case.  
-The top row has had the counts corrected for the underestimate of the noise by the variance plane (Table~\ref{tab-variance1}).  
-In the bottom row we undertaken a 1--parameter correction to align the predicted and measured values.  See Section~\ref{sec-thresh}
-for how this correction is applied.  The 2.5\%, 1.5\% and 1\% scaling in $k$ correspond to a 5\%, 3\%, 2\% over-estimation of the image variance, respectively
-from Left to Right in the bottom pane.  
-The shaded area is the 1-$\sigma$ confidence envelope
-determined from Monte Carlo simulations (Section~\ref{sec-analyticfp}).}
-\label{fig-fp_v_thresh}
-\end{figure}
-
-
-\begin{figure}
-\centering{\includegraphics[width=0.9\textwidth]{figures/corrA.eps}} \\
-\caption{Correlation of the statistics calculated on the control
-  sample {\tt KernelCandidates} during the model fitting with the
-  number of false positives per sensor coming from
-  detection and measurement, for the {\bf postfiltering} pipeline.
-  Results for visit v6866601 are shown as {\it red squares}, for
-  v6866602 as {\it green circles}, and for v6866603 {\it blue
-    triangles}.  Three of the statistics, described in
-  Section~\ref{sec-stats}, are presented.  They clearly correlate with
-  each other.  For the deconvolution visit v6866601, the statistics
-  are very poor even for the ``best'' solutions.  Points come from 
-  all 144 production reductions of the same data, and detection at 5--sigma.
-  The minimum numbers of 5--sigma false detections per--sensor (Table~\ref{tab-fp})
-  are given by the horizontal lines.
-}
-\label{corrpost}
-\end{figure}
-
-\begin{figure}
-\centering{\includegraphics[width=0.9\textwidth]{figures/corrB.eps}} \\
-\caption{Correlation of the statistics calculated on the control
-  sample {\tt KernelCandidates} during the model fitting with the
-  number of false positives per sensor coming from detection and
-  measurement, for the {\bf prefiltering} pipeline.  Results for visit
-  v6866601 are shown as {\it red squares}, for v6866602 as {\it green
-    circles}, and for v6866603 {\it blue triangles}.  Three of the
-  statistics, described in Section~\ref{sec-stats}, are presented.
-  They clearly correlate with each other, and also tend to correlate
-  with the number of false detections (bottom row).
-  The minimum numbers of 5--sigma false detections per--sensor (Table~\ref{tab-fp})
-  are given by the horizontal lines.
-}
-\label{corrpre}
-\end{figure}
-
-\begin{figure}%
-\centering
-\subfloat[PREFILTERED]{\includegraphics[width=0.49\textwidth]{figures/MSE_FITTED_PREFILTER.eps}}
-\subfloat[POSTFILTERED]{\includegraphics[width=0.49\textwidth]{figures/MSE_FITTED_POSTFILTER.eps}}
-\caption{We plot the $\langle MSE \rangle$ for each visit using the sample used in the model fitting.  
-The left is for the prefiltering case and the right is for the 
-postfiltering case.  In each case we have plotted only the nGauss=3 and spatial order=(4,5,6) because we find that a spatial
-order of at least 4 is needed.  The top pane in the postfiltering case just shows the spatial order since the other 
-values are held constant in the case that deconvolution is requested.  Notice that there is typically no minimum.}
-\label{fig-MSE_FITTED}
-\end{figure}
-
-\begin{figure}%
-\centering
-\subfloat[PREFILTERED]{\includegraphics[width=0.49\textwidth]{figures/MSE_CONTROL_PREFILTER.eps}}
-\subfloat[POSTFILTERED]{\includegraphics[width=0.49\textwidth]{figures/MSE_CONTROL_POSTFILTER.eps}}
-\caption{We plot the $\langle MSE \rangle$ for each visit using the control sample which was not used in the
-model fitting.  The left is for the prefiltering case and the right is for the 
-postfiltering case.  In each case we have plotted only the nGauss=3 and spatial order=(4,5,6) because the minimum MSE came
-from these for all visits.  The top pane in the postfiltering case just shows the spatial order since the other 
-values are held constant in the case that deconvolution is requested.  Notice that all visits have a minimum.
-Compare this to the same statistic calculated on the fitted sample in Figure \ref{fig-MSE_FITTED} where there is no minimum.}
-\label{fig-MSE_CONTROL}
-\end{figure}
-
-
-\begin{figure}
-\begin{center}
-\centering{\includegraphics[width=0.9\textwidth]{figures/fluxpost.eps}} \\
-\centering{\includegraphics[width=0.9\textwidth]{figures/fluxpre.eps}} \\
-\end{center}
-\caption{Histograms of measured $|$ signal--to--noise $|$
-  for sources detected at 5--sigma in the best postfiltered ({\it
-    top}) and prefiltered ({\it bottom}) data.  In postfiltering, we
-  use the PSF flux, while in prefiltering we use the filtered flux
-  measurement.  }
-\label{fluxerr}
-\end{figure}
-
+\bibliographystyle{apj}
+\bibliography{refs}
 \clearpage 
 \begin{appendices}
 \section{Phosim Configuration for Production Data \label{sec-phosim}}
