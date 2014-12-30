@@ -551,9 +551,9 @@ However, this makes clear that while we are at the level of the theoretical floo
 
 We describe an end--to--end test suite to optimize the quality of a PSF--matching solution for image subtraction.
 The inputs are semi--idealized images that are science--grade simulations of Large Synoptic Survey Telescope data.
-This test suite is designed to optimize an objective function, which is the number of false postigive--going and negative--going detections in the subtractions.
+This test suite is designed to optimize an objective function, which is the number of false positive--going and negative--going detections in the subtractions.
 We choose to use the predictive power of an out--of--sample test set to assess the overall quality of this PSF--matching solution.
-This test set is composed of point sources that were {\it not} used as part of the kernel solution; this solution is interolated to their location using a spatial model.
+This test set is composed of point sources that were {\it not} used as part of the kernel solution; this solution is interpolated to their location using a spatial model.
 
 Within this test suite, we examine a new technique for pre--filtering the science images with their own point--spread--functions.
 
@@ -573,90 +573,50 @@ We summarize the salient points of this analysis below:
 
 %%%
 
-\item At the 5--sigma detection threshold, for the range of seeings
-  considered in this production, the theoretical rate of false
-  detections per 4k x 4k sensor numbers 3--12, depending on seeing.
-  {\bf We are able to realize this theoretical floor}.  This function
-  is steep and seeing dependent; by increasing the detection threshold
-  to 5.5 sigma this number may be lowered to less than 1 per sensor
-  down to seeing of 0.6'' (Table~\ref{tab-fp}).  This translates to of
-  order 2 * $10^5$ per night, assuming 1000 visits / night.  The
-  steepness of the false positive function will enable control of the
-  number of false alerts by small modifications of the detection
-  threshold.
+\item At the 5--sigma detection threshold, for the range of seeings considered in this production, the theoretical rate of false detections per 4k x 4k sensor numbers 3--12, depending on seeing.
+  {\bf We are able to realize this theoretical floor}.
+  This function is steep and seeing dependent; by increasing the detection threshold to 5.5 sigma this number may be lowered to less than 1 per sensor down to seeings of 0.6'' (Table~\ref{tab-fp}).
+  This translates to of order 2 * $10^5$ per night for LSST, assuming 1000 visits / night.
+  The steepness of the false detection function will enable control of the number of statistical false alerts by small modifications of the detection threshold.
 
-\item Due to the steepness of this function, the number of false
-  detections is strongly dependent on the variance being correct, at
-  the 5--sigma detection threshold.  When detecting at 5--sigma,
-  having the noise underestimated by 2\% leads to an increase
-  in false detections by a factor of 1.5--2 (Figure~\ref{fig:3}).
+\item Due to the steepness of this function, the number of false detections is strongly dependent on the variance being correct, at the 5--sigma detection threshold.
+  When detecting at 5--sigma, having the noise underestimated by 2\% leads to an increase in false detections by a factor of 1.5--2 (Figure~\ref{fig:3}).
 
-\item When strongly deconvolving, the post--filtered variance is 70\%
-  {\it higher} at the time of detection compared to the pre--filtered
-  data (Table~\ref{tab-variance2}).  This is consistent with the
-  understanding that deconvolution increases high frequency noise in
-  the images, and provides a {\it lower} detection efficiency in
-  deconvolved data.  Pre--filtering is clearly preferred to post--filtering 
-  in the case of significant deconvolution (v6866601).
+\item When strongly deconvolving, the post--filtered variance is 70\% {\it higher} at the time of detection compared to the pre--filtered data (Table~\ref{tab-variance2}).
+  This is consistent with the understanding that deconvolution increases high frequency noise in the images, and yields a {\it lowered} detection efficiency for true variability in deconvolved data.
+  Systematic ringing features around sources also yield an enhanced rate of systematic false detections in deconvolved images.
+  For this reason, pre--filtering is clearly preferred to post--filtering in the case of significant deconvolution.
 
-\item For non--deconvolved image subtraction, pre--filtering performs as
-  well as post--filtering in terms of the number of false positives, when 
-  corrected for the variance underestimate (Figure~\ref{fig:4}).
+\item For non--deconvolved image subtraction, pre--filtering performs as well as post--filtering in terms of the number of false detections, when corrected for variance underestimate (Figure~\ref{fig:4}).
 
-\item An empirical computation of the variance from the image plane,
-  compared to the median propagated variance in the variance plane,
-  indicates that we consistently underestimate the variance in
-  pre--filtering by $1-2\%$, and in post--filtering by $4-5\%$ when not
-  strongly deconvolving (Table~\ref{tab-variance1}).  The post--filtering
-  issue is shown to arise from the PSF--filtering of the difference
-  image immediately before detection.  This is due, at least in part, to the
-  double--convolution that is happening to the template image, and our
-  lack of covariance tracking. The dependence on template noise and
-  the number of convolutions will impact the requirements on the
-  variance within the template images (and thereby the number of
-  images going into a template image).
+\item An empirical computation of the variance from the image plane, compared to the median propagated variance in the variance plane, indicates that the software consistently underestimate the variance in pre--filtering by $1-2\%$, and in post--filtering by $4-5\%$ (when not strongly deconvolving; Table~\ref{tab-variance1}).
+  The post--filtering discrepancy is shown to arise from the PSF--filtering of the difference image immediately before detection.
+  This is likely due, at least in part, to the double--convolution that is happening to the template image, and the lack of covariance tracking within the software.
 
-\item The empirical variance of the detection images in pre--filtering
-  and post--filtering are similar to within $1\%$
-  (Table~\ref{tab-variance2}).  However, the propagated variance in the
-  post--filtered data is $3-4\%$ {\it lower} in the post--filtered data,
-  leading to a larger number of false positives when using the
-  variance plane as the definition of sigma (Table~\ref{tab-bestfp10}).
+\item The empirical variance of the detection images in pre--filtering and post--filtering are similar to within $1\%$ (Table~\ref{tab-variance2}).
+  However, the propagated variance in the post--filtered data is $3-4\%$ {\it lower} in the post--filtered data, leading to a larger number of false positives when using the variance plane as the definition of sigma (Table~\ref{tab-bestfp10}).
 
 
 %%%
 
-\item The post--filter pipeline can produce difference images with a
-  minor deconvolution (v6866602) at a quality commensurate with a subtraction that uses a
-  smoothing convolution (v6866603).
+\item The post--filter pipeline can produce difference images with a minor deconvolution ({\tt visit 2}) at a quality commensurate with a subtraction that uses a smoothing convolution ({\tt visit 3}).
 
 %%%
 
-\item We find that the overall number of false detections is not
-  strongly sensitive to bulk background misestimation
-  (Figure~\ref{fig:2});
+\item We find that the overall number of false detections is not strongly sensitive to bulk background misestimation (Figure~\ref{fig:2}).
 
-\item However, the ratio of positive to negative false detections is
-  strongly dependent on background fitting, with a 1\% error in the background
-  causing 50\% more false detections of one polarity over another
-  (Figure~\ref{fig:2}).
+\item However, the ratio of positive to negative false detections is strongly dependent on background fitting, with a 1\% error in the background causing 50\% more false detections of one polarity over another (Figure~\ref{fig:2}).
 
-\item Our empirical negative to positive false detection ratio is 2--3 for pre--filtering, 
-  indicating a bias in the background levels of 1--2\%.  Similar ratios are seen
-  in post--filtering, although they vary from over-- to
-  under--subtraction of the background
-  (Table~\ref{tab-bestfp10}). 
+\item Our empirical negative to positive false detection ratio is 2--3 for pre--filtering, indicating a bias in the background levels of 1--2\%.
+  Similar ratios are seen in post--filtering, although they vary from over-- to under--subtraction of the background (Table~\ref{tab-bestfp10}).
 
 %%%
 
-\item The measured false detection rate at 5--sigma is within the variance of the 
-  expected false detection rate arising from a random Gaussian field (Figure~\ref{fig:4}).
+\item The measured false detection rate at 5--sigma is within the variance of the expected false detection rate arising from a random Gaussian field (Figure~\ref{fig:4}).
 
-\item The measured false detection rate is seen to scale with detection
-  threshold in a manner consistent with theory (Figure~\ref{fig:4}).
-  A 1--parameter correction to the variance (or the effective detection threshold) by 1--2.5\% brings these relationships
-  into almost exact correspondence.  Optimization of the false detection vs. true source
-  detection efficiency will require an understanding of the variance at the 1\% level.
+\item The measured false detection rate is seen to scale with detection threshold in a manner consistent with theory (Figure~\ref{fig:4}).
+  A 1--parameter correction to the variance (or the effective detection threshold) by 1--2.5\% brings these relationships into almost exact correspondence.
+  Optimization of the false detection vs. true source detection efficiency will require an empirical understanding of the variance at the 1\% level.
 
 \end{itemize}
 
