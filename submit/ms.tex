@@ -55,60 +55,76 @@ Our simulated image suite allows us to control the ground truth behind the image
 \section{Introduction}
 
 Image subtraction as a solution to general crowded--field variability detection.
+
 PSF-matching as a means to image subtraction.
-Sources of false detections (in binary classification these would be naturally referred to as ``false positives''.  However, since ``positive'' also may refer to the polarity of a difference image detection, and we indeed accept both positive--going and negative--going detections as ``false positives'', we choose to use the term ``false detections'' here to refer to these systematic errors).
+
+Sources of false detections (in binary classification these would be naturally referred to as ``false positives''.  However, since ``positive'' also may refer to the polarity of a difference image detection, and we indeed accept both positive--going and negative--going detections as ``false positives'', we choose to use the term ``false detections'' here to refer to these sources).
+
 Machine learning as a way to address false positive rate.
+
 LSST.
+
 Alert stream.
+
 Mention that one paper that talks about pre--filtering but not for this reason.
 
 \section{PSF--Matching Algorithm}
 
-We outline the image subtraction process below.
-We assume that science image $S(x,y)$ can be modeled as a convolution of the template image $T(x,y)$ by a PSF--matching kernel $K(u,v;x,y)$ (indices $u,v$ indicate that the kernel itself is a 2--dimensional function, which varies as a function of position $x,y$ in the image.
+Image subtraction proceeds by assuming that science image $S(x,y)$ can be modeled as a convolution of the template image $T(x,y)$ by a PSF--matching kernel $K(u,v;x,y)$ (indices $u,v$ indicate that the kernel itself is a 2--dimensional function, which varies as a function of position $x,y$ in the image.
 During convolution and correlation there is an implicit summation over $u,v$).
-The two images will have different point spread functions (PSFs), which are the time--averaged transfer functions of a point source through the Earth's atmosphere, telescope optics, and into the silicon of the detector before being read out.
+The two images will have different point--spread--functions (PSFs), which are the time--averaged transfer functions of a point source through the Earth's atmosphere, telescope optics, and into the silicon of the detector before being read out.
 The essence of image subtraction is to match the PSFs of these two images so that they may be subtracted pixel by pixel.
 
-We further assume that the PSF--matching kernel may be decomposed using a set of basis functions $K(u,v) = \sum_i a_i K_i(u,v)$, where the coefficients in front of each basis are determined through:
+In practice, it is assumed that the PSF--matching kernel may be decomposed using a set of basis functions $K(u,v) = \sum_i a_i K_i(u,v)$, where the coefficients in front of each basis are determined through:
 \begin{eqnarray}
 \label{eq-soln}
 C_i & \equiv & (K_i \otimes T) \\ 
 b_{i}  & = & \sum_{x,y} {{C_i(x,y) S(x,y)}\over{\sigma^2(x,y)}}   \nonumber \\
 M_{ij} & = & \sum_{x,y} {{C_i(x,y) C_j(x,y)}\over{\sigma^2(x,y)}}  \nonumber \\
-a_{i}  & = & M^{-1}_{ij} b_{j} \nonumber
+b_{i}  & = & M_{ij} a_{j}. \nonumber
 \end{eqnarray}
-Here $\sigma^2(x,y)$ is the per--pixel variance.
-To generate a spatially varying model for the kernel, we assume that the relative weights of the basis functions $a_i$ themselves vary spatially, i.e. $K(u,v;x,y) = \sum_i a_i(x,y) K_i(u,v)$.
-In general, one may assume that there is a differential background between the two images $b(x,y)$ that may be fit for using a low--order polynomial.
-The image difference is then calculated through $D(x,y) = S(x,y) - T(x,y) \otimes K(u,v;x,y) - b(x,y)$.
+In these equations, the terms $C_i$ come from a convolution of the template image with each basis function, and $\sigma^2(x,y)$ are the per--pixel variances.
+The solution for $K(u,v)$ is determined by solving for each coefficient $a_i$, which represent the relative weights of each basis.
 
-The basis functions themselves $K_i(u,v)$ are a degree of freedom in this problem.
-The original implementations \citep{Alard98,Alard00} used a set of 3 Gaussians, each with a different width, and each modified by a Laguerre polynomial to a given order.
-Subsequent studies \citep[e.g.][]{2007AN....328...16I} have suggested that a constant ratio be maintained between the different Gaussian widths, such that $\sigma_{i+1} = \beta \times \sigma_{i}$.
-We use the value $\beta = 2.0$ here.
-We set the overall scale for sigma by noting that, under the assumption that the PSFs of the images are Gaussian ($\sigma_S$ for the science image and $\sigma_T$ for the template image), the sigma of the matching kernel should be simply $\sigma_K^2 = \sigma_S^2 - \sigma_T^2$.
-We use this width for the central Gaussian in a 3--component basis, with the smaller/larger Gaussian a factor of $1/\beta$ and $\beta$ different, respectively.
+Point--spread--functions typically have spatial variation across an image due to high--order optical distortions and structure in the perturbing atmosphere; hence the PSF--matching kernel must also vary spatially.
+To generate this spatial model, it is assumed that the weights of the basis functions $a_i$ themselves vary spatially, i.e. $K(u,v;x,y) = \sum_i a_i(x,y) K_i(u,v)$.
+In general, there is also a differential background map between the two images $b(x,y)$ that may be fit for using a low--order polynomial.
+The final image difference is then calculated through $D(x,y) = S(x,y) - T(x,y) \otimes K(u,v;x,y) - b(x,y)$.
 
-Detection on the difference image occurs after correlation of $D(x,y)$ with the science image's PSF, yielding optimally--filtered detection image $D'(x,y) = D(x,y) \circ PSF_S(u,v;x,y)$, where the $\circ$ operator denotes correlation.
-The values of the pixels in $D'(x,y)$ provide a maximum likelihood estimate of there being a point source at that position.
-Detection occurs by finding single pixels in $D'(x,y)$ that are more than N sigma above the square root of the per--pixel background variance.
+It is important to note that the choice of basis functions $K_i(u,v)$ is a degree of freedom in this problem.
+The original implementations \citep{Alard98,Alard00} used a set of 3 Gaussians, each with a different width $\sigma_n$, and each modified by a Laguerre polynomial to a given order.
+Subsequent studies \citep[e.g.][]{2007AN....328...16I} have suggested that a constant ratio be maintained between the different Gaussian widths, such that $\sigma_{n+1} = \beta \times \sigma_{n}$.
+We adopted the value $\beta = 2.0$ for this work.
+We set the overall scale for sigma by noting that, under the assumption that the PSFs of the images are themselves Gaussian ($\sigma_S$ for the science image and $\sigma_T$ for the template image), the sigma of the matching kernel should be simply $\sigma_K^2 = \sigma_S^2 - \sigma_T^2$.
+We used this width for the central Gaussian in a 3--component basis, with the smaller and larger Gaussians a factor of $1/\beta$ and $\beta$ different, respectively.
 
-In this work we investigated two orders of operations for the optimal filtering by the PSF.
-In the first method, which is the classical post--filtering implementation of the technique, we create a difference image that is then post--filtered with the PSF for detection:
+Detection on a difference image occurs after correlation of $D(x,y)$ with the science image's PSF, yielding a detection image $D'(x,y) = D(x,y) \circ PSF_S(u,v;x,y)$, where the $\circ$ operator denotes correlation.
+The values of the pixels in $D'(x,y)$ provide a maximum--likelihood estimate of there being a point source at that position.
+Detection occurs by searching for single pixels in $D'(x,y)$ that are more than $N$ sigma above the square root of the per--pixel background variance.
+The value of $N$ is known as the detection threshold, and is also a degree of freedom in the problem, chosen to minimize the number of statistical fluctuations while maximizing the sensitivity for true sources of variability.
+
+In this work we investigated two orders of operations for the optimal point--source filtering by the PSF.
+In the first method, which is the classical implementation of the technique, we create a difference image that is then post--filtered with the PSF for detection:
 \begin{eqnarray}
-D_{Post}(x,y) & = & S(x,y) - T(x,y) \otimes K(u,v;x,y)  \nonumber \\
+D_{Post}(x,y) & = & S(x,y) - T(x,y) \otimes K_{Post}(u,v;x,y)  \nonumber \\
 D'_{Post}(x,y) & = & D_{Post}(x,y) \circ PSF_S(u,v;x,y).  \nonumber
 \end{eqnarray}
 In the second method, which we refer to as pre--filtering, we match the template image to a PSF--filtered science image:
 \begin{eqnarray}
-D_{Pre}(x,y)  & = & S(x,y) \circ PSF_S(u,v;x,y) - \nonumber \\ 
-             &   & T(x,y) \otimes K(u,v;x,y) \nonumber \\
+D_{Pre}(x,y)  & = & S(x,y) \circ PSF_S(u,v;x,y) - \nonumber \\
+             &   & T(x,y) \otimes K_{Pre}(u,v;x,y) \nonumber \\
 D'_{Pre}(x,y) & = & D_{Pre}(x,y). \nonumber
 \end{eqnarray}
-By pre--smoothing the image that we are matching the template to -- $S(x,y) \circ PSF_S(u,v;x,y)$ -- we increase the effective point--source profile width by a factor of $\sqrt{2}$.
-This allows for less frequent {\it deconvolution} of the template image, or when the template FWHM is larger than the FWHM in the image it is being matched to.
-We are able to run detection directly on $D_{Pre}(x,y)$, but measurement requires a modified suite of algorithms.
+We note that since convolution commutes, ideally $K_{Pre} = K_{Post} \circ PSF_S$.
+However, by pre--filtering the image that we are matching the template to, we increase the effective point--source profile width by a factor of $\sqrt{2}$.
+This allows for less frequent {\it deconvolution} of the template image, when the template FWHM is larger than the FWHM in the image it is being matched to.
+This is valuable for two reasons.
+First, deconvolutions are known to yield significant systematic features in difference images, due to enhancement of high--frequency noise outside the band limit (is this right?).
+Second, this allows for a deeper template image to be built from more input data, since the restrictions on the resulting coadded FWHM are less.
+
+We note that in the standard analysis, detection is run on $D'_{Post}$ and measurement on the associated pixels in $D_{Post}$.
+In pre--filtering, both detection and measurement are run on $D_{Pre}$.
+For model--based measurements, this does require a modification of the algorithms to deal with the smoothing of the signal.
 
 \section{Input Data}
 
