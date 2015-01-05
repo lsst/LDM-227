@@ -27,23 +27,28 @@ et al.
 \begin{abstract}
 
 We report on a novel technique for reducing the numbers of false detections in difference images due to deconvolution (or sharpening) by the profile--matching kernel.
-In this technique, we pre--smooth (or pre--filter) the input science image by its own point spread function before performing profile--matching.
-This results in a maximum--likelihood image for point source detection, which has a $\sqrt{2}$ broader point--source profile than the image PSF.
+In this technique, we pre--smooth the input science image by its own point spread function before performing profile--matching.
+This results in a maximum--likelihood image for point source detection, which has a $\sqrt{2}$ broader point--source profile than the original image PSF.
 We then match a reference image to this smoothed image, effectively resulting in a point--source maximum likelihood difference image.
-The process of detection happens directly on this image; however, measurement techniques must be modified to operate on a PSF--smoothed image.
-By smoothing the input image, we reduce the conditions under which the reference image has to be sharpened to match the input image, which is a significant source of false positives.
+The process of detection happens directly on this difference image; however, measurement techniques must be modified to operate on such a PSF--smoothed image.
+By smoothing the input image, we reduce the number of conditions under which the reference image has to be sharpened to match the input image, which is a significant source of systematic false detections.
 We note that this technique commutes with the traditional order of operations, in which two images are PSF--matched, then then filtered for detection by the science image PSF.
-We compare these two techniques by measuring the empirical rates of false detections in a suite of high--fidelity simulated images from the Large Synoptic Survey Telescope.
-We additionally compare the empirical rate to that expected of random fluctuations in the background Gaussian field, including the run of false positives with detection threshold.
-In the traditional post--filtering process, deconvolution leads to a significant number of false detections at high signal--to--noise.
-In pre--filtering, we find a close match in the number of false detections versus detection threshold, in all conditions.
-We estimate that in order for there to be less than 1 expected false detection per LSST sensor, the detection pipeline must operate at a threshold of 5.5--sigma.
-This result is seeing dependent.
-We found a significant dependence of the false detection rate on our understanding of the image variance; even a 2\% misestimate of the noise may change the false detection rate by a factor of 1.5--2 at 5--sigma.
-Pre--filtering is preferred in this regard, as the per--pixel variance is shown to track the empirical variance to higher fidelity at the detection stage.
-We find that over or under subtraction of the image background leads to a bias in the positive--going to negative--going false detection ratio, but not on the overall number of detections.
-The use of pre--filtering may obviate the need for deconvolution of the template image when the science image has better seeing.
-We also present the results of a testing formalism used to tune the configuration of the overall PSF--matching algorithm.
+We compare these two techniques by measuring the empirical rates of false detections in a suite of high--fidelity simulated images from the Large Synoptic Survey Telescope (LSST).
+We additionally compare the empirical rates to those expected from random fluctuations in the background Gaussian field, including the run of false positives with detection threshold.
+In order for there to be less than 1 expected false detection per LSST sensor, the detection pipeline must operate at a threshold of 5.5--sigma under median (0.6'') seeing conditions.
+%
+In the traditional post--filtering process, deconvolution leads to a significant number of false detections at high signal--to--noise, while also resulting in a loss of sensitivity for true variability.
+In post--filtering and pre--filtering convolutions, we find a close match in the number of false detections versus detection threshold, when performing a 1--parameter correction to the effective detection threshold to account for misestimation of the image noise.
+The image variance is shown to be underestimated by approximately 1\% in the pre--filtering detection image, and at a similar amount in the post--filtering difference image.
+However, when smoothing the post--filtering difference image for detection, the image variance becomes significantly overestimated under the deconvolution conditions, and overestimated by approximaetely 4\% under convolution conditions.
+This suggests that the multiple integral transforms being applied to images lead to significant misestimations of the variance, as the pixels become correlated and current algorithms do not track the pixel covariance during these operations.
+Our study shows that even a 2\% misestimate of the noise may change the false detection rate by a factor of 1.5--2 at the 5--sigma detection threshold.
+We also find that over or under--subtraction of the image background leads to a bias in the positive--going to negative--going false detection ratio, but not on the overall number of detections.
+%
+We describe a set of testing protocols to tune the configuration of the overall PSF--matching algorithm and to compare techniques.
+For a given set of data, the pipeline is configured to minimize the mean--squared--error of a control sample of sources not used in the matching kernel fit.
+To compare techniques, we use the use the total number of false detections that are associated with sources in the image to study systematic errors, and ``orphan'' detections to study sensitivity to statistical fluctuations.
+Our simulated image suite allows us to control the ground truth behind the images, which is invaluable in understanding the nature of the false detections.
 \end{abstract}
 \keywords{methods: data analysis, techniques: image processing}
 
@@ -62,8 +67,9 @@ Mention that one paper that talks about pre--filtering but not for this reason.
 We outline the image subtraction process below.
 We assume that science image $S(x,y)$ can be modeled as a convolution of the template image $T(x,y)$ by a PSF--matching kernel $K(u,v;x,y)$ (indices $u,v$ indicate that the kernel itself is a 2--dimensional function, which varies as a function of position $x,y$ in the image.
 During convolution and correlation there is an implicit summation over $u,v$).
-The images will have different point spread functions (PSFs), which are the time--averaged transfer functions of a point source through the Earth's atmosphere, telescope optics, and into the silicon of the detector before being read out.
+The two images will have different point spread functions (PSFs), which are the time--averaged transfer functions of a point source through the Earth's atmosphere, telescope optics, and into the silicon of the detector before being read out.
 The essence of image subtraction is to match the PSFs of these two images so that they may be subtracted pixel by pixel.
+
 We further assume that the PSF--matching kernel may be decomposed using a set of basis functions $K(u,v) = \sum_i a_i K_i(u,v)$, where the coefficients in front of each basis are determined through:
 \begin{eqnarray}
 \label{eq-soln}
@@ -79,14 +85,14 @@ The image difference is then calculated through $D(x,y) = S(x,y) - T(x,y) \otime
 
 The basis functions themselves $K_i(u,v)$ are a degree of freedom in this problem.
 The original implementations \citep{Alard98,Alard00} used a set of 3 Gaussians, each with a different width, and each modified by a Laguerre polynomial to a given order.
-Subsequent studies \citep[e.g.][]{2007AN....328...16I} have suggested that a constant ratio be maintained between the different Gaussian widths, such that $\sigma_{i+1} = \beta \times \sigma_{i}$.  
+Subsequent studies \citep[e.g.][]{2007AN....328...16I} have suggested that a constant ratio be maintained between the different Gaussian widths, such that $\sigma_{i+1} = \beta \times \sigma_{i}$.
 We use the value $\beta = 2.0$ here.
 We set the overall scale for sigma by noting that, under the assumption that the PSFs of the images are Gaussian ($\sigma_S$ for the science image and $\sigma_T$ for the template image), the sigma of the matching kernel should be simply $\sigma_K^2 = \sigma_S^2 - \sigma_T^2$.
 We use this width for the central Gaussian in a 3--component basis, with the smaller/larger Gaussian a factor of $1/\beta$ and $\beta$ different, respectively.
 
-Detection on the difference image occurs through correlation of $D(x,y)$ with the science image's PSF, yielding optimally--filtered detection image $D'(x,y) = D(x,y) \circ PSF_S(u,v;x,y)$ where $\circ$ denotes correlation.
+Detection on the difference image occurs after correlation of $D(x,y)$ with the science image's PSF, yielding optimally--filtered detection image $D'(x,y) = D(x,y) \circ PSF_S(u,v;x,y)$, where the $\circ$ operator denotes correlation.
 The values of the pixels in $D'(x,y)$ provide a maximum likelihood estimate of there being a point source at that position.
-Detection occurs by simply finding pixels that are more than N sigma above the square root of the per--pixel variance.
+Detection occurs by finding single pixels in $D'(x,y)$ that are more than N sigma above the square root of the per--pixel background variance.
 
 In this work we investigated two orders of operations for the optimal filtering by the PSF.
 In the first method, which is the classical post--filtering implementation of the technique, we create a difference image that is then post--filtered with the PSF for detection:
@@ -94,15 +100,15 @@ In the first method, which is the classical post--filtering implementation of th
 D_{Post}(x,y) & = & S(x,y) - T(x,y) \otimes K(u,v;x,y)  \nonumber \\
 D'_{Post}(x,y) & = & D_{Post}(x,y) \circ PSF_S(u,v;x,y).  \nonumber
 \end{eqnarray}
-In the second method, which we refer to as pre--filtering, we PSF--match the template image to a pre--filtered science image:
+In the second method, which we refer to as pre--filtering, we match the template image to a PSF--filtered science image:
 \begin{eqnarray}
-D_{Pre}(x,y) & = & S(x,y) \circ PSF_S(u,v;x,y) - T(x,y) \otimes K(u,v;x,y) \nonumber \\
+D_{Pre}(x,y)  & = & S(x,y) \circ PSF_S(u,v;x,y) - \nonumber \\ 
+             &   & T(x,y) \otimes K(u,v;x,y) \nonumber \\
 D'_{Pre}(x,y) & = & D_{Pre}(x,y). \nonumber
 \end{eqnarray}
-By pre--smoothing the image that we are matching the template to -- $S(x,y) \circ PSF_S(u,v;x,y)$ -- we more frequently avoid the case of PSF--matching {\it deconvolution}, where the full width at half maximum (FWHM) of $T$ is broader than $S$.
-This pre--filtering increases $\sigma_S$ by a factor of $\sqrt{2}$.
-The PSF matching kernels will need to be correspondingly larger to account for the larger effective PSFs.
-We are able to run detection directly on this image, but this requires a modified suite of model--based measurement algorithms.
+By pre--smoothing the image that we are matching the template to -- $S(x,y) \circ PSF_S(u,v;x,y)$ -- we increase the effective point--source profile width by a factor of $\sqrt{2}$.
+This allows for less frequent {\it deconvolution} of the template image, or when the template FWHM is larger than the FWHM in the image it is being matched to.
+We are able to run detection directly on $D_{Pre}(x,y)$, but measurement requires a modified suite of algorithms.
 
 \section{Input Data}
 
