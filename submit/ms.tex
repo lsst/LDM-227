@@ -152,7 +152,8 @@ Nine sensors of the central LSST raft were simulated in each run, and the templa
 \section{Optimizing the Algorithm}
 
 We describe our image processing pipeline below, including the optmization of the image subtraction code using a control sample of sources.
-We discuss the subsequent steps of point source detection and measurement in each pipeline.
+This is followed by a discussion of the subsequent steps of point source detection and measurement in each pipeline.
+For all pixel--level resampling operations, we chose to always operate on the template image given its larger signal--to--noise, and (in the case of real data) fewer artifacts such as dead pixels and cosmic rays.
 
 \subsection{Pipeline Implementation}
 
@@ -174,19 +175,19 @@ In this case, the number of Gaussians is {\it always} fixed to three, and their 
 The widths of the Gaussians are determined through the algorithm specified in \cite{0266-5611-26-8-085002}, using as inputs the sequence of Gaussians that we would have used to match a Gaussian of width $\sigma_S$ to $\sigma_T$ (i.e. as if we would have convolved the science image and not the template image).
 The total number of basis shapes in each set is: $\sum_n^{\rm nGauss} ({\rm degGauss}_n+1)\times({\rm degGauss}_n+2)/2$.
 
-As in the astrometric resampling, we choose to always perform pixel--level operations on the template image given its larger signal--to--noise, and (in the case of real data) fewer artifacts such as dead pixels and cosmic rays.
 The dimensions of the PSF matching kernel were chosen to be 6 times the largest Gaussian width, with a minimum kernel size of 21x21 pixels.
 For kernels that are significantly smaller than this, the Gaussians have significant (non--zero) power at the kernel boundaries, leading to square systematic artifacts at the scale of the kernel in the difference images.
 
-For each source indexed by $j$, we create substamps from each image $T_j(x,y)$ and $S_j(x,y)$ centered on the source.
-These were used to fit for a local solution $K_j(u,v)$; the ensemble of local solutions at each source's $x,y$ was used to fit for the full spatial solution $K(u,v;x,y)$.
-We emphasize that the dimensions of the substamps are important.
-Note from Equation~\ref{eq-soln} that $C_i$, and thus the coefficients $a_i$, are derived from a convolution of the template substamp with the kernel basis functions $K_i$.
-This convolution means that kernel size//2 pixels along the border of each substamp are rendered unusable.
-To maintain a significant number of pixels in $C_i$, we set the stamp dimensions to be twice that of the kernel dimensions, such that the number of pixels remaining in $C_i$ is equal to the number of pixels in the kernel.
+For each source indexed by $j$, we create substamps from each image $T_j(x,y)$ and $S_j(x,y)$ centered on that source.
+These were used to fit for a local solution $K_j(u,v)$; the ensemble of local solutions at each source's $x,y$ were used to fit for the full spatial solution $K(u,v;x,y)$.
+
+Note from Equation~\ref{eq-soln} that $C_i$, and thus the coefficients $a_i$, are derived from a convolution of the template substamps with the kernel basis functions $K_i$.
+This convolution means that pixels along the border of each substamp are rendered unusable, numbering half the kernel size around each edge.
+To maintain a significant number of pixels in $C_i$, we set the stamp dimensions to be {\it twice} that of the kernel dimensions, such that the number of pixels remaining in $C_i$ after convolution is equal to the number of pixels in the kernel.
 
 For each source, we solved for $K_j(u,v)$ to create a local difference image $D_j(x,y)$.
-We evaluated several statistics on this local difference image, normalized by the square root of its variance, which puts the pixels in units of $\sigma$.
+We evaluated several statistics on the pixels of this local difference image, which were normalized by the square root of the pixel varianceto put the counts in units of $\sigma$.
+Under ideal conditions, this distribution should have a flat power spectral density.
 We measured the mean sigma, the RMS of this distribution, the $\chi^2$ of these pixels normalized by the degrees of freedom (number of pixels in $D_j(x,y)$ minus the number of kernel bases), and the mean squared error.
 These are referred to as the {\tt LOCAL} kernel metrics, and reflect how appropriate the chosen kernel basis is.
 
@@ -195,6 +196,9 @@ For the spatial kernel model, we assumed that each of the kernel coefficients $a
 Having generated the full spatial solution $K(u,v;x,y) = \sum_i a_i(x,y) K_i(u,v)$, we evaluated the spatial kernel solution at the position of each source, created a new difference image using this kernel, and recalculated the metrics defined above.
 These are referred to as the {\tt SPATIAL} kernel metrics.
 Importantly, we also interpolated this solution to the positions of the control sample, which were explicitly {\it not} used in the spatial fit, and evaluated these same metrics.
+
+%%%%%%%% STOPPING HERE FOR THE DAY
+ 
 The differences between the {\tt LOCAL} and {\tt SPATIAL} metrics, as well as the values of the {\tt SPATIAL} metrics for the control sample, reflect the appropriateness of the spatial model and our ability to interpolate and extrapolate to the full extent of the images.
 We used the Mean Square Error (MSE) of the control sample to examine the tradeoff between bias and variance in the spatial interpolation.
 We define the bias as $\left| data - model \right|$, the variance as $(data - model)^2$, and the MSE as {\tt bias$^2$ + variance}.  
