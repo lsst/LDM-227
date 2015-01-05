@@ -128,13 +128,14 @@ For model--based measurements, this does require a modification of the algorithm
 
 \section{Input Data}
 
-In order to test the efficacy of these two algorithms, we generated simulated images using the LSST PhoSim package v3.2.5 \cite{phosim}.
+In order to test the efficacy of these two approaches, we generated simulated images using the LSST PhoSim package v3.2.5 \cite{phosim}.
 These images are high--fidelity simulations of the end--to--end LSST system, including effects from the atmosphere, optics, and detectors.
-In order to establish a algorithmic baseline, we turned off certain confounding elements of the simulations, including airglow variations, cloud screens, tracking variations, quantum efficiency variations, diffraction, saturation, and blooming.
-An input stellar catalog was generated to seed the simulation that included a random field with of $1000$ stars per sensor, and an equivalent $r$-band magnitude range ($19<r<21$).
+In order to establish an algorithmic baseline for the image subtraction code, we turned off certain confounding elements of the simulations, including airglow variations, cloud screens, tracking variations, quantum efficiency variations, diffraction, saturation, and blooming.
+An input stellar catalog was generated to seed the simulations that included a random field with of $1000$ stars for each 4000x4072 pixel LSST sensor, and an equivalent $r$-band magnitude range of $19<r<21$.
 All stars in the sample had identical spectral energy distributions, corresponding to a Kurucz--model XXX star \cite{kurucz}, to avoid chromatic effects.
-For these sources, proper motion, parallax, and variability were set to zero.
-Thus there is no intrinsic variability of any sort designed into the simulated images, and any detections in their difference will be by--definition false positives.
+% km50_5000.fits_g20_5140.gz
+For all sources, proper motion, parallax, and variability were set to zero.
+Thus there is no intrinsic variability of any sort designed into the simulated images, and any detections in their differences will be by--definition false detections.
 
 Each simulation run was generated using the following configurations:
 \begin{itemize}
@@ -146,7 +147,7 @@ Each simulation run was generated using the following configurations:
 The seeing of the template image was designed to result in a sharpening deconvolution when compared to {\tt Visit 1}, and a smoothing convolution when compared to {\tt Visit 3}.
 All observations were simulated at the zenith, and all images were simulated in the $i$--band.
 Sky backgrounds in the resulting images were at the level of $\sim 150$ counts per pixel.
-Nine sensors of the central raft were simulated, for a total of 27 difference images per configuration (9 sensors each with 3 seeings to compare to the template image) to use in our comparative analysis.
+Nine sensors of the central LSST raft were simulated in each run, and the template visit PSF--matched and subtracted from each visit's CCDs, using both the post--filtering and pre--filtering pipeline.
 
 \section{Optimizing the Algorithm}
 
