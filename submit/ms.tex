@@ -151,30 +151,28 @@ Nine sensors of the central LSST raft were simulated in each run, and the templa
 
 \section{Optimizing the Algorithm}
 
-To assess the ``quality'' of each implementation of the algorithm, we use as a metric the number of false positive--going and negative--going sources that are detected and measured in each difference image.  We describe our image processing pipeline below, and then describe our assessment and tuning of difference image quality.
-
-% Once we found an optimum configuration, we perturbed the solution along multiple dimensions to understand how the false detection rate responded.
+We describe our image processing pipeline below, including the optmization of the image subtraction code using a control sample of sources.
+We discuss the subsequent steps of point source detection and measurement in each pipeline.
 
 \subsection{Pipeline Implementation}
 
-At the start of the pipeline, we have a pair of template and science images that we wish to astrometrically and photometrically register.
+At the start of the processing, there are a pair of template and science images that are to be astrometrically and photometrically registered.
 The process of astrometric registration refers to the exact alignment of the two images in pixel space, while photometric alignment refers to matching of the PSF shape, sky backgrounds, and zero--point.
-From the input reference catalog we choose 80\% of the stars to use in the registration process, with the remaining 20\% of the objects serving as a control sample to assess
-the effectiveness of $K(u,v;x,y)$ to subtract objects that were {\it not} used in the fits.
+From the input source catalog we choose 80\% of the stars to use in the registration process, with the remaining 20\% of the objects serving as a control sample to assess the effectiveness of $K(u,v;x,y)$ to subtract objects that were {\it not} used in the fits.
 A direct image--to--image relative astrometric mapping was determined using the detected sources in the template and science images, and a sinc--based resampling kernel applied to the template image (as it has larger signal--to--noise than the science image).
 The resulting warped image was used as the image subtraction template $T(x,y)$.
 The science image $S(x,y)$ (optionally pre-filtered with its $PSF_S(u,v;x,y)$) and $T(x,y)$ were sent to the image subtraction task, whose purpose is to fit for $K(u,v;x,y)$ and to produce the difference image $D(x,y)$.
 
-The first step in this process is to use the PSF Gaussian widths to define the {\it sizes} of the Gaussians' shapes in $K_i(u,v)$.
+The first step in this process was to use the PSF Gaussian widths to define the {\it sizes} of the Gaussians' shapes in $K_i(u,v)$.
 It is important to note that these widths are {\it not} configurable within the PSF--matching, and must be chosen by the user beforehand.
 As mentioned above, the central Gaussian width was chosen to be $\sqrt{\sigma_S^2 - \sigma_T^2}$, and smaller and larger Gaussians used that were scaled a factor of $\beta = 2$.
-We modified each of the Gaussians by a set of Laguerre polynomials of a given order.
-The smallest Gaussian was modified to the specified order, with the others modified by floor(order/2).
+The degree of the modifying Laguerre polynomials were set using the mean--squared--error analysis below, with the smallest Gaussian typicaly modified by a degree 4--6 polynomial, and the larger Gaussians modified to lower order.
+%We modified each of the Gaussians by a set of Laguerre polynomials of a given order.
+%The smallest Gaussian was modified to the specified order, with the others modified by floor(order/2).
 For the process of deconvolution, we followed the prescription from \cite{0266-5611-26-8-085002} to choose basis shapes.
-In our implementation of this algorithm, the number of Gaussians is {\it always} fixed to value 3, and their Laguerre degree is always fixed to 3.
-The  widths of the Gaussians are determined through the algorithm specified in \cite{0266-5611-26-8-085002}, using as inputs the sequence of Gaussians that we would have used to match a Gaussian of
-  width $\sigma_S$ to $\sigma_T$ (i.e. as if we would have convolved the science image and not the template image).
-The total number of basis shapes in each set is: $\sum_i^{\rm nGauss} ({\rm degGauss}_i+1)\times({\rm degGauss}_i+2)/2$.
+In this case, the number of Gaussians is {\it always} fixed to three, and their Laguerre degree is also fixed to three.
+The widths of the Gaussians are determined through the algorithm specified in \cite{0266-5611-26-8-085002}, using as inputs the sequence of Gaussians that we would have used to match a Gaussian of width $\sigma_S$ to $\sigma_T$ (i.e. as if we would have convolved the science image and not the template image).
+The total number of basis shapes in each set is: $\sum_n^{\rm nGauss} ({\rm degGauss}_n+1)\times({\rm degGauss}_n+2)/2$.
 
 As in the astrometric resampling, we choose to always perform pixel--level operations on the template image given its larger signal--to--noise, and (in the case of real data) fewer artifacts such as dead pixels and cosmic rays.
 The dimensions of the PSF matching kernel were chosen to be 6 times the largest Gaussian width, with a minimum kernel size of 21x21 pixels.
@@ -295,6 +293,8 @@ The center of each source is determined using an LSST adaptation of the SDSS cen
 In general a source will not be centered on a pixel, so a Lanczos resampling kernel is used to shift the source to be centered on the nearest pixel before applying the measurement equations above.
 
 \section{False Detection Rate}
+
+To assess the ``quality'' of each implementation of the algorithm, we use as a metric the number of false positive--going and negative--going sources that are detected and measured in each difference image.  
 
 We examine our realized false detection rate, both in comparison to the theoretical statistical floor, and as intercomparison between the post and pre--filtering techniques.
 
