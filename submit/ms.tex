@@ -33,7 +33,7 @@ This results in a maximum--likelihood image for point source detection, which ha
 We then match a reference image to this smoothed image, effectively resulting in a point--source maximum likelihood difference image.
 %The process of detection and measurement happens directly on this difference image.
 By smoothing the input image, we reduce the number of conditions under which the reference image has to be sharpened to match the input image, which is a significant source of systematic false detections.
-We compared this pre--filtering technique with the traditional (post--filtering) image subtraction approach using a suite of high--fidelity simulated images from the Large Synoptic Survey Telescope (LSST) phoSim effort.
+We compared this pre--filtering technique with the traditional (post--filtering) image subtraction approach using a suite of high--fidelity simulated images from the Large Synoptic Survey Telescope (LSST) PhoSim effort.
 We used a configuration environment to tune each pipeline, using an objective function that minimizes the mean--square residuals in a control sample of sources in the images.
 We then ran a suite of images through image subtraction and source detection and measurement, using a simulated deep template image and three simulated science images that differ primarily in seeing.
 Situations that lead to a deconvolution of the template image are shown to have a lower sensitivity to true variability, and higher incidence of false detections, due to enhancement of the image noise.
