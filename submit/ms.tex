@@ -161,7 +161,7 @@ The first plane contains the science pixels, which is the layer on which detecti
 The second plane consists of a pixel--wise bitmask, indicating the quality of each pixel (was it saturated, or a detector defect) as well as detection information (was this pixel part of a source).
 The third plane contains the pixel--wise variance, which is tracked through all additive, multiplicative, and integral transform operations.
 The ``empirical'' variance of an image is estimated by taking all of the unmasked pixels and calculating their interquartile range, scaling by 0.741 (appropriate for a Gaussian distribution) and squaring the result.
-The ``propogated'' variance of an image is estimated by taking all of the unmasked variance pixels, and calculating their mean or median.
+The ``propagated'' variance of an image is estimated by taking all of the unmasked variance pixels, and calculating their mean or median.
 
 \section{Optimizing the Algorithm}
 
@@ -530,8 +530,8 @@ and fit for $k$ {\bf HOW}.
 
 The bottom panel of Figure~\ref{fig:4} shows the results of this correction, using $k = 0.975, 0.985 $~and~$ 0.99$ for {\tt Visit 1}, {\tt Visit 2}, and {\tt Visit 3}, respectively.
 These results suggest our variance estimates are too {\it high}, and we are therefore detecting too {\it few} false detections.
-{\bf This is consistent with the interpretation that the disagreement between the empirical variance of the image planes and propogated variance planes is due to missing information in the image planes.
-That is, the ratio of empirical / propogated being larger than 1.0 is not because the propogate variance is too low, but that the empirical variance is too high.
+{\bf This is consistent with the interpretation that the disagreement between the empirical variance of the image planes and propagated variance planes is due to missing information in the image planes.
+That is, the ratio of empirical / propagated being larger than 1.0 is not because the propagate variance is too low, but that the empirical variance is too high.
 That does not entirely make sense, because the pixels are correlated (smoothed).}
 %This does not agree entirely with the analysis of the empirical variance, Section~\ref{sec-varmis} and Table~\ref{tab-variance1}, which suggest that our variance planes {\it underestimate} the true variance.
 This makes clear that to operate near the theoretical floor in terms of false detection rate, it is imperative to track the variance in data at the 1\% level or better to optimize both the false detection rate, and the true detection efficiency.
